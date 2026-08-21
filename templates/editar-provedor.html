@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('consultasProveedores')}}">Regresar</a></li>
+
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<h1>Registro de proveedores</h1>
+    <form method="POST">
+        {{forma.csrf_token}}
+        <p>
+            {{forma.nombre_provedor.label}}
+            {{forma.nombre_provedor(size=30)}}
+        </p>
+        <p>
+            {{forma.correo.label}}
+            {{forma.correo(size=30)}}
+        </p>
+        <p>
+            {{forma.numero_telefono.label}}
+            {{forma.numero_telefono(size=30)}}
+        </p>
+        <p>
+            {{forma.enviar()}}
+        </p>
+    </form>
+	</main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

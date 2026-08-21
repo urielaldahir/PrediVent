@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+				<li><a href="{{url_for('CatalogoUsuarios')}}">Catalogo</a></li>
+				<li><a href="{{url_for('miCarrito')}}">Carrito</a></li>
+                <li><a href="{{url_for('VerHistorial')}}">Historial de compras</a></li>
+				<li><a href="{{url_for('perfil')}}">Perfil</a></li>
+				<li class="right"><a href="{{url_for('logout')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+    <main>
+
+
+      </br>
+      </br>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {%for producto in producto %}
+            <td>{{producto.id_producto}}</td>
+            <td>{{producto.nombre_producto}}</td>
+            <td>{{cantidades[producto.id_producto]}}</td>
+            <td>{{producto.descripcion}}</td>
+            <td>{{producto.precio}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

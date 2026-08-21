@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('consultasProducto')}}">Rgresar</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<h1>Editar de producto</h1>
+    <form method="POST">
+        {{forma.csrf_token}}
+
+            {{forma.id_provedor.label}}
+            {{forma.id_provedor(size=30)}}
+        </p>
+        <p>
+            {{forma.nombre_producto.label}}
+            {{forma.nombre_producto(size=30)}}
+        </p>
+        <p>
+            {{forma.cantidad.label}}
+            {{forma.cantidad(size=30)}}
+        </p>
+        <p>
+            {{forma.descripcion.label}}
+            {{forma.descripcion(size=30)}}
+        </p>
+        <p>
+            {{forma.precio.label}}
+            {{forma.precio(size=30)}}
+        </p>
+        <p>
+            {{forma.RutaImagen.label}}
+            {{forma.RutaImagen(size=30)}}
+        </p>
+        <p>
+            {{forma.enviar()}}
+        </p>
+    </form>
+	</main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

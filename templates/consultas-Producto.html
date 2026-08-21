@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('consultas')}}">Regresar</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+
+
+      </br>
+      </br>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ID de proveedor</th>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Descripccion</th>
+                <th>Precio</th>
+                <th>Ruta de la imagen</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {%for producto in producto %}
+            <td>{{producto.id_producto}}</td>
+            <td>{{producto.id_provedor}}</td>
+            <td>{{producto.nombre_producto}}</td>
+            <td>{{producto.cantida}}</td>
+            <td>{{producto.descripcion}}</td>
+            <td>{{producto.precio}}</td>
+            <td>{{producto.RutaImagen}}</td>
+            <td><a href="/editar/producto/{{producto.id_producto}}">
+                <button>Editar</button></a></td>
+            <td><a href="/eliminar/producto/{{producto.id_producto}}"  onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+                <button>Eliminar</button>
+            </a></td>
+            <td><a href="/predecir/producto/{{producto.id_producto}}" >
+                <button>Predicción de venta</button>
+            </a></td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>
+
+

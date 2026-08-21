@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('HomeAdmin')}}">Home</a></li>
+                <li><a href="{{url_for('consultas')}}">Cosultas</a></li>
+				<li><a href="{{url_for('agregarProveedor')}}">Agregar provedores</a></li>
+				<li><a href="{{url_for('agregarProducto')}}">Agregar Productos</a></li>
+				<li><a href="{{url_for('AgregarEmpleado')}}">Agregar Usarios</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+    <main>
+<h1>Registro</h1>
+    <form method="POST">
+        {{forma.csrf_token}}
+         <label for="campo1">ID</label>
+        <input type="text" name="campo1" id="campo1" value="{{max_id}}" readonly>
+        <br>
+        <p>
+            {{forma.nombre_empleado.label}}
+            {{forma.nombre_empleado(size=30)}}
+        </p>
+        <p>
+            {{forma.tipo_empleado.label}}
+            {{forma.tipo_empleado(size=30)}}
+        </p>
+        <p>
+            {{forma.correo_empleado.label}}
+            {{forma.correo_empleado(size=30)}}
+        </p>
+        <p>
+            {{forma.numero_telefono.label}}
+            {{forma.numero_telefono(size=30)}}
+        </p>
+        <p>
+            {{forma.contraseña.label}}
+            {{forma.contraseña(size=30)}}
+        </p>
+        <p>
+            {{forma.enviar()}}
+        </p>
+    </form>
+</main>
+
+
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

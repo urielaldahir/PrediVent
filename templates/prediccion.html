@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('consultasProducto')}}">Regresar</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+        <h2>Monitor Inteligente: {{ producto }}</h2>
+        <div>
+            <div>
+                <div>Regresión Lineal</div>
+                <p class="h2 text-primary">{{ lineal if lineal is not none else "---" }} unidades</p>
+            </div>
+
+            <div>
+                <div>Random Forest</div>
+                <p class="h2 text-primary">{{ bosque if bosque is not none else "---" }} unidades</p>
+            </div>
+        </div>
+
+        <div>
+            <p><strong>Análisis técnico:</strong> El sistema procesó {{ num_ventas }} registros. 
+            Si los números difieren, es porque el Bosque Aleatorio está detectando fluctuaciones que la línea recta ignora.</p>
+        </div>
+    
+	</main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

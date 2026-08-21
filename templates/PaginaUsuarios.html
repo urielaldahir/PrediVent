@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+				<li><a href="{{url_for('CatalogoUsuarios')}}">Catalogo</a></li>
+				<li><a href="{{url_for('miCarrito')}}">Carrito</a></li>
+				<li><a href="{{url_for('VerHistorial')}}">Historial de compras</a></li>
+				<li><a href="{{url_for('perfil')}}">Perfil</a></li>
+				<li class="right"><a href="{{url_for('logout')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<h1>
+¡Bienvenido de vuelta a nuestra tienda en línea!</h1>
+			<p>Nos complace darte la bienvenida a tu espacio personalizado. Ahora que has iniciado sesión en nuestro sistema, te invitamos a disfrutar de una experiencia de compra aún más conveniente y personalizada.</p>
+	</main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

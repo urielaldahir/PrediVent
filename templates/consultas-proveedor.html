@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('consultas')}}">Regresar</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+
+
+
+      </br>
+      </br>
+
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Numero Telefono</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {%for proveedor in proveedor %}
+            <td>{{proveedor.id_provedor}}</td>
+            <td>{{proveedor.nombre_provedor}}</td>
+            <td>{{proveedor.correo}}</td>
+            <td>{{proveedor.numero_telefono}}</td>
+            <td><a href="/editar/provedor/{{proveedor.id_provedor}}">
+                <button>Editar</button></a></td>
+            <td><a href="/eliminar/provedor/{{proveedor.id_provedor}}"  onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
+                <button>Eliminar</button>
+            </a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  </main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

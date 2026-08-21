@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renta de Autobuses</title>
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="javascript:history.back()">Volver</a></li>
+      </ul>
+    </nav>
+  </header>
+<main>
+<h1>Editar Informacion</h1>
+    <form method="POST">
+        {{forma.csrf_token}}
+        <p>
+            {{forma.nombre.label}}
+            {{forma.nombre(size=30)}}
+        </p>
+        <p>
+            {{forma.numero_telefono.label}}
+            {{forma.numero_telefono(size=30)}}
+        </p>
+        <p>
+            {{forma.correo.label}}
+            {{forma.correo(size=30)}}
+        </p>
+      <p>
+            {{forma.contraseña.label}}
+            {{forma.contraseña(size=30)}}
+        </p>
+        <p>
+            {{forma.enviar()}}
+        </p>
+    </form>
+</main>
+<footer>
+    <p>Derechos Reservados &copy;  ShopEase 2023</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('HomeAdmin')}}">Regresar</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+      <h1>Consultas</h1>
+    <p>Selecciona la consulta que deseas realizar.</p>
+    <button onclick="window.location.href='{{url_for('consultasProducto')}}'">Productos</button>
+    <button onclick="window.location.href='{{url_for('consultasEmpleados')}}'">Empleados</button>
+    <button onclick="window.location.href='{{url_for('consultasProveedores')}}'">Proveedores</button>
+	</main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

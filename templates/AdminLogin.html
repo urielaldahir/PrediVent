@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mi Tienda en Línea</title>
+	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+	<header>
+		<nav>
+			<ul>
+                <li><a href="{{url_for('inicio')}}">Home</a></li>
+				<li><a href="{{url_for('Catalogo')}}">Catalogo</a></li>
+				<li><a href="{{url_for('login')}}">Iniciar sesión</a></li>
+				<li><a href="{{url_for('agregarCliente')}}">Registrarse</a></li>
+                <li><a href="{{url_for('AdminLogin')}}">Admin</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+    <div class="login">
+    <h1>Inicia con tu cuenta de administrador</h1>
+    <form method="post">
+      <div class="form-group">
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" placeholder="Contraseña" required>
+      </div>
+      <button type="submit">Iniciar sesión</button>
+      <p>{{error}}</p>
+    </form>
+  </div>
+  </main>
+
+	<footer>
+		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+	</footer>
+</body>
+</html>

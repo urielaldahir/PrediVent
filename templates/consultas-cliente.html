@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Consulta de Clientes</title>
+</head>
+
+<body>
+
+<header>
+    <nav>
+        <ul>
+            <li>
+                <a href="{{ url_for('inicio') }}">Home</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('consultas') }}">Regresar</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+
+<main>
+
+    <h1>Clientes</h1>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Contraseña</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for cliente in cliente %}
+
+            <tr>
+
+                <td>
+                    {{ cliente.id_cliente }}
+                </td>
+
+                <td>
+                    {{ cliente.nombre }}
+                </td>
+
+                <td>
+                    {{ cliente.telefono }}
+                </td>
+
+                <td>
+                    {{ cliente.correo }}
+                </td>
+
+                <td>
+                    {{ cliente.contraseña }}
+                </td>
+
+                <td>
+                    <a href="{{ url_for('editarCliente', id_cliente=cliente.id_cliente) }}">
+                        <button type="button">
+                            Editar
+                        </button>
+                    </a>
+                </td>
+
+                <td>
+                    <a href="{{ url_for('eliminarCliente', id_cliente=cliente.id_cliente) }}"
+                       onclick="return confirm('¿Seguro que deseas eliminar este cliente?');">
+
+                        <button type="button">
+                            Eliminar
+                        </button>
+
+                    </a>
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</main>
+
+
+<footer>
+    <p>
+        Derechos Reservados &copy; ShopEase 2023
+    </p>
+</footer>
+
+</body>
+</html>

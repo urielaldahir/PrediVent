@@ -19,6 +19,9 @@
   </header>
 <main>
 <h1>Ingresa tus datos</h1>
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
     <form method="POST">
         {{forma.csrf_token}}
         <p>

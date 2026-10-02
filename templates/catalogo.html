@@ -20,16 +20,18 @@
 	<main>
     <h1>Producto Disponibles</h1>
     <div class="catalog">
-    {%for producto in producto %}
-      <div class="product">
-      <img src="/{{producto.RutaImagen}}" alt="imagen">
-         <h3>{{producto.nombre_producto}}</h3>
-         <p>{{producto.descripcion}}</p>
-         <span>${{producto.precio}}</span>
-          </br>
-      </div>
-     {% endfor %}
-  </div>
+    {% for producto in producto %}
+        <div class="product">
+            <img src="{{ producto.RutaImagen }}"
+                 alt="{{ producto.nombre_producto }}">
+
+            <h3>{{ producto.nombre_producto }}</h3>
+            <p>{{ producto.descripcion }}</p>
+            <span>${{ producto.precio }}</span>
+            </br>
+        </div>
+    {% endfor %}
+</div>
   </main>
 
 	<footer>

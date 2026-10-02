@@ -1,6 +1,6 @@
 from firebase_config import firestore_db
 from firebase_admin import firestore
-
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 # ============================================================
 # CONFIGURACIÓN
@@ -252,10 +252,16 @@ def registrar_cliente(
         nombre,
         correo,
         numero_telefono,
-        contraseña
+        contraseña=None,
+        firebase_uid=None
 ):
     """
     Registra un usuario y su cliente relacionado.
+
+    Para usuarios nuevos autenticados con Firebase, la contraseña NO se
+    almacena en Firestore. Firebase Authentication es quien la gestiona.
+    El parámetro contraseña se conserva opcionalmente para compatibilidad
+    con registros antiguos.
     """
 
     usuarios_ref = db.collection("usuarios")
@@ -272,20 +278,35 @@ def registrar_cliente(
 
     nuevo_id = max(ids) + 1 if ids else 1
 
-    usuarios_ref.document(str(nuevo_id)).set({
+    usuario_data = {
         "id_usuario": nuevo_id,
-        "correo": correo,
-        "contraseña": contraseña
-    })
+        "correo": correo
+    }
 
-    db.collection("clientes").document(str(nuevo_id)).set({
+    if firebase_uid:
+        usuario_data["firebase_uid"] = firebase_uid
+
+    # Solo conserva contraseña si se está utilizando el flujo legado.
+    if contraseña is not None:
+        usuario_data["contraseña"] = contraseña
+
+    usuarios_ref.document(str(nuevo_id)).set(usuario_data)
+
+    cliente_data = {
         "id_cliente": nuevo_id,
         "usuario_id": str(nuevo_id),
         "nombre": nombre,
         "correo": correo,
-        "telefono": numero_telefono,
-        "contraseña": contraseña
-    })
+        "telefono": numero_telefono
+    }
+
+    if firebase_uid:
+        cliente_data["firebase_uid"] = firebase_uid
+
+    if contraseña is not None:
+        cliente_data["contraseña"] = contraseña
+
+    db.collection("clientes").document(str(nuevo_id)).set(cliente_data)
 
     return nuevo_id
 
@@ -412,7 +433,9 @@ def obtener_empleado(id_empleado):
 def agregar_empleado(empleado):
     """
     Agrega un nuevo empleado a Firestore.
+    La contraseña es administrada por Firebase Authentication.
     """
+
     empleados_ref = db.collection("empleados")
 
     documentos = empleados_ref.stream()
@@ -432,8 +455,7 @@ def agregar_empleado(empleado):
         "nombre_empleado": empleado.nombre_empleado,
         "tipo_empleado": empleado.tipo_empleado,
         "correo_empleado": empleado.correo_empleado,
-        "telefono": empleado.numero_telefono,
-        "contraseña": empleado.contraseña
+        "telefono": empleado.numero_telefono
     })
 
     return nuevo_id
@@ -444,19 +466,19 @@ def actualizar_empleado(
         nombre_empleado,
         tipo_empleado,
         correo_empleado,
-        numero_telefono,
-        contraseña
+        numero_telefono
 ):
     """
-    Actualiza un empleado existente.
+    Actualiza los datos de un empleado existente.
+    La contraseña es administrada por Firebase Authentication.
     """
+
     empleado = {
         "id_empleado": int(id_empleado),
         "nombre_empleado": nombre_empleado,
         "tipo_empleado": tipo_empleado,
         "correo_empleado": correo_empleado,
-        "telefono": numero_telefono,
-        "contraseña": contraseña
+        "telefono": numero_telefono
     }
 
     db.collection("empleados") \
@@ -756,12 +778,37 @@ def actualizar_inventario(id_producto, cantidad_vendida):
 # ============================================================
 
 class HistorialFirestore:
-
     def __init__(self, datos):
-        self.id_producto = datos.get("id_producto")
-        self.cantidad = int(
-            datos.get("cantidad", 0)
+        self.id_producto = datos.get(
+            "productoID",
+            datos.get("id_producto")
         )
+
+        try:
+            self.cantidad = int(
+                datos.get("cantidad", 0)
+            )
+        except (TypeError, ValueError):
+            self.cantidad = 0
+
+        try:
+            self.precio_unitario = float(
+                datos.get("precioUnitario", 0)
+            )
+        except (TypeError, ValueError):
+            self.precio_unitario = 0.0
+
+        try:
+            self.total = float(
+                datos.get("total", 0)
+            )
+        except (TypeError, ValueError):
+            self.total = 0.0
+
+        self.id_cliente = datos.get("id_cliente")
+
+        # Fecha real de la venta almacenada en Firestore
+        self.fecha = datos.get("fecha")
 
 
 def obtener_historial_ventas_producto(id_producto):
@@ -772,7 +819,13 @@ def obtener_historial_ventas_producto(id_producto):
 
     documentos = (
         db.collection("ventas")
-        .where("productoID", "==", str(id_producto))
+        .where(
+            filter=FieldFilter(
+                "productoID",
+                "==",
+                str(id_producto)
+            )
+        )
         .stream()
     )
 

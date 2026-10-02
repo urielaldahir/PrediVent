@@ -489,6 +489,7 @@ def VerHistorial():
 # ============================================================
 
 @app.route('/admin-login', methods=['GET', 'POST'])
+@app.route('/admin-login', methods=['GET', 'POST'])
 def AdminLogin():
 
     if 'empleado' in session:
@@ -496,78 +497,105 @@ def AdminLogin():
 
     if request.method == 'POST':
 
-        correo_empleado = request.form['email'].strip().lower()
-        contraseña = request.form['password']
+        correo_empleado = request.form.get('email', '').strip().lower()
+        contraseña = request.form.get('password', '')
 
-        # Solo permitimos el correo administrativo de PrediVent
-        if correo_empleado != 'predivent.sistema@gmail.com':
+        # =====================================================
+        # DATOS DEL ÚNICO ADMINISTRADOR DE PREDIVENT
+        # =====================================================
+        CORREO_ADMIN = 'predivent.sistema@gmail.com'
+        TIPO_ADMIN = 'admin'
+
+        # El correo debe ser exactamente el del administrador
+        if correo_empleado != CORREO_ADMIN:
             return render_template(
                 'AdminLogin.html',
                 error='Correo o contraseña incorrectos'
             )
 
         try:
-            # Autenticación mediante Firebase Authentication
+
+            # =================================================
+            # VALIDAR CORREO Y CONTRASEÑA CON FIREBASE
+            # =================================================
             autenticado, respuesta = iniciar_sesion_firebase(
-                correo_empleado,
+                CORREO_ADMIN,
                 contraseña
             )
 
-
-            if autenticado:
-
-                uid = respuesta.get('localId')
-
-                usuario_firebase = auth.get_user(uid)
-
-                print("EMAIL:", usuario_firebase.email)
-                print("VERIFICADO:", usuario_firebase.email_verified)
-
-                if usuario_firebase.email == 'predivent.sistema@gmail.com':
-                    auth.update_user(
-                        uid,
-                        email_verified=True
-                    )
-
-                    auth.revoke_refresh_tokens(uid)
-
-                    usuario_firebase = auth.get_user(uid)
-
-                    print("ADMIN MARCADO COMO VERIFICADO")
-                    print("VERIFICADO AHORA:", usuario_firebase.email_verified)
-
-                usuario_firebase = auth.get_user(uid)
-
-                if not usuario_firebase.email_verified:
-                    return render_template(
-                        'AdminLogin.html',
-                        error='El correo del administrador no está verificado.'
-                    )
-
-                empleado = obtener_empleado_por_correo(
-                    correo_empleado
+            if not autenticado:
+                return render_template(
+                    'AdminLogin.html',
+                    error='Correo o contraseña incorrectos'
                 )
 
-                if empleado is not None:
-                    session['empleado'] = empleado.get(
-                        'id_empleado'
-                    )
+            # UID proporcionado por Firebase Authentication
+            uid = respuesta.get('localId')
 
-                    session['firebase_uid'] = uid
+            if not uid:
+                return render_template(
+                    'AdminLogin.html',
+                    error='No se pudo validar la cuenta de administrador'
+                )
 
-                    return redirect(
-                        url_for('HomeAdmin')
-                    )
+            # =================================================
+            # OBTENER USUARIO DE FIREBASE
+            # =================================================
+            usuario_firebase = auth.get_user(uid)
+
+            # El correo debe coincidir exactamente
+            if usuario_firebase.email.lower() != CORREO_ADMIN:
+                return render_template(
+                    'AdminLogin.html',
+                    error='Correo o contraseña incorrectos'
+                )
+
+            # =================================================
+            # VERIFICAR EMPLEADO EN FIRESTORE
+            # =================================================
+            empleado = obtener_empleado_por_correo(CORREO_ADMIN)
+
+            if empleado is None:
+                return render_template(
+                    'AdminLogin.html',
+                    error='El administrador no está registrado en el sistema'
+                )
+
+            # =================================================
+            # VERIFICAR QUE REALMENTE SEA ADMIN
+            # =================================================
+            if empleado.get('tipo_empleado') != TIPO_ADMIN:
+                return render_template(
+                    'AdminLogin.html',
+                    error='La cuenta no tiene permisos de administrador'
+                )
+
+            # =================================================
+            # CREAR SESIÓN
+            # =================================================
+            session['empleado'] = empleado.get('id_empleado')
+            session['firebase_uid'] = uid
+
+            print('========================================')
+            print('LOGIN ADMINISTRADOR CORRECTO')
+            print('Correo:', CORREO_ADMIN)
+            print('ID empleado:', empleado.get('id_empleado'))
+            print('Tipo:', empleado.get('tipo_empleado'))
+            print('========================================')
+
+            return redirect(url_for('HomeAdmin'))
 
         except Exception as e:
-            print('Error en login de administrador:', e)
 
-        return render_template(
-            'AdminLogin.html',
-            error='Correo o contraseña incorrectos'
-        )
+            print('ERROR EN LOGIN ADMINISTRADOR:', e)
+
+            return render_template(
+                'AdminLogin.html',
+                error='Ocurrió un error al iniciar sesión'
+            )
 
     return render_template('AdminLogin.html')
+
 @app.route('/admin')
 def HomeAdmin():
     return render_template('admin.html')

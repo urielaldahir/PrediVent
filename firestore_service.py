@@ -17,7 +17,7 @@ COLECCION_PRODUCTOS = "productos"
 # de productos. No se usa para validar inventario en una compra.
 _PRODUCTOS_CACHE = None
 _PRODUCTOS_CACHE_TIMESTAMP = 0.0
-_PRODUCTOS_CACHE_TTL = 30.0
+_PRODUCTOS_CACHE_TTL = 300.0
 _PRODUCTO_CACHE = {}
 
 # Cachés cortas para catálogos administrativos. Evitan volver a leer

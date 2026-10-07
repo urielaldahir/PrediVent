@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Compra realizada - PrediVent</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('CatalogoUsuarios') }}">
+                    <i class="fa-solid fa-store"></i>
+                    Catálogo
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('miCarrito') }}">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Carrito
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('VerHistorial') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Historial de compras
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('perfil') }}">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Perfil
+                </a>
+            </li>
+
+            <li class="right">
+
+                <a href="{{ url_for('logout') }}">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Cerrar Sesión
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <div class="compra-exitosa">
+
+
+        <div class="icono-exito">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+        </div>
+
+
+        <h1>
+            ¡Compra realizada correctamente!
+        </h1>
+
+
+        <p class="mensaje-exito">
+
+            Tu compra ha sido registrada correctamente.
+
+        </p>
+
+
+        <div class="resumen-exito">
+
+            <p>
+
+                <strong>
+                    Producto:
+                </strong>
+
+                {{ producto['nombre_producto'] }}
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Cantidad:
+                </strong>
+
+                {{ cantidad }}
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Total:
+                </strong>
+
+                ${{ "%.2f"|format(total|float) }}
+
+            </p>
+
+        </div>
+
+
+        <div class="acciones-exito">
+
+            <a class="btn-link"
+               href="{{ url_for('VerHistorial') }}">
+
+                <i class="fa-solid fa-clock-rotate-left"></i>
+
+                Ver historial de compras
+
+            </a>
+
+
+            <a class="btn-link secundario"
+               href="{{ url_for('CatalogoUsuarios') }}">
+
+                <i class="fa-solid fa-store"></i>
+
+                Seguir comprando
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+
+</footer>
+
+
+</body>
+
+</html>

@@ -1940,6 +1940,19 @@ def CatalogoUsuarios():
         producto=productos
     )
 
+@app.route('/producto/<id_producto>')
+def detalle_producto(id_producto):
+
+    producto = obtener_producto(id_producto)
+
+    if producto is None:
+        return "Producto no encontrado", 404
+
+    return render_template(
+        'detalle_producto.html',
+        producto=producto
+    )
+
 
 @app.route('/carrito/agregar/<id_producto>')
 def agregar_carrito(id_producto):
@@ -2237,6 +2250,192 @@ def Comprar():
         url_for('HomeClientes')
     )
 
+
+# ============================================================
+# COMPRAR AHORA
+# ============================================================
+
+@app.route('/comprar-ahora/<id_producto>', methods=['POST'])
+def comprar_ahora(id_producto):
+
+    if 'cliente' not in session:
+
+        return redirect(
+            url_for('login')
+        )
+
+    cantidad = request.form.get(
+        'cantidad',
+        1
+    )
+
+    try:
+
+        cantidad = int(cantidad)
+
+    except (TypeError, ValueError):
+
+        cantidad = 1
+
+    if cantidad <= 0:
+
+        cantidad = 1
+
+    producto = obtener_producto(
+        id_producto
+    )
+
+    if producto is None:
+
+        return "Producto no encontrado", 404
+
+    stock = int(
+        producto.get(
+            'cantidad',
+            producto.get(
+                'cantida',
+                0
+            )
+        )
+    )
+
+    if stock <= 0:
+
+        return "Producto agotado", 400
+
+    if cantidad > stock:
+
+        return (
+            f"Solo hay {stock} unidades disponibles."
+        ), 400
+
+    total = (
+        float(producto.get('precio', 0))
+        * cantidad
+    )
+
+    return render_template(
+        'confirmar_compra.html',
+        producto=producto,
+        cantidad=cantidad,
+        total=total,
+        stock=stock
+    )
+
+
+@app.route('/confirmar-compra/<id_producto>', methods=['POST'])
+def confirmar_compra(id_producto):
+
+    if 'cliente' not in session:
+
+        return redirect(
+            url_for('login')
+        )
+
+    id_cliente = session['cliente']
+
+    cantidad = request.form.get(
+        'cantidad',
+        1
+    )
+
+    try:
+
+        cantidad = int(cantidad)
+
+    except (TypeError, ValueError):
+
+        return "Cantidad inválida", 400
+
+    if cantidad <= 0:
+
+        return "Cantidad inválida", 400
+
+
+    # ========================================================
+    # OBTENER PRODUCTO ACTUAL
+    # ========================================================
+
+    producto = obtener_producto(
+        id_producto
+    )
+
+    if producto is None:
+
+        return "Producto no encontrado", 404
+
+
+    # ========================================================
+    # VERIFICAR INVENTARIO ACTUAL
+    # ========================================================
+
+    stock = int(
+        producto.get(
+            'cantidad',
+            producto.get(
+                'cantida',
+                0
+            )
+        )
+    )
+
+    if cantidad > stock:
+
+        return (
+            f"No hay suficiente inventario. "
+            f"Solo quedan {stock} unidades."
+        ), 400
+
+
+    precio = float(
+        producto.get(
+            'precio',
+            0
+        )
+    )
+
+
+    # ========================================================
+    # REGISTRAR VENTA
+    # ========================================================
+
+    registrar_venta(
+        id_cliente,
+        id_producto,
+        cantidad,
+        precio,
+        producto_nombre=producto.get(
+            'nombre_producto'
+        )
+    )
+
+
+    # ========================================================
+    # DESCONTAR INVENTARIO
+    # ========================================================
+
+    inventario_actualizado = actualizar_inventario(
+        id_producto,
+        cantidad
+    )
+
+    if not inventario_actualizado:
+
+        return (
+            "No se pudo actualizar el inventario."
+        ), 400
+
+
+    # ========================================================
+    # COMPRA EXITOSA
+    # ========================================================
+
+    return render_template(
+        'compra_exitosa.html',
+        producto=producto,
+        cantidad=cantidad,
+        total=precio * cantidad
+    )
 
 # ============================================================
 # CONSULTAS GENERALES

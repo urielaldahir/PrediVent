@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ producto['nombre_producto'] }} - PrediVent</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('CatalogoUsuarios') }}">
+                    <i class="fa-solid fa-store"></i>
+                    Catálogo
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('miCarrito') }}">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Carrito
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('VerHistorial') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Historial de compras
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('perfil') }}">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Perfil
+                </a>
+            </li>
+
+            <li class="right">
+
+                <a href="{{ url_for('logout') }}"
+                   data-confirm="¿Deseas cerrar sesión?">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Cerrar Sesión
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <div class="detalle-volver">
+
+        <a class="btn-link secundario"
+           href="{{ url_for('CatalogoUsuarios') }}">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Volver al catálogo
+
+        </a>
+
+    </div>
+
+
+    <section class="detalle-producto">
+
+
+        <!-- IMAGEN -->
+
+        <div class="detalle-imagen">
+
+            <img src="{{ producto['RutaImagen'] }}"
+                 alt="{{ producto['nombre_producto'] }}">
+
+        </div>
+
+
+        <!-- INFORMACIÓN -->
+
+        <div class="detalle-info">
+
+            <h1>
+                {{ producto['nombre_producto'] }}
+            </h1>
+
+
+            <div class="detalle-linea"></div>
+
+
+            <div class="detalle-precio">
+
+                ${{ "%.2f"|format(producto['precio']|float) }}
+
+            </div>
+
+
+            {% set stock = producto.get('cantidad', producto.get('cantida', 0)) %}
+
+
+            {% if stock|int > 0 %}
+
+                <div class="detalle-disponible">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    Disponible
+
+                </div>
+
+                <p class="detalle-stock">
+
+                    {{ stock }} unidades disponibles
+
+                </p>
+
+
+                <!-- CANTIDAD -->
+
+                <div class="selector-cantidad">
+
+                    <label for="cantidad">
+
+                        Cantidad:
+
+                    </label>
+
+                    <div class="cantidad-control">
+
+                        <button type="button"
+                                id="btnMenos"
+                                class="cantidad-btn">
+
+                            −
+
+                        </button>
+
+                        <input type="number"
+                               id="cantidad"
+                               name="cantidad"
+                               value="1"
+                               min="1"
+                               max="{{ stock }}"
+                               readonly>
+
+                        <button type="button"
+                                id="btnMas"
+                                class="cantidad-btn">
+
+                            +
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOTONES -->
+
+                <div class="acciones-compra">
+
+                    <!-- AGREGAR AL CARRITO -->
+
+                    <a class="btn-link detalle-carrito"
+                       id="btnAgregarCarrito"
+                       href="{{ url_for('agregar_carrito', id_producto=producto['id_producto']) }}">
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        Agregar al carrito
+
+                    </a>
+
+
+                    <!-- COMPRAR AHORA -->
+
+                    <form method="POST"
+                          action="{{ url_for('comprar_ahora', id_producto=producto['id_producto']) }}">
+
+                        <input type="hidden"
+                               name="cantidad"
+                               id="cantidadComprar"
+                               value="1">
+
+                        <button type="submit"
+                                class="btn-comprar-ahora">
+
+                            <i class="fa-solid fa-bolt"></i>
+
+                            Comprar ahora
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="detalle-agotado">
+
+                    <i class="fa-solid fa-circle-xmark"></i>
+
+                    Producto agotado
+
+                </div>
+
+                <button class="btn-comprar-ahora"
+                        disabled>
+
+                    <i class="fa-solid fa-ban"></i>
+
+                    Agotado
+
+                </button>
+
+            {% endif %}
+
+
+            <!-- DESCRIPCIÓN -->
+
+            <div class="detalle-seccion">
+
+                <h2>
+                    Descripción
+                </h2>
+
+                <p class="detalle-descripcion">
+
+                    {{ producto['descripcion'] }}
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+
+</footer>
+
+
+<script>
+
+    const cantidadInput =
+        document.getElementById("cantidad");
+
+    const cantidadComprar =
+        document.getElementById("cantidadComprar");
+
+    const btnMenos =
+        document.getElementById("btnMenos");
+
+    const btnMas =
+        document.getElementById("btnMas");
+
+
+    if (cantidadInput) {
+
+        btnMenos.addEventListener("click", function () {
+
+            let cantidad =
+                parseInt(cantidadInput.value);
+
+            if (cantidad > 1) {
+
+                cantidad--;
+
+                cantidadInput.value = cantidad;
+
+                cantidadComprar.value = cantidad;
+
+            }
+
+        });
+
+
+        btnMas.addEventListener("click", function () {
+
+            let cantidad =
+                parseInt(cantidadInput.value);
+
+            const maximo =
+                parseInt(cantidadInput.max);
+
+            if (cantidad < maximo) {
+
+                cantidad++;
+
+                cantidadInput.value = cantidad;
+
+                cantidadComprar.value = cantidad;
+
+            }
+
+        });
+
+    }
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+
+</body>
+
+</html>

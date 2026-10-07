@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Confirmar compra - PrediVent</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('CatalogoUsuarios') }}">
+                    <i class="fa-solid fa-store"></i>
+                    Catálogo
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('miCarrito') }}">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Carrito
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('VerHistorial') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Historial de compras
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('perfil') }}">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Perfil
+                </a>
+            </li>
+
+            <li class="right">
+
+                <a href="{{ url_for('logout') }}">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Cerrar Sesión
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <div class="checkout-container">
+
+
+        <div class="checkout-titulo">
+
+            <i class="fa-solid fa-receipt"></i>
+
+            <h1>
+                Confirmar compra
+            </h1>
+
+        </div>
+
+
+        <div class="checkout-grid">
+
+
+            <!-- PRODUCTO -->
+
+            <section class="checkout-producto">
+
+                <h2>
+                    Producto
+                </h2>
+
+
+                <div class="checkout-producto-info">
+
+                    <div class="checkout-imagen">
+
+                        <img src="{{ producto['RutaImagen'] }}"
+                             alt="{{ producto['nombre_producto'] }}">
+
+                    </div>
+
+
+                    <div>
+
+                        <h3>
+                            {{ producto['nombre_producto'] }}
+                        </h3>
+
+                        <p>
+                            Cantidad:
+                            <strong>{{ cantidad }}</strong>
+                        </p>
+
+                        <p>
+                            Precio unitario:
+                            <strong>
+                                ${{ "%.2f"|format(producto['precio']|float) }}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- RESUMEN -->
+
+            <aside class="checkout-resumen">
+
+                <h2>
+                    Resumen del pedido
+                </h2>
+
+
+                <div class="checkout-fila">
+
+                    <span>
+                        Producto
+                    </span>
+
+                    <span>
+                        ${{ "%.2f"|format(total|float) }}
+                    </span>
+
+                </div>
+
+
+                <div class="checkout-fila">
+
+                    <span>
+                        Cantidad
+                    </span>
+
+                    <span>
+                        {{ cantidad }}
+                    </span>
+
+                </div>
+
+
+                <div class="checkout-separador"></div>
+
+
+                <div class="checkout-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        ${{ "%.2f"|format(total|float) }}
+                    </strong>
+
+                </div>
+
+
+                <form method="POST"
+                      action="{{ url_for('confirmar_compra', id_producto=producto['id_producto']) }}">
+
+                    <input type="hidden"
+                           name="cantidad"
+                           value="{{ cantidad }}">
+
+
+                    <button type="submit"
+                            class="btn-confirmar-compra">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        Confirmar compra
+
+                    </button>
+
+                </form>
+
+
+                <a class="btn-cancelar-compra"
+                   href="{{ url_for('detalle_producto', id_producto=producto['id_producto']) }}">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Regresar al producto
+
+                </a>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+
+</footer>
+
+
+</body>
+
+</html>

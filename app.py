@@ -28,6 +28,7 @@ from firestore_service import (
 
     # CLIENTES
     obtener_usuario_por_correo,
+    obtener_cliente_por_firebase_uid,
     obtener_cliente_por_usuario,
     obtener_cliente,
     actualizar_cliente,
@@ -396,17 +397,24 @@ def login():
                         error='Tu correo todavía no está verificado. Completa la verificación antes de iniciar sesión.'
                     )
 
-                usuario = obtener_usuario_por_correo(correo)
+                # Los clientes nuevos guardan el UID de Firebase en su perfil,
+                # por lo que podemos resolver el cliente con una sola lectura.
+                cliente_data = obtener_cliente_por_firebase_uid(uid)
 
-                if usuario is None:
-                    return render_template(
-                        'login.html',
-                        error='La cuenta existe en Firebase, pero todavía no tiene perfil en PrediVent.'
+                # Compatibilidad con clientes antiguos que todavía no tienen
+                # firebase_uid guardado.
+                if cliente_data is None:
+                    usuario = obtener_usuario_por_correo(correo)
+
+                    if usuario is None:
+                        return render_template(
+                            'login.html',
+                            error='La cuenta existe en Firebase, pero todavía no tiene perfil en PrediVent.'
+                        )
+
+                    cliente_data = obtener_cliente_por_usuario(
+                        usuario.get('document_id')
                     )
-
-                cliente_data = obtener_cliente_por_usuario(
-                    usuario.get('document_id')
-                )
 
                 if cliente_data is None:
                     return "El usuario no tiene un perfil de cliente", 404
@@ -1845,6 +1853,9 @@ def registrarVentaEmpleado():
                 url_for('AdminLogin')
             )
 
+        # El nombre del empleado ya se guarda en la sesión durante el login.
+        # Así evitamos una lectura adicional de Firestore en cada venta.
+
         # ====================================================
         # REGISTRAR VENTA
         # ====================================================
@@ -1856,7 +1867,8 @@ def registrarVentaEmpleado():
             precio_unitario=precio,
             id_empleado=id_empleado,
             producto_nombre=producto.get('nombre_producto'),
-            cliente_nombre=cliente.get('nombre')
+            cliente_nombre=cliente.get('nombre'),
+            empleado_nombre=session.get('nombre_empleado', 'Empleado')
         )
 
         # ====================================================

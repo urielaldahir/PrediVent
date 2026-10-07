@@ -18,13 +18,50 @@ COLECCION_PRODUCTOS = "productos"
 _PRODUCTOS_CACHE = None
 _PRODUCTOS_CACHE_TIMESTAMP = 0.0
 _PRODUCTOS_CACHE_TTL = 30.0
+_PRODUCTO_CACHE = {}
+
+# Cachés cortas para catálogos administrativos. Evitan volver a leer
+# colecciones completas cuando el usuario navega entre pantallas o
+# vuelve a enviar un formulario en pocos segundos.
+_CLIENTES_CACHE = None
+_CLIENTES_CACHE_TIMESTAMP = 0.0
+_EMPLEADOS_CACHE = None
+_EMPLEADOS_CACHE_TIMESTAMP = 0.0
+_PROVEEDORES_CACHE = None
+_PROVEEDORES_CACHE_TIMESTAMP = 0.0
+_CATALOGOS_CACHE_TTL = 30.0
+_CLIENTE_CACHE = {}
+_EMPLEADO_CACHE = {}
+_PROVEEDOR_CACHE = {}
 
 
 def limpiar_cache_productos():
     """Fuerza la próxima consulta de productos a ir a Firestore."""
-    global _PRODUCTOS_CACHE, _PRODUCTOS_CACHE_TIMESTAMP
+    global _PRODUCTOS_CACHE, _PRODUCTOS_CACHE_TIMESTAMP, _PRODUCTO_CACHE
     _PRODUCTOS_CACHE = None
     _PRODUCTOS_CACHE_TIMESTAMP = 0.0
+    _PRODUCTO_CACHE = {}
+
+
+def limpiar_cache_clientes():
+    global _CLIENTES_CACHE, _CLIENTES_CACHE_TIMESTAMP, _CLIENTE_CACHE
+    _CLIENTES_CACHE = None
+    _CLIENTES_CACHE_TIMESTAMP = 0.0
+    _CLIENTE_CACHE = {}
+
+
+def limpiar_cache_empleados():
+    global _EMPLEADOS_CACHE, _EMPLEADOS_CACHE_TIMESTAMP, _EMPLEADO_CACHE
+    _EMPLEADOS_CACHE = None
+    _EMPLEADOS_CACHE_TIMESTAMP = 0.0
+    _EMPLEADO_CACHE = {}
+
+
+def limpiar_cache_proveedores():
+    global _PROVEEDORES_CACHE, _PROVEEDORES_CACHE_TIMESTAMP, _PROVEEDOR_CACHE
+    _PROVEEDORES_CACHE = None
+    _PROVEEDORES_CACHE_TIMESTAMP = 0.0
+    _PROVEEDOR_CACHE = {}
 
 
 # ============================================================
@@ -65,41 +102,56 @@ def obtener_productos():
     _PRODUCTOS_CACHE = [producto.copy() for producto in productos]
     _PRODUCTOS_CACHE_TIMESTAMP = ahora
 
-    return productos
+    _PRODUCTO_CACHE.clear()
+    for producto in productos:
+        if producto.get("id_producto") is not None:
+            _PRODUCTO_CACHE[str(producto["id_producto"])] = producto.copy()
+
+    return [producto.copy() for producto in productos]
 
 def obtener_producto(id_producto):
-    """
-    Obtiene un producto específico.
-    """
+    """Obtiene un producto específico usando caché cuando está disponible."""
+    global _PRODUCTO_CACHE
+
+    clave = str(id_producto)
+    ahora = time.monotonic()
+
+    if (_PRODUCTOS_CACHE is not None
+            and ahora - _PRODUCTOS_CACHE_TIMESTAMP < _PRODUCTOS_CACHE_TTL
+            and clave in _PRODUCTO_CACHE):
+        return _PRODUCTO_CACHE[clave].copy()
+
     documento = (
         db.collection(COLECCION_PRODUCTOS)
-        .document(str(id_producto))
+        .document(clave)
         .get()
     )
 
     if documento.exists:
-        return documento.to_dict()
+        producto = documento.to_dict()
+        _PRODUCTO_CACHE[clave] = producto.copy()
+        return producto
 
     return None
 
 def obtener_siguiente_id():
-    """
-    Obtiene el primer ID disponible empezando desde 1.
-    """
-    productos = obtener_productos()
+    """Obtiene el siguiente ID usando solo la lectura del producto con ID máximo."""
+    documentos = (
+        db.collection(COLECCION_PRODUCTOS)
+        .order_by("id_producto", direction=firestore.Query.DESCENDING)
+        .limit(1)
+        .stream()
+    )
 
-    ids = {
-        int(producto["id_producto"])
-        for producto in productos
-        if producto.get("id_producto") is not None
-    }
+    for documento in documentos:
+        producto = documento.to_dict()
+        try:
+            return int(producto.get("id_producto", 0)) + 1
+        except (TypeError, ValueError):
+            return 1
 
-    siguiente_id = 1
+    return 1
 
-    while siguiente_id in ids:
-        siguiente_id += 1
-
-    return siguiente_id
 
 def crear_producto(
         id_provedor,
@@ -185,7 +237,7 @@ def obtener_usuario_por_correo(correo):
     """
     documentos = (
         db.collection("usuarios")
-        .where("correo", "==", correo)
+        .where(filter=FieldFilter("correo", "==", correo))
         .limit(1)
         .stream()
     )
@@ -198,9 +250,46 @@ def obtener_usuario_por_correo(correo):
     return None
 
 
+def _obtener_siguiente_id_por_campo(coleccion, campo):
+    """Obtiene max(ID)+1 leyendo solamente el documento con ID más alto."""
+    documentos = (
+        db.collection(coleccion)
+        .order_by(campo, direction=firestore.Query.DESCENDING)
+        .limit(1)
+        .stream()
+    )
+
+    for documento in documentos:
+        datos = documento.to_dict()
+        try:
+            return int(datos.get(campo, 0)) + 1
+        except (TypeError, ValueError):
+            break
+
+    return 1
+
+
 # ============================================================
 # CLIENTES
 # ============================================================
+
+def obtener_cliente_por_firebase_uid(firebase_uid):
+    """Busca directamente el cliente por el UID de Firebase Authentication."""
+    documentos = (
+        db.collection("clientes")
+        .where(filter=FieldFilter("firebase_uid", "==", firebase_uid))
+        .limit(1)
+        .stream()
+    )
+
+    for documento in documentos:
+        cliente = documento.to_dict()
+        cliente["document_id"] = documento.id
+        _CLIENTE_CACHE[str(cliente.get("id_cliente"))] = cliente.copy()
+        return cliente
+
+    return None
+
 
 def obtener_cliente_por_usuario(usuario_id):
     """
@@ -208,7 +297,7 @@ def obtener_cliente_por_usuario(usuario_id):
     """
     documentos = (
         db.collection("clientes")
-        .where("usuario_id", "==", usuario_id)
+        .where(filter=FieldFilter("usuario_id", "==", usuario_id))
         .limit(1)
         .stream()
     )
@@ -222,60 +311,64 @@ def obtener_cliente_por_usuario(usuario_id):
 
 
 def obtener_cliente(id_cliente):
-    """
-    Obtiene un cliente por su ID desde Firestore.
-    """
-    documento = (
-        db.collection("clientes")
-        .document(str(id_cliente))
-        .get()
-    )
+    """Obtiene un cliente por ID usando caché cuando está disponible."""
+    clave = str(id_cliente)
+    ahora = time.monotonic()
+
+    if (
+        _CLIENTES_CACHE is not None
+        and ahora - _CLIENTES_CACHE_TIMESTAMP < _CATALOGOS_CACHE_TTL
+        and clave in _CLIENTE_CACHE
+    ):
+        return _CLIENTE_CACHE[clave].copy()
+
+    documento = db.collection("clientes").document(clave).get()
 
     if documento.exists:
         cliente = documento.to_dict()
         cliente["document_id"] = documento.id
+        _CLIENTE_CACHE[clave] = cliente.copy()
         return cliente
 
     return None
 
 
 def obtener_clientes():
-    """
-    Obtiene todos los clientes desde Firestore.
-    """
-    clientes = []
+    """Obtiene todos los clientes con una caché corta de 30 segundos."""
+    global _CLIENTES_CACHE, _CLIENTES_CACHE_TIMESTAMP, _CLIENTE_CACHE
 
-    documentos = (
-        db.collection("clientes")
-        .order_by("id_cliente")
-        .stream()
-    )
+    ahora = time.monotonic()
+
+    if (
+        _CLIENTES_CACHE is not None
+        and ahora - _CLIENTES_CACHE_TIMESTAMP < _CATALOGOS_CACHE_TTL
+    ):
+        return [cliente.copy() for cliente in _CLIENTES_CACHE]
+
+    clientes = []
+    documentos = db.collection("clientes").order_by("id_cliente").stream()
 
     for documento in documentos:
         cliente = documento.to_dict()
         cliente["document_id"] = documento.id
         clientes.append(cliente)
 
-    return clientes
+    _CLIENTES_CACHE = [cliente.copy() for cliente in clientes]
+    _CLIENTES_CACHE_TIMESTAMP = ahora
+    _CLIENTE_CACHE.clear()
 
+    for cliente in clientes:
+        if cliente.get("id_cliente") is not None:
+            _CLIENTE_CACHE[str(cliente["id_cliente"])] = cliente.copy()
+
+    return [cliente.copy() for cliente in clientes]
 
 def agregar_cliente(cliente):
     """
     Agrega un cliente desde un formulario.
     """
     clientes_ref = db.collection("clientes")
-
-    documentos = clientes_ref.stream()
-
-    ids = []
-
-    for documento in documentos:
-        try:
-            ids.append(int(documento.id))
-        except ValueError:
-            pass
-
-    nuevo_id = max(ids) + 1 if ids else 1
+    nuevo_id = _obtener_siguiente_id_por_campo("clientes", "id_cliente")
 
     clientes_ref.document(str(nuevo_id)).set({
         "id_cliente": nuevo_id,
@@ -285,6 +378,7 @@ def agregar_cliente(cliente):
         "contraseña": cliente.contraseña.data
     })
 
+    limpiar_cache_clientes()
     return nuevo_id
 
 
@@ -305,18 +399,7 @@ def registrar_cliente(
     """
 
     usuarios_ref = db.collection("usuarios")
-
-    documentos = usuarios_ref.stream()
-
-    ids = []
-
-    for documento in documentos:
-        try:
-            ids.append(int(documento.id))
-        except ValueError:
-            pass
-
-    nuevo_id = max(ids) + 1 if ids else 1
+    nuevo_id = _obtener_siguiente_id_por_campo("usuarios", "id_usuario")
 
     usuario_data = {
         "id_usuario": nuevo_id,
@@ -347,6 +430,7 @@ def registrar_cliente(
         cliente_data["contraseña"] = contraseña
 
     db.collection("clientes").document(str(nuevo_id)).set(cliente_data)
+    limpiar_cache_clientes()
 
     return nuevo_id
 
@@ -370,6 +454,7 @@ def actualizar_cliente(
             "contraseña": contraseña
         })
 
+    limpiar_cache_clientes()
     return True
 
 
@@ -380,6 +465,7 @@ def eliminar_cliente(id_cliente):
     db.collection("clientes") \
         .document(str(id_cliente)) \
         .delete()
+    limpiar_cache_clientes()
 
 def actualizar_perfil_cliente(
         id_cliente,
@@ -393,7 +479,7 @@ def actualizar_perfil_cliente(
     """
     documentos = (
         db.collection("clientes")
-        .where("id_cliente", "==", int(id_cliente))
+        .where(filter=FieldFilter("id_cliente", "==", int(id_cliente)))
         .limit(1)
         .stream()
     )
@@ -406,6 +492,7 @@ def actualizar_perfil_cliente(
             "contraseña": contraseña
         })
 
+        limpiar_cache_clientes()
         return True
 
     return False
@@ -419,7 +506,7 @@ def obtener_empleado_por_correo(correo):
     """
     documentos = (
         db.collection("empleados")
-        .where("correo_empleado", "==", correo)
+        .where(filter=FieldFilter("correo_empleado", "==", correo))
         .limit(1)
         .stream()
     )
@@ -433,42 +520,58 @@ def obtener_empleado_por_correo(correo):
 
 
 def obtener_empleados():
-    """
-    Obtiene todos los empleados desde Firestore.
-    """
-    empleados_ref = db.collection("empleados")
-    documentos = empleados_ref.stream()
+    """Obtiene todos los empleados con una caché corta de 30 segundos."""
+    global _EMPLEADOS_CACHE, _EMPLEADOS_CACHE_TIMESTAMP, _EMPLEADO_CACHE
 
+    ahora = time.monotonic()
+
+    if (
+        _EMPLEADOS_CACHE is not None
+        and ahora - _EMPLEADOS_CACHE_TIMESTAMP < _CATALOGOS_CACHE_TTL
+    ):
+        return [empleado.copy() for empleado in _EMPLEADOS_CACHE]
+
+    documentos = db.collection("empleados").stream()
     empleados = []
 
     for documento in documentos:
         empleado = documento.to_dict()
+        empleado["document_id"] = documento.id
         empleados.append(empleado)
 
-    empleados.sort(
-        key=lambda x: x.get("id_empleado", 0)
-    )
+    empleados.sort(key=lambda x: x.get("id_empleado", 0))
+    _EMPLEADOS_CACHE = [empleado.copy() for empleado in empleados]
+    _EMPLEADOS_CACHE_TIMESTAMP = ahora
+    _EMPLEADO_CACHE.clear()
 
-    return empleados
+    for empleado in empleados:
+        if empleado.get("id_empleado") is not None:
+            _EMPLEADO_CACHE[str(empleado["id_empleado"])] = empleado.copy()
+
+    return [empleado.copy() for empleado in empleados]
 
 
 def obtener_empleado(id_empleado):
-    """
-    Obtiene un empleado por su ID desde Firestore.
-    """
-    documento = (
-        db.collection("empleados")
-        .document(str(id_empleado))
-        .get()
-    )
+    """Obtiene un empleado por ID usando caché cuando está disponible."""
+    clave = str(id_empleado)
+    ahora = time.monotonic()
+
+    if (
+        _EMPLEADOS_CACHE is not None
+        and ahora - _EMPLEADOS_CACHE_TIMESTAMP < _CATALOGOS_CACHE_TTL
+        and clave in _EMPLEADO_CACHE
+    ):
+        return _EMPLEADO_CACHE[clave].copy()
+
+    documento = db.collection("empleados").document(clave).get()
 
     if documento.exists:
         empleado = documento.to_dict()
         empleado["document_id"] = documento.id
+        _EMPLEADO_CACHE[clave] = empleado.copy()
         return empleado
 
     return None
-
 
 def agregar_empleado(empleado):
     """
@@ -477,18 +580,7 @@ def agregar_empleado(empleado):
     """
 
     empleados_ref = db.collection("empleados")
-
-    documentos = empleados_ref.stream()
-
-    ids = []
-
-    for documento in documentos:
-        try:
-            ids.append(int(documento.id))
-        except ValueError:
-            pass
-
-    nuevo_id = max(ids) + 1 if ids else 1
+    nuevo_id = _obtener_siguiente_id_por_campo("empleados", "id_empleado")
 
     empleados_ref.document(str(nuevo_id)).set({
         "id_empleado": nuevo_id,
@@ -498,6 +590,7 @@ def agregar_empleado(empleado):
         "telefono": empleado.numero_telefono
     })
 
+    limpiar_cache_empleados()
     return nuevo_id
 
 
@@ -524,6 +617,7 @@ def actualizar_empleado(
     db.collection("empleados") \
         .document(str(id_empleado)) \
         .set(empleado)
+    limpiar_cache_empleados()
 
     return empleado
 
@@ -535,6 +629,7 @@ def eliminar_empleado(id_empleado):
     db.collection("empleados") \
         .document(str(id_empleado)) \
         .delete()
+    limpiar_cache_empleados()
 
 
 # ============================================================
@@ -542,62 +637,65 @@ def eliminar_empleado(id_empleado):
 # ============================================================
 
 def obtener_proveedores():
-    """
-    Obtiene todos los proveedores desde Firestore.
-    """
-    documentos = (
-        db.collection("proveedores")
-        .stream()
-    )
+    """Obtiene todos los proveedores con una caché corta de 30 segundos."""
+    global _PROVEEDORES_CACHE, _PROVEEDORES_CACHE_TIMESTAMP, _PROVEEDOR_CACHE
 
+    ahora = time.monotonic()
+
+    if (
+        _PROVEEDORES_CACHE is not None
+        and ahora - _PROVEEDORES_CACHE_TIMESTAMP < _CATALOGOS_CACHE_TTL
+    ):
+        return [proveedor.copy() for proveedor in _PROVEEDORES_CACHE]
+
+    documentos = db.collection("proveedores").stream()
     proveedores = []
 
     for documento in documentos:
         proveedor = documento.to_dict()
+        proveedor["document_id"] = documento.id
         proveedores.append(proveedor)
 
-    proveedores.sort(
-        key=lambda x: int(x.get("id_provedor", 0))
-    )
+    proveedores.sort(key=lambda x: int(x.get("id_provedor", 0)))
+    _PROVEEDORES_CACHE = [proveedor.copy() for proveedor in proveedores]
+    _PROVEEDORES_CACHE_TIMESTAMP = ahora
+    _PROVEEDOR_CACHE.clear()
 
-    return proveedores
+    for proveedor in proveedores:
+        if proveedor.get("id_provedor") is not None:
+            _PROVEEDOR_CACHE[str(proveedor["id_provedor"])] = proveedor.copy()
+
+    return [proveedor.copy() for proveedor in proveedores]
 
 
 def obtener_proveedor(id_provedor):
-    """
-    Obtiene un proveedor específico desde Firestore.
-    """
-    documento = (
-        db.collection("proveedores")
-        .document(str(id_provedor))
-        .get()
-    )
+    """Obtiene un proveedor específico usando caché cuando está disponible."""
+    clave = str(id_provedor)
+    ahora = time.monotonic()
+
+    if (
+        _PROVEEDORES_CACHE is not None
+        and ahora - _PROVEEDORES_CACHE_TIMESTAMP < _CATALOGOS_CACHE_TTL
+        and clave in _PROVEEDOR_CACHE
+    ):
+        return _PROVEEDOR_CACHE[clave].copy()
+
+    documento = db.collection("proveedores").document(clave).get()
 
     if documento.exists:
         proveedor = documento.to_dict()
         proveedor["document_id"] = documento.id
+        _PROVEEDOR_CACHE[clave] = proveedor.copy()
         return proveedor
 
     return None
-
 
 def agregar_proveedor(proveedor):
     """
     Agrega un nuevo proveedor a Firestore.
     """
     proveedores_ref = db.collection("proveedores")
-
-    documentos = proveedores_ref.stream()
-
-    ids = []
-
-    for documento in documentos:
-        try:
-            ids.append(int(documento.id))
-        except ValueError:
-            pass
-
-    nuevo_id = max(ids) + 1 if ids else 1
+    nuevo_id = _obtener_siguiente_id_por_campo("proveedores", "id_provedor")
 
     proveedores_ref.document(str(nuevo_id)).set({
         "id_provedor": nuevo_id,
@@ -606,6 +704,7 @@ def agregar_proveedor(proveedor):
         "telefono": proveedor.numero_telefono
     })
 
+    limpiar_cache_proveedores()
     return nuevo_id
 
 
@@ -628,6 +727,7 @@ def actualizar_proveedor(
     db.collection("proveedores") \
         .document(str(id_provedor)) \
         .set(proveedor)
+    limpiar_cache_proveedores()
 
     return proveedor
 
@@ -639,6 +739,7 @@ def eliminar_proveedor(id_provedor):
     db.collection("proveedores") \
         .document(str(id_provedor)) \
         .delete()
+    limpiar_cache_proveedores()
 
 
 # ============================================================

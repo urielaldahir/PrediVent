@@ -1,56 +1,215 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+
+    <meta charset="UTF-8">
+
+    <title>Historial de compras - PrediVent</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
 </head>
+
+
 <body>
-	<header>
-		<nav>
-			<ul>
-				<li><a href="{{url_for('CatalogoUsuarios')}}">Catalogo</a></li>
-				<li><a href="{{url_for('miCarrito')}}">Carrito</a></li>
-                <li><a href="{{url_for('VerHistorial')}}">Historial de compras</a></li>
-				<li><a href="{{url_for('perfil')}}">Perfil</a></li>
-				<li class="right"><a href="{{url_for('logout')}}">Cerrar Sesión</a></li>
-			</ul>
-		</nav>
-	</header>
 
-    <main>
+<header>
 
+    <nav>
 
-      </br>
-      </br>
+        <ul>
+
+            <li>
+                <a href="{{ url_for('Catalogo') }}">
+                    Catálogo
+                </a>
+            </li>
 
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Cantidad</th>
-                <th>Descripción</th>
-                <th>Precio</th>
+            <li>
+                <a href="{{ url_for('miCarrito') }}">
+                    Carrito
+                </a>
+            </li>
 
-            </tr>
-        </thead>
-        <tbody>
-        <tr>
-            {%for producto in producto %}
-            <td>{{producto.id_producto}}</td>
-            <td>{{producto.nombre_producto}}</td>
-            <td>{{cantidades[producto.id_producto]}}</td>
-            <td>{{producto.descripcion}}</td>
-            <td>{{producto.precio}}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-  </main>
 
-	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
-	</footer>
+            <li>
+                <a href="{{ url_for('VerHistorial') }}">
+                    Historial de compras
+                </a>
+            </li>
+
+
+            <li>
+                <a href="{{ url_for('perfil') }}">
+                    Perfil
+                </a>
+            </li>
+
+
+            <li class="right">
+
+                <a href="{{ url_for('logout') }}">
+                    Cerrar Sesión
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <h1>
+        Historial de compras
+    </h1>
+
+
+    <!-- =====================================================
+         FILTROS
+    ====================================================== -->
+
+    <div class="filtros-historial">
+
+        <span>
+            Mostrar:
+        </span>
+
+
+        <a
+            href="{{ url_for('VerHistorial', filtro='todos') }}"
+            class="{% if filtro == 'todos' %}filtro-activo{% endif %}"
+        >
+            Todas
+        </a>
+
+
+        <a
+            href="{{ url_for('VerHistorial', filtro='mes') }}"
+            class="{% if filtro == 'mes' %}filtro-activo{% endif %}"
+        >
+            Este mes
+        </a>
+
+
+        <a
+            href="{{ url_for('VerHistorial', filtro='ano') }}"
+            class="{% if filtro == 'ano' %}filtro-activo{% endif %}"
+        >
+            Este año
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLA
+    ====================================================== -->
+
+    {% if historial %}
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Fecha
+                    </th>
+
+                    <th>
+                        Producto
+                    </th>
+
+                    <th>
+                        Cantidad
+                    </th>
+
+                    <th>
+                        Precio unitario
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for venta in historial %}
+
+                    <tr>
+
+                        <td>
+                            {{ venta.fecha_formateada }}
+                        </td>
+
+
+                        <td>
+                            {{ venta.nombre }}
+                        </td>
+
+
+                        <td>
+                            {{ venta.cantidad }}
+                        </td>
+
+
+                        <td>
+                            ${{ "%.2f"|format(venta.precio) }}
+                        </td>
+
+
+                        <td>
+                            ${{ "%.2f"|format(venta.total) }}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+
+    {% else %}
+
+        <p class="sin-historial">
+
+            No hay compras para el periodo seleccionado.
+
+        </p>
+
+    {% endif %}
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+
+</footer>
+
+
 </body>
+
 </html>
+```

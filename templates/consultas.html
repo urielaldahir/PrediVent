@@ -1,29 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+
+    <meta charset="UTF-8">
+
+    <title>Consultas - PrediVent</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
 </head>
+
 <body>
-	<header>
-		<nav>
-			<ul>
-                <li><a href="{{url_for('HomeAdmin')}}">Regresar</a></li>
-				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
-			</ul>
-		</nav>
-	</header>
 
-	<main>
-      <h1>Consultas</h1>
-    <p>Selecciona la consulta que deseas realizar.</p>
-    <button onclick="window.location.href='{{url_for('consultasProducto')}}'">Productos</button>
-    <button onclick="window.location.href='{{url_for('consultasEmpleados')}}'">Empleados</button>
-    <button onclick="window.location.href='{{url_for('consultasProveedores')}}'">Proveedores</button>
-	</main>
+<header>
 
-	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
-	</footer>
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('HomeAdmin') }}">
+                    Regresar
+                </a>
+            </li>
+
+            <li class="right">
+                <a href="{{ url_for('logout2') }}">
+                    Cerrar Sesión
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <h1>
+        Consultas
+    </h1>
+
+
+    <p>
+        Selecciona la consulta que deseas realizar.
+    </p>
+
+
+    <!-- ================================================
+         CONSULTA DE PRODUCTOS
+    ================================================= -->
+
+    <button
+        type="button"
+        onclick="window.location.href='{{ url_for('consultasProducto') }}'"
+    >
+        Productos
+    </button>
+
+
+    <!-- ================================================
+         CONSULTA DE EMPLEADOS
+    ================================================= -->
+
+    <button
+        type="button"
+        onclick="window.location.href='{{ url_for('consultasEmpleados') }}'"
+    >
+        Empleados
+    </button>
+
+
+    <!-- ================================================
+         CONSULTA DE PROVEEDORES
+    ================================================= -->
+
+    <button
+        type="button"
+        onclick="window.location.href='{{ url_for('consultasProveedores') }}'"
+    >
+        Proveedores
+    </button>
+
+
+    <!-- ================================================
+         HISTORIAL DE VENTAS
+    ================================================= -->
+
+    <button
+        type="button"
+        onclick="window.location.href='{{ url_for('historialVentasAdmin') }}'"
+    >
+        Historial de ventas
+    </button>
+
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+
+</footer>
+
+
 </body>
+
 </html>

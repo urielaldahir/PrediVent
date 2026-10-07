@@ -1,6 +1,9 @@
 from firebase_config import firestore_db
 from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+import time
 
 # ============================================================
 # CONFIGURACIÓN
@@ -10,6 +13,19 @@ db = firestore_db
 
 COLECCION_PRODUCTOS = "productos"
 
+# Cache corta para pantallas que vuelven a solicitar la lista completa
+# de productos. No se usa para validar inventario en una compra.
+_PRODUCTOS_CACHE = None
+_PRODUCTOS_CACHE_TIMESTAMP = 0.0
+_PRODUCTOS_CACHE_TTL = 30.0
+
+
+def limpiar_cache_productos():
+    """Fuerza la próxima consulta de productos a ir a Firestore."""
+    global _PRODUCTOS_CACHE, _PRODUCTOS_CACHE_TIMESTAMP
+    _PRODUCTOS_CACHE = None
+    _PRODUCTOS_CACHE_TIMESTAMP = 0.0
+
 
 # ============================================================
 # PRODUCTOS
@@ -18,7 +34,22 @@ COLECCION_PRODUCTOS = "productos"
 def obtener_productos():
     """
     Obtiene todos los productos desde Firestore.
+
+    Durante 30 segundos reutiliza la lista ya obtenida para evitar
+    gastar ~99 lecturas cada vez que una pantalla vuelve a cargar
+    el catálogo. Las operaciones que modifican inventario/productos
+    invalidan este cache.
     """
+    global _PRODUCTOS_CACHE, _PRODUCTOS_CACHE_TIMESTAMP
+
+    ahora = time.monotonic()
+
+    if (
+        _PRODUCTOS_CACHE is not None
+        and ahora - _PRODUCTOS_CACHE_TIMESTAMP < _PRODUCTOS_CACHE_TTL
+    ):
+        return [producto.copy() for producto in _PRODUCTOS_CACHE]
+
     productos = []
 
     documentos = (
@@ -30,6 +61,9 @@ def obtener_productos():
     for documento in documentos:
         producto = documento.to_dict()
         productos.append(producto)
+
+    _PRODUCTOS_CACHE = [producto.copy() for producto in productos]
+    _PRODUCTOS_CACHE_TIMESTAMP = ahora
 
     return productos
 
@@ -94,6 +128,8 @@ def crear_producto(
         .document(str(id_producto)) \
         .set(producto)
 
+    limpiar_cache_productos()
+
     return producto
 
 
@@ -123,6 +159,8 @@ def actualizar_producto(
         .document(str(id_producto)) \
         .set(producto)
 
+    limpiar_cache_productos()
+
     return producto
 
 
@@ -133,6 +171,8 @@ def eliminar_producto(id_producto):
     db.collection(COLECCION_PRODUCTOS) \
         .document(str(id_producto)) \
         .delete()
+
+    limpiar_cache_productos()
 
 
 # ============================================================
@@ -707,31 +747,149 @@ def vaciar_carrito(id_cliente):
 # ============================================================
 
 def registrar_venta(
-        id_cliente,
-        id_producto,
-        cantidad,
-        precio_unitario
+        id_cliente=None,
+        id_producto=None,
+        cantidad=0,
+        precio_unitario=0,
+        id_empleado=None,
+        producto_nombre=None,
+        cliente_nombre=None,
+        empleado_nombre=None
 ):
     """
-    Registra una venta individual en Firestore.
-    """
-    cantidad = int(cantidad)
-    precio_unitario = float(precio_unitario)
+    Registra una venta en Firestore.
 
-    total = cantidad * precio_unitario
+    Toda venta debe estar asociada a un cliente.
+
+    Si la venta fue realizada por un empleado,
+    también se guarda el ID del empleado.
+    """
+
+    # ========================================================
+    # VALIDAR CLIENTE
+    # ========================================================
+
+    if id_cliente is None:
+
+        raise ValueError(
+            "No se puede registrar una venta "
+            "sin un cliente asociado."
+        )
+
+    # ========================================================
+    # VALIDAR PRODUCTO
+    # ========================================================
+
+    if id_producto is None:
+
+        raise ValueError(
+            "No se puede registrar una venta "
+            "sin producto."
+        )
+
+    # ========================================================
+    # VALIDAR CANTIDAD
+    # ========================================================
+
+    cantidad = int(cantidad)
+
+    if cantidad <= 0:
+
+        raise ValueError(
+            "La cantidad debe ser mayor que cero."
+        )
+
+    # ========================================================
+    # VALIDAR PRECIO
+    # ========================================================
+
+    precio_unitario = float(
+        precio_unitario
+    )
+
+    if precio_unitario < 0:
+
+        raise ValueError(
+            "El precio no puede ser negativo."
+        )
+
+    # ========================================================
+    # CALCULAR TOTAL
+    # ========================================================
+
+    total = (
+        cantidad *
+        precio_unitario
+    )
+
+    # ========================================================
+    # CREAR VENTA
+    # ========================================================
 
     venta = {
-        "id_cliente": int(id_cliente),
-        "productoID": str(id_producto),
+
+        "id_cliente": int(
+            id_cliente
+        ),
+
+        "productoID": str(
+            id_producto
+        ),
+
         "cantidad": cantidad,
+
         "precioUnitario": precio_unitario,
+
         "total": total,
+
         "fecha": firestore.SERVER_TIMESTAMP
+
     }
 
-    referencia = db.collection("ventas").document()
+    # ========================================================
+    # EMPLEADO QUE REGISTRÓ LA VENTA
+    # ========================================================
 
-    referencia.set(venta)
+    if id_empleado is not None:
+
+        venta["id_empleado"] = int(
+            id_empleado
+        )
+
+    # ========================================================
+    # DATOS DE CONSULTA (SNAPSHOT)
+    # ========================================================
+    # Guardamos estos nombres junto con la venta para que el
+    # historial administrativo no tenga que volver a consultar
+    # productos/clientes/empleados para las ventas nuevas.
+
+    if producto_nombre:
+        venta["producto_nombre"] = str(
+            producto_nombre
+        )
+
+    if cliente_nombre:
+        venta["cliente_nombre"] = str(
+            cliente_nombre
+        )
+
+    if empleado_nombre:
+        venta["empleado_nombre"] = str(
+            empleado_nombre
+        )
+
+    # ========================================================
+    # GUARDAR EN FIRESTORE
+    # ========================================================
+
+    referencia = (
+        db.collection("ventas")
+        .document()
+    )
+
+    referencia.set(
+        venta
+    )
 
     return venta
 
@@ -770,8 +928,9 @@ def actualizar_inventario(id_producto, cantidad_vendida):
         "cantidad": nueva_cantidad
     })
 
-    return True
+    limpiar_cache_productos()
 
+    return True
 
 # ============================================================
 # HISTORIAL
@@ -810,7 +969,6 @@ class HistorialFirestore:
         # Fecha real de la venta almacenada en Firestore
         self.fecha = datos.get("fecha")
 
-
 def obtener_historial_ventas_producto(id_producto):
     """
     Obtiene las ventas de un producto desde Firestore.
@@ -837,23 +995,148 @@ def obtener_historial_ventas_producto(id_producto):
 
     return ventas
 
-
 def obtener_historial_cliente(id_cliente):
+
     """
     Obtiene todas las compras realizadas
     por un cliente desde Firestore.
     """
+
     historial = []
 
     documentos = (
         db.collection("ventas")
-        .where("id_cliente", "==", int(id_cliente))
+        .where(
+            filter=FieldFilter(
+                "id_cliente",
+                "==",
+                int(id_cliente)
+            )
+        )
         .stream()
     )
 
     for documento in documentos:
+
         venta = documento.to_dict()
+
+        venta["document_id"] = documento.id
+
+        historial.append(venta)
+
+    # ========================================================
+    # ORDENAR POR FECHA
+    # MÁS RECIENTE PRIMERO
+    # ========================================================
+
+    def fecha_venta(venta):
+
+        fecha = venta.get("fecha")
+
+        if fecha is None:
+            return datetime.min
+
+        return fecha
+
+    historial.sort(
+        key=fecha_venta,
+        reverse=True
+    )
+
+    return historial
+
+def obtener_historial_ventas(filtro="todas"):
+    """
+    Obtiene el historial de ventas.
+
+    Para "mensual" y "anual" el filtro se realiza directamente
+    en Firestore para no descargar ventas que después se van a
+    descartar en Python.
+    """
+
+    consulta = db.collection("ventas")
+
+    # --------------------------------------------------------
+    # FILTRO DE FECHAS EN FIRESTORE
+    # --------------------------------------------------------
+
+    if filtro in ("mensual", "anual"):
+
+        zona_local = ZoneInfo("America/Mexico_City")
+        ahora = datetime.now(zona_local)
+
+        if filtro == "mensual":
+            inicio_local = ahora.replace(
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+
+            if inicio_local.month == 12:
+                fin_local = inicio_local.replace(
+                    year=inicio_local.year + 1,
+                    month=1
+                )
+            else:
+                fin_local = inicio_local.replace(
+                    month=inicio_local.month + 1
+                )
+
+        else:
+            inicio_local = ahora.replace(
+                month=1,
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+
+            fin_local = inicio_local.replace(
+                year=inicio_local.year + 1
+            )
+
+        inicio_utc = inicio_local.astimezone(ZoneInfo("UTC"))
+        fin_utc = fin_local.astimezone(ZoneInfo("UTC"))
+
+        consulta = (
+            consulta
+            .where(
+                filter=FieldFilter(
+                    "fecha",
+                    ">=",
+                    inicio_utc
+                )
+            )
+            .where(
+                filter=FieldFilter(
+                    "fecha",
+                    "<",
+                    fin_utc
+                )
+            )
+        )
+
+    # Ordenar en Firestore evita traer resultados sin orden para
+    # después ordenarlos en Python.
+    consulta = consulta.order_by(
+        "fecha",
+        direction=firestore.Query.DESCENDING
+    )
+
+    historial = []
+
+    for documento in consulta.stream():
+        venta = documento.to_dict()
+
+        # Las ventas antiguas o incompletas pueden no tener fecha.
+        if venta.get("fecha") is None:
+            continue
+
         venta["document_id"] = documento.id
         historial.append(venta)
 
     return historial
+

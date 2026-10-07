@@ -3076,3 +3076,48 @@ td.acciones .btn-link {
         height: 320px;
     }
 }
+
+/* =========================================================
+   CATÁLOGO USUARIO - BOTONES ALINEADOS
+========================================================= */
+
+/* La tarjeta ocupa toda la altura disponible */
+.tarjeta-producto {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+
+/* El nombre de todos los productos ocupa el mismo espacio */
+.tarjeta-producto h3 {
+    min-height: 54px;
+    margin: 0 0 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 1.35;
+}
+
+
+/* El precio queda en una posición uniforme */
+.tarjeta-producto .precio {
+    margin-top: auto;
+    margin-bottom: 12px;
+}
+
+
+/* Los botones quedan juntos y alineados */
+.tarjeta-producto .btn-link {
+    width: 100%;
+    margin-top: 10px;
+    flex-shrink: 0;
+}
+
+
+/* El último botón no deja espacio extraño */
+.tarjeta-producto .btn-link:last-child {
+    margin-bottom: 0;
+}

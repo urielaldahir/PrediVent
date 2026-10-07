@@ -1,31 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Mi Tienda en Línea</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
 <header>
     <nav>
         <ul>
-            <li><a href="{{ url_for('CatalogoUsuarios') }}"><i class="fa-solid fa-store"></i>Catálogo</a></li>
-            <li><a href="{{ url_for('miCarrito') }}"><i class="fa-solid fa-cart-shopping"></i>Carrito</a></li>
-            <li><a href="{{ url_for('VerHistorial') }}"><i class="fa-solid fa-clock-rotate-left"></i>Historial de compras</a></li>
-            <li><a href="{{ url_for('perfil') }}"><i class="fa-solid fa-circle-user"></i>Perfil</a></li>
-            <li class="right"><a href="{{ url_for('logout') }}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
+
+            <li>
+                <a href="{{ url_for('CatalogoUsuarios') }}">
+                    <i class="fa-solid fa-store"></i>
+                    Catálogo
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('miCarrito') }}">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Carrito
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('VerHistorial') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Historial de compras
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('perfil') }}">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Perfil
+                </a>
+            </li>
+
+            <li class="right">
+                <a href="{{ url_for('logout') }}"
+                   data-confirm="¿Deseas cerrar sesión?">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Cerrar Sesión
+
+                </a>
+            </li>
+
         </ul>
     </nav>
 </header>
 
+
 <main>
+
     <h1>Productos Disponibles</h1>
 
+
+    <!-- =====================================================
+         BARRA DE BÚSQUEDA
+    ====================================================== -->
+
     <div class="busqueda-catalogo">
+
         <i class="fa-solid fa-magnifying-glass"></i>
+
         <input
             type="search"
             id="buscadorProductos"
@@ -33,93 +84,234 @@
             autocomplete="off"
             aria-label="Buscar productos"
         >
-        <button type="button" id="limpiarBusqueda" aria-label="Limpiar búsqueda" title="Limpiar búsqueda">
+
+        <button
+            type="button"
+            id="limpiarBusqueda"
+            aria-label="Limpiar búsqueda"
+            title="Limpiar búsqueda">
+
             <i class="fa-solid fa-xmark"></i>
+
         </button>
+
     </div>
 
+
+    <!-- =====================================================
+         CATÁLOGO
+    ====================================================== -->
+
     <div class="catalog" id="catalogoProductos">
+
         {% for producto in producto %}
+
             <div class="product tarjeta-producto"
                  data-nombre="{{ producto['nombre_producto']|e }}"
                  data-descripcion="{{ producto['descripcion']|e }}">
 
+
+                <!-- IMAGEN -->
+
                 <a class="producto-imagen-link"
                    href="{{ url_for('detalle_producto', id_producto=producto['id_producto']) }}">
-                    <img src="{{ producto['RutaImagen'] }}"
-                         alt="{{ producto['nombre_producto'] }}"
-                         loading="lazy">
+
+                    <img
+                        src="{{ producto['RutaImagen'] }}"
+                        alt="{{ producto['nombre_producto'] }}"
+                        loading="lazy"
+                    >
+
                 </a>
 
-                <h3>{{ producto['nombre_producto'] }}</h3>
 
-                <span class="precio">${{ producto['precio'] }}</span>
+                <!-- NOMBRE -->
 
-                <a class="btn-link secundario"
-                   href="{{ url_for('detalle_producto', id_producto=producto['id_producto']) }}">
-                    <i class="fa-solid fa-eye"></i>Ver detalles
+                <h3>
+                    {{ producto['nombre_producto'] }}
+                </h3>
+
+
+                <!-- PRECIO -->
+
+                <span class="precio">
+                    ${{ producto['precio'] }}
+                </span>
+
+
+                <!-- VER DETALLES -->
+
+                <a
+                    class="btn-link secundario"
+                    href="{{ url_for('detalle_producto', id_producto=producto['id_producto']) }}">
+
+                    <i class="fa-solid fa-eye"></i>
+                    Ver detalles
+
                 </a>
 
-                <a class="btn-link"
-                   href="{{ url_for('agregar_carrito', id_producto=producto['id_producto']) }}">
-                    <i class="fa-solid fa-cart-plus"></i>Agregar al carrito
+
+                <!-- AGREGAR AL CARRITO -->
+
+                <a
+                    class="btn-link"
+                    href="{{ url_for('agregar_carrito', id_producto=producto['id_producto']) }}">
+
+                    <i class="fa-solid fa-cart-plus"></i>
+                    Agregar al carrito
+
                 </a>
 
             </div>
+
+
         {% else %}
-            <p class="sin-historial">Por ahora no hay productos disponibles.</p>
+
+            <p class="sin-historial">
+                Por ahora no hay productos disponibles.
+            </p>
+
         {% endfor %}
 
-        <p id="sinResultados" class="sin-resultados" style="display: none;">
+
+        <!-- =================================================
+             SIN RESULTADOS
+        ================================================== -->
+
+        <p
+            id="sinResultados"
+            class="sin-resultados"
+            style="display: none;">
+
             <i class="fa-solid fa-magnifying-glass"></i>
+
             No encontramos productos con esa búsqueda.
+
         </p>
+
     </div>
+
 </main>
 
+
 <footer>
-    <p>Derechos Reservados &copy; ShopEase 2023</p>
+
+    <p>
+        Derechos Reservados &copy; ShopEase 2023
+    </p>
+
 </footer>
 
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
 
+
 <script>
-    const buscador = document.getElementById("buscadorProductos");
-    const limpiar = document.getElementById("limpiarBusqueda");
-    const productos = document.querySelectorAll(".tarjeta-producto");
-    const sinResultados = document.getElementById("sinResultados");
+
+    /* =====================================================
+       ELEMENTOS
+    ====================================================== */
+
+    const buscador =
+        document.getElementById("buscadorProductos");
+
+    const limpiar =
+        document.getElementById("limpiarBusqueda");
+
+    const productos =
+        document.querySelectorAll(".tarjeta-producto");
+
+    const sinResultados =
+        document.getElementById("sinResultados");
+
+
+    /* =====================================================
+       BUSCAR PRODUCTOS
+    ====================================================== */
 
     function buscarProductos() {
-        const texto = buscador.value.toLowerCase().trim();
+
+        const texto =
+            buscador.value
+                .toLowerCase()
+                .trim();
+
         let encontrados = 0;
 
+
         productos.forEach(producto => {
-            const nombre = (producto.dataset.nombre || "").toLowerCase();
-            const descripcion = (producto.dataset.descripcion || "").toLowerCase();
+
+            const nombre =
+                (producto.dataset.nombre || "")
+                    .toLowerCase();
+
+            const descripcion =
+                (producto.dataset.descripcion || "")
+                    .toLowerCase();
+
+
+            /*
+             * La descripción NO se muestra.
+             *
+             * Solamente se utiliza para que el buscador
+             * pueda encontrar productos por su contenido.
+             */
 
             const coincide =
                 nombre.includes(texto) ||
                 descripcion.includes(texto);
 
-            producto.style.display = coincide ? "" : "none";
+
+            producto.style.display =
+                coincide ? "" : "none";
+
 
             if (coincide) {
                 encontrados++;
             }
+
         });
 
+
+        /* Mostrar mensaje si no hay resultados */
+
         sinResultados.style.display =
-            texto !== "" && encontrados === 0 ? "block" : "none";
+            texto !== "" && encontrados === 0
+                ? "block"
+                : "none";
+
     }
 
-    buscador.addEventListener("input", buscarProductos);
 
-    limpiar.addEventListener("click", () => {
-        buscador.value = "";
-        buscarProductos();
-        buscador.focus();
-    });
+    /* =====================================================
+       BUSCADOR EN TIEMPO REAL
+    ====================================================== */
+
+    buscador.addEventListener(
+        "input",
+        buscarProductos
+    );
+
+
+    /* =====================================================
+       LIMPIAR BÚSQUEDA
+    ====================================================== */
+
+    limpiar.addEventListener(
+        "click",
+        () => {
+
+            buscador.value = "";
+
+            buscarProductos();
+
+            buscador.focus();
+
+        }
+    );
+
 </script>
 
 </body>

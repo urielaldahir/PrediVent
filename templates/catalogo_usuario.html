@@ -1,53 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-                <li><a href="{{url_for('CatalogoUsuarios')}}">Catalogo</a></li>
-				<li><a href="{{url_for('miCarrito')}}">Carrito</a></li>
-                <li><a href="{{url_for('VerHistorial')}}">Historial de compras</a></li>
-				<li><a href="{{url_for('perfil')}}">Perfil</a></li>
-				<li class="right"><a href="{{url_for('logout')}}">Cerrar Sesión</a></li>
+				<li><a href="{{url_for('CatalogoUsuarios')}}"><i class="fa-solid fa-store"></i>Catalogo</a></li>
+				<li><a href="{{url_for('miCarrito')}}"><i class="fa-solid fa-cart-shopping"></i>Carrito</a></li>
+				<li><a href="{{url_for('VerHistorial')}}"><i class="fa-solid fa-clock-rotate-left"></i>Historial de compras</a></li>
+				<li><a href="{{url_for('perfil')}}"><i class="fa-solid fa-circle-user"></i>Perfil</a></li>
+				<li class="right"><a href="{{url_for('logout')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
 			</ul>
 		</nav>
 	</header>
 
 	<main>
-    <h1>Producto Disponibles</h1>
-    <div class="catalog">
-    {% for producto in producto %}
-    <div class="product">
+		<h1>Producto Disponibles</h1>
+		<div class="catalog">
+		{% for producto in producto %}
+			<div class="product">
 
-        <img src="/{{ producto['RutaImagen'] }}" alt="imagen">
+				<img src="/{{ producto['RutaImagen'] }}" alt="imagen" loading="lazy">
 
-        <h3>{{ producto['nombre_producto'] }}</h3>
+				<h3>{{ producto['nombre_producto'] }}</h3>
 
-        <p>{{ producto['descripcion'] }}</p>
+				<p>{{ producto['descripcion'] }}</p>
 
-        <span>${{ producto['precio'] }}</span>
+				<span class="precio">${{ producto['precio'] }}</span>
 
-        <br>
-        <br>
+				<a class="btn-link" href="{{ url_for('agregar_carrito', id_producto=producto['id_producto']) }}">
+					<i class="fa-solid fa-cart-plus"></i>Agregar al carrito
+				</a>
 
-        <button onclick="window.location.href='{{ url_for('agregar_carrito', id_producto=producto['id_producto']) }}'">
-    Agregar al carrito
-</button>
-
-    </div>
-{% endfor %}
-  </div>
-  </main>
+			</div>
+		{% else %}
+			<p class="sin-historial">Por ahora no hay productos disponibles.</p>
+		{% endfor %}
+		</div>
+	</main>
 
 	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
 	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>
-
-
-

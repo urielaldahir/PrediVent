@@ -1,47 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-                <li><a href="{{url_for('consultasEmpleados')}}">Rgresar</a></li>
+				<li><a href="{{url_for('consultasEmpleados')}}"><i class="fa-solid fa-arrow-left"></i>Regresar</a></li>
 			</ul>
 		</nav>
 	</header>
-    <main>
-<h1>Editar información</h1>
-    <form method="POST">
-        {{forma.csrf_token}}
-        <p>
-            {{forma.nombre_empleado.label}}
-            {{forma.nombre_empleado(size=30)}}
-        </p>
-        <p>
-            {{forma.tipo_empleado.label}}
-            {{forma.tipo_empleado(size=30)}}
-        </p>
-        <p>
-            {{forma.correo_empleado.label}}
-            {{forma.correo_empleado(size=30)}}
-        </p>
-        <p>
-            {{forma.numero_telefono.label}}
-            {{forma.numero_telefono(size=30)}}
-        </p>
-        <p>
-            {{forma.enviar()}}
-        </p>
-    </form>
-</main>
 
+	<main>
 
+		<div class="login">
+
+			<div class="login-titulo">
+				<span class="login-icono"><i class="fa-solid fa-user-pen"></i></span>
+				<h1>Editar información</h1>
+			</div>
+
+			<form method="POST" data-confirm="¿Guardar los cambios?">
+				{{forma.csrf_token}}
+
+				<div class="grupo">
+					{{forma.nombre_empleado.label}}
+					<div class="campo">
+						<i class="fa-solid fa-user"></i>
+						{{forma.nombre_empleado(size=30)}}
+					</div>
+				</div>
+
+				<div class="grupo">
+					{{forma.tipo_empleado.label}}
+					<div class="campo">
+						<i class="fa-solid fa-id-badge"></i>
+						{{forma.tipo_empleado(size=30)}}
+					</div>
+				</div>
+
+				<div class="grupo">
+					{{forma.correo_empleado.label}}
+					<div class="campo">
+						<i class="fa-solid fa-envelope"></i>
+						{{forma.correo_empleado(size=30)}}
+					</div>
+				</div>
+
+				<div class="grupo">
+					{{forma.numero_telefono.label}}
+					<div class="campo">
+						<i class="fa-solid fa-phone"></i>
+						{{forma.numero_telefono(size=30)}}
+					</div>
+				</div>
+
+				<div class="acciones-form">
+					{{forma.enviar()}}
+				</div>
+			</form>
+
+		</div>
+
+	</main>
 
 	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
 	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>

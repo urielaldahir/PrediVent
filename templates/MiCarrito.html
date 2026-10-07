@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mi Tienda en Línea</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" type="text/css"
           href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -12,25 +15,25 @@
     <nav>
         <ul>
             <li>
-                <a href="{{ url_for('CatalogoUsuarios') }}">Catalogo</a>
+                <a href="{{ url_for('CatalogoUsuarios') }}"><i class="fa-solid fa-store"></i>Catalogo</a>
             </li>
 
             <li>
-                <a href="{{ url_for('miCarrito') }}">Carrito</a>
+                <a href="{{ url_for('miCarrito') }}"><i class="fa-solid fa-cart-shopping"></i>Carrito</a>
             </li>
 
             <li>
                 <a href="{{ url_for('VerHistorial') }}">
-                    Historial de compras
+                    <i class="fa-solid fa-clock-rotate-left"></i>Historial de compras
                 </a>
             </li>
 
             <li>
-                <a href="{{ url_for('perfil') }}">Perfil</a>
+                <a href="{{ url_for('perfil') }}"><i class="fa-solid fa-circle-user"></i>Perfil</a>
             </li>
 
             <li class="right">
-                <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                <a href="{{ url_for('logout') }}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a>
             </li>
         </ul>
     </nav>
@@ -41,7 +44,7 @@
 
     <div class="cart">
 
-        <h2>Carrito de compras</h2>
+        <h2><i class="fa-solid fa-cart-shopping"></i>Carrito de compras</h2>
 
         <table>
 
@@ -61,41 +64,44 @@
 
                 <tr>
 
-                    <td>
+                    <td data-label="Producto">
                         {{ item.producto.nombre_producto }}
                     </td>
 
-                    <td>
+                    <td data-label="Cantidad">
 
-                        <a href="{{ url_for('disminuir_carrito',
-                                           id_producto=item.producto.id_producto) }}">
-                            <button type="button">−</button>
-                        </a>
+                        <span class="cantidad-control">
 
-                        {{ item.cantidad }}
+                            <a class="btn-link btn-cant pequeno"
+                               href="{{ url_for('disminuir_carrito',
+                                           id_producto=item.producto.id_producto) }}"
+                               aria-label="Disminuir cantidad">−</a>
 
-                        <a href="{{ url_for('agregar_carrito',
-                                           id_producto=item.producto.id_producto) }}">
-                            <button type="button">+</button>
-                        </a>
+                            {{ item.cantidad }}
+
+                            <a class="btn-link btn-cant pequeno"
+                               href="{{ url_for('agregar_carrito',
+                                           id_producto=item.producto.id_producto) }}"
+                               aria-label="Aumentar cantidad">+</a>
+
+                        </span>
 
                     </td>
 
-                    <td>
+                    <td data-label="Precio">
                         ${{ item.producto.precio }}
                     </td>
 
-                    <td>
+                    <td data-label="Subtotal">
                         ${{ item.subtotal }}
                     </td>
 
-                    <td>
+                    <td class="acciones" data-label="Acciones">
 
-                        <a href="{{ url_for('disminuir_carrito',
+                        <a class="btn-link pequeno peligro"
+                           href="{{ url_for('disminuir_carrito',
                                            id_producto=item.producto.id_producto) }}">
-                            <button type="button">
-                                Eliminar
-                            </button>
+                            <i class="fa-solid fa-trash"></i>Eliminar
                         </a>
 
                     </td>
@@ -104,7 +110,7 @@
 
                 {% else %}
 
-                <tr>
+                <tr class="vacio">
                     <td colspan="5">
                         El carrito está vacío.
                     </td>
@@ -133,23 +139,23 @@
     </div>
 
 
-    <br>
-    <br>
-
-
     {% if carrito %}
 
-        <a href="{{ url_for('vaciar_carrito_route') }}">
-            <button type="button">
-                Vaciar carrito
-            </button>
+    <div class="carrito-acciones">
+
+        <a class="btn-link secundario"
+           href="{{ url_for('vaciar_carrito_route') }}"
+           data-confirm="¿Deseas vaciar el carrito?">
+            <i class="fa-solid fa-trash-can"></i>Vaciar carrito
         </a>
 
+        <a class="btn-link"
+           href="{{ url_for('Comprar') }}"
+           data-confirm="¿Deseas confirmar tu compra?">
+            <i class="fa-solid fa-credit-card"></i>Comprar
+        </a>
 
-        <button type="button"
-                onclick="window.location.href='{{ url_for('Comprar') }}'">
-            Comprar
-        </button>
+    </div>
 
     {% endif %}
 
@@ -160,6 +166,9 @@
 <footer>
     <p>Derechos Reservados &copy; ShopEase 2023</p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
 
 </body>
 </html>

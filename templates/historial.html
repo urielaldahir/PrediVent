@@ -1,215 +1,174 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <title>Historial de compras - PrediVent</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mi Tienda en Línea</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
-
-
 <body>
-
-<header>
-
-    <nav>
-
-        <ul>
-
-            <li>
-                <a href="{{ url_for('Catalogo') }}">
-                    Catálogo
-                </a>
-            </li>
-
-
-            <li>
-                <a href="{{ url_for('miCarrito') }}">
-                    Carrito
-                </a>
-            </li>
-
-
-            <li>
-                <a href="{{ url_for('VerHistorial') }}">
-                    Historial de compras
-                </a>
-            </li>
-
-
-            <li>
-                <a href="{{ url_for('perfil') }}">
-                    Perfil
-                </a>
-            </li>
-
-
-            <li class="right">
-
-                <a href="{{ url_for('logout') }}">
-                    Cerrar Sesión
-                </a>
-
-            </li>
-
-        </ul>
-
-    </nav>
-
-</header>
-
-
-<main>
-
-    <h1>
-        Historial de compras
-    </h1>
-
-
-    <!-- =====================================================
-         FILTROS
-    ====================================================== -->
-
-    <div class="filtros-historial">
-
-        <span>
-            Mostrar:
-        </span>
-
-
-        <a
-            href="{{ url_for('VerHistorial', filtro='todos') }}"
-            class="{% if filtro == 'todos' %}filtro-activo{% endif %}"
-        >
-            Todas
-        </a>
-
-
-        <a
-            href="{{ url_for('VerHistorial', filtro='mes') }}"
-            class="{% if filtro == 'mes' %}filtro-activo{% endif %}"
-        >
-            Este mes
-        </a>
-
-
-        <a
-            href="{{ url_for('VerHistorial', filtro='ano') }}"
-            class="{% if filtro == 'ano' %}filtro-activo{% endif %}"
-        >
-            Este año
-        </a>
-
-    </div>
-
-
-    <!-- =====================================================
-         TABLA
-    ====================================================== -->
-
-    {% if historial %}
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Fecha
-                    </th>
-
-                    <th>
-                        Producto
-                    </th>
-
-                    <th>
-                        Cantidad
-                    </th>
-
-                    <th>
-                        Precio unitario
-                    </th>
-
-                    <th>
-                        Total
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% for venta in historial %}
-
-                    <tr>
-
-                        <td>
-                            {{ venta.fecha_formateada }}
-                        </td>
-
-
-                        <td>
-                            {{ venta.nombre }}
-                        </td>
-
-
-                        <td>
-                            {{ venta.cantidad }}
-                        </td>
-
-
-                        <td>
-                            ${{ "%.2f"|format(venta.precio) }}
-                        </td>
-
-
-                        <td>
-                            ${{ "%.2f"|format(venta.total) }}
-                        </td>
-
-                    </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-
-    {% else %}
-
-        <p class="sin-historial">
-
-            No hay compras para el periodo seleccionado.
-
-        </p>
-
-    {% endif %}
-
-</main>
-
-
-<footer>
-
-    <p>
-        Derechos Reservados &copy; PrediVent
-    </p>
-
-</footer>
-
-
+	<header>
+		<nav>
+			<ul>
+				<li><a href="{{url_for('CatalogoUsuarios')}}"><i class="fa-solid fa-store"></i>Catalogo</a></li>
+				<li><a href="{{url_for('miCarrito')}}"><i class="fa-solid fa-cart-shopping"></i>Carrito</a></li>
+				<li><a href="{{url_for('VerHistorial')}}"><i class="fa-solid fa-clock-rotate-left"></i>Historial de compras</a></li>
+				<li><a href="{{url_for('perfil')}}"><i class="fa-solid fa-circle-user"></i>Perfil</a></li>
+				<li class="right"><a href="{{url_for('logout')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+
+		<h1>Historial de compras</h1>
+
+		<div class="filtros-historial">
+			<span>Mostrar:</span>
+			<a href="{{ url_for('VerHistorial', filtro='todos') }}" class="{% if filtro == 'todos' %}filtro-activo{% endif %}">Todas</a>
+			<a href="{{ url_for('VerHistorial', filtro='mes') }}" class="{% if filtro == 'mes' %}filtro-activo{% endif %}">Este mes</a>
+			<a href="{{ url_for('VerHistorial', filtro='ano') }}" class="{% if filtro == 'ano' %}filtro-activo{% endif %}">Este año</a>
+		</div>
+
+		{% if historial %}
+
+		<section class="card resumen-historial" hidden>
+			<div class="grid-metricas">
+				<div class="metrica">
+					<span class="valor" data-metrica="compras">0</span>
+					<span class="etiqueta">Compras</span>
+				</div>
+				<div class="metrica">
+					<span class="valor" data-metrica="unidades">0</span>
+					<span class="etiqueta">Unidades compradas</span>
+				</div>
+				<div class="metrica">
+					<span class="valor" data-metrica="gastado">$0.00</span>
+					<span class="etiqueta">Total gastado</span>
+				</div>
+			</div>
+			<h2>Unidades por producto</h2>
+			<div class="grafico">
+				<canvas id="grafico-historial" aria-label="Gráfico de unidades compradas por producto" role="img"></canvas>
+			</div>
+		</section>
+
+		<div class="tabla-bloque">
+
+			<div class="barra-tabla">
+				<div class="campo-buscar">
+					<i class="fa-solid fa-magnifying-glass"></i>
+					<input type="search" class="filtro-tabla" placeholder="Buscar en el historial...">
+				</div>
+				<span class="contador-tabla"></span>
+			</div>
+
+			<div class="tabla-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>Fecha</th>
+							<th>Producto</th>
+							<th>Descripción</th>
+							<th>Cantidad</th>
+							<th>Precio</th>
+							<th>Total</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for venta in historial %}
+						<tr>
+							<td data-label="Fecha">{{ venta.fecha_formateada }}</td>
+							<td data-label="Producto">{{ venta.nombre }}</td>
+							<td class="celda-desc" data-label="Descripción"><div class="recorte" title="{{ venta.descripcion }}">{{ venta.descripcion }}</div></td>
+							<td data-label="Cantidad">{{ venta.cantidad }}</td>
+							<td data-label="Precio">${{ "%.2f"|format(venta.precio) }}</td>
+							<td data-label="Total">${{ "%.2f"|format(venta.total) }}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+
+		{% else %}
+
+		<p class="sin-historial">No tienes compras registradas en este periodo.</p>
+
+		{% endif %}
+
+	</main>
+
+	<footer>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
+	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
+	<script>
+		/* El resumen y el gráfico se arman leyendo la tabla ya renderizada. */
+		document.addEventListener("DOMContentLoaded", function () {
+			var filas = document.querySelectorAll(".tabla-bloque tbody tr");
+			var panel = document.querySelector(".resumen-historial");
+			if (!filas.length || !panel || typeof Chart === "undefined") return;
+
+			function numero(texto) {
+				var n = parseFloat((texto || "").replace(/[^0-9.\-]/g, ""));
+				return isNaN(n) ? 0 : n;
+			}
+
+			var porProducto = {};
+			var unidades = 0;
+			var gastado = 0;
+
+			filas.forEach(function (fila) {
+				var nombre = fila.querySelector('[data-label="Producto"]').textContent.trim();
+				var cantidad = numero(fila.querySelector('[data-label="Cantidad"]').textContent);
+				gastado += numero(fila.querySelector('[data-label="Total"]').textContent);
+				unidades += cantidad;
+				porProducto[nombre] = (porProducto[nombre] || 0) + cantidad;
+			});
+
+			var nombres = Object.keys(porProducto);
+			var cantidades = nombres.map(function (n) { return porProducto[n]; });
+
+			panel.hidden = false;
+			panel.querySelector('[data-metrica="compras"]').textContent = filas.length;
+			panel.querySelector('[data-metrica="unidades"]').textContent = unidades;
+			panel.querySelector('[data-metrica="gastado"]').textContent =
+				"$" + gastado.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+			var css = getComputedStyle(document.documentElement);
+			var colorMarca = css.getPropertyValue("--brand").trim() || "#0f6b8a";
+			var colorTexto = css.getPropertyValue("--ink-soft").trim() || "#5b6578";
+			var colorLinea = css.getPropertyValue("--line").trim() || "#e2e6ef";
+
+			new Chart(document.getElementById("grafico-historial"), {
+				type: "bar",
+				data: {
+					labels: nombres,
+					datasets: [{
+						label: "Unidades",
+						data: cantidades,
+						backgroundColor: colorMarca,
+						borderRadius: 8,
+						maxBarThickness: 56
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { display: false } },
+					scales: {
+						x: { ticks: { color: colorTexto }, grid: { display: false } },
+						y: { beginAtZero: true, ticks: { color: colorTexto, precision: 0 }, grid: { color: colorLinea } }
+					}
+				}
+			});
+		});
+	</script>
 </body>
-
 </html>
-```

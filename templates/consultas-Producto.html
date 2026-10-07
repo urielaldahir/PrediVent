@@ -1,70 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-                <li><a href="{{url_for('consultas')}}">Regresar</a></li>
-				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+				<li><a href="{{url_for('consultas')}}"><i class="fa-solid fa-arrow-left"></i>Regresar</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
 			</ul>
 		</nav>
 	</header>
 
 	<main>
 
+		<h1>Productos</h1>
 
-      </br>
-      </br>
+		<div class="tabla-bloque">
 
+			<div class="barra-tabla">
+				<div class="campo-buscar">
+					<i class="fa-solid fa-magnifying-glass"></i>
+					<input type="search" class="filtro-tabla" placeholder="Buscar producto...">
+				</div>
+				<span class="contador-tabla"></span>
+			</div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>ID de proveedor</th>
-                <th>Nombre</th>
-                <th>Cantidad</th>
-                <th>Descripccion</th>
-                <th>Precio</th>
-                <th>Ruta de la imagen</th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        <tr>
-            {%for producto in producto %}
-            <td>{{producto.id_producto}}</td>
-            <td>{{producto.id_provedor}}</td>
-            <td>{{producto.nombre_producto}}</td>
-            <td>{{producto.cantida}}</td>
-            <td>{{producto.descripcion}}</td>
-            <td>{{producto.precio}}</td>
-            <td>{{producto.RutaImagen}}</td>
-            <td><a href="/editar/producto/{{producto.id_producto}}">
-                <button>Editar</button></a></td>
-            <td><a href="/eliminar/producto/{{producto.id_producto}}"  onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
-                <button>Eliminar</button>
-            </a></td>
-            <td><a href="/predecir/producto/{{producto.id_producto}}" >
-                <button>Predicción de venta</button>
-            </a></td>
+			<div class="tabla-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>ID de proveedor</th>
+							<th>Nombre</th>
+							<th>Cantidad</th>
+							<th>Descripción</th>
+							<th>Precio</th>
+							<th>Ruta de la imagen</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+					{%for producto in producto %}
+						<tr>
+							<td data-label="ID">{{producto.id_producto}}</td>
+							<td data-label="ID de proveedor">{{ producto.id_provedor if producto.id_provedor is defined else producto.id_proveedor }}</td>
+							<td data-label="Nombre">{{producto.nombre_producto}}</td>
+							<td data-label="Cantidad">{{ producto.cantidad if producto.cantidad is defined else producto.cantida }}</td>
+							<td class="celda-desc" data-label="Descripción"><div class="recorte" title="{{producto.descripcion}}">{{producto.descripcion}}</div></td>
+							<td data-label="Precio">{{producto.precio}}</td>
+							<td class="celda-ruta" data-label="Ruta de la imagen" title="{{producto.RutaImagen}}">{{producto.RutaImagen}}</td>
+							<td class="acciones" data-label="Acciones">
+								<div class="acciones-caja">
+								<a class="btn-link pequeno" href="/editar/producto/{{producto.id_producto}}">
+									<i class="fa-solid fa-pen"></i>Editar
+								</a>
+								<a class="btn-link pequeno peligro" href="/eliminar/producto/{{producto.id_producto}}" data-confirm="¿Estás seguro de que deseas eliminar este registro?">
+									<i class="fa-solid fa-trash"></i>Eliminar
+								</a>
+								<a class="btn-link pequeno secundario" href="/predecir/producto/{{producto.id_producto}}">
+									<i class="fa-solid fa-chart-line"></i>Predicción de venta
+								</a>
+								</div>
+							</td>
+						</tr>
+					{% else %}
+						<tr class="vacio">
+							<td colspan="8">No hay productos registrados.</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
 
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-  </main>
+		</div>
+	</main>
 
 	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
 	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>
-
-

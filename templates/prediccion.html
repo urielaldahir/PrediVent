@@ -12,6 +12,8 @@
         Producto - {{ producto }}
     </title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <link rel="stylesheet"
           type="text/css"
           href="{{ url_for('static', filename='css/style.css') }}">
@@ -20,383 +22,355 @@
 
     <style>
 
-        /* =========================================================
-           ESTRUCTURA GENERAL
-           ========================================================= */
+        /* Estilos propios de la vista de predicción (usan las variables de style.css) */
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f5f5;
-            color: #111;
-        }
-
-        main {
-            width: 92%;
-            max-width: 1200px;
-            margin: 40px auto;
-        }
-
-        h1,
-        h2,
-        h3 {
-            margin-top: 0;
-        }
-
-
-        /* =========================================================
-           ENCABEZADO
-           ========================================================= */
-
-        .titulo-principal {
+        .pred .titulo-principal {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
-        .titulo-principal h1 {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
-
-        .titulo-principal h2 {
-            font-size: 22px;
-            font-weight: 600;
-        }
-
-
-        /* =========================================================
-           SECCIONES
-           ========================================================= */
-
-        .seccion {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .seccion h2 {
-            text-align: center;
-            font-size: 25px;
-            margin-bottom: 25px;
-        }
-
-
-        /* =========================================================
-           TARJETAS SUPERIORES
-           ========================================================= */
-
-        .tarjetas {
-            display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
-            gap: 18px;
-
-            margin-bottom: 25px;
-        }
-
-        .tarjeta {
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 25px 15px;
-
-            text-align: center;
-
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .tarjeta h3 {
-            font-size: 17px;
-            margin-bottom: 12px;
-        }
-
-        .valor {
-            font-size: 30px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .unidad {
-            font-size: 15px;
-            color: #555;
-        }
-
-
-        /* =========================================================
-           PREDICCIÓN
-           ========================================================= */
-
-        .modelos {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 20px;
-        }
-
-        .modelo {
-            border: 1px solid #ddd;
-
-            border-radius: 10px;
-
-            padding: 25px;
-
-            text-align: center;
-
-            background: #fff;
-        }
-
-        .modelo h3 {
-            font-size: 19px;
-            margin-bottom: 15px;
-        }
-
-        .modelo .valor {
-            font-size: 30px;
-        }
-
-
-        /* =========================================================
-           MODELO SELECCIONADO
-           ========================================================= */
-
-        .modelo-seleccionado {
-            background: #f7f7f7;
-
-            border-radius: 10px;
-
-            padding: 25px;
-
-            text-align: center;
-
-            margin-top: 20px;
-        }
-
-        .modelo-seleccionado h3 {
-            font-size: 22px;
-            margin-bottom: 15px;
-        }
-
-        .modelo-seleccionado .nombre-modelo {
-            font-size: 27px;
-            font-weight: bold;
-
-            margin: 10px 0;
-        }
-
-        .modelo-seleccionado .valor {
-            font-size: 34px;
-        }
-
-
-        /* =========================================================
-           EVALUACIÓN
-           ========================================================= */
-
-        .metricas {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 10px;
-
-            margin-top: 15px;
-        }
-
-        .metrica {
-            background: #f5f5f5;
-
-            border-radius: 8px;
-
-            padding: 15px;
-
-            text-align: center;
-        }
-
-        .metrica span {
-            display: block;
-
+        .pred .titulo-principal h1 {
+            margin: 0 0 8px;
             font-size: 14px;
-
-            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
         }
 
-        .metrica strong {
+        .pred .titulo-principal h2 {
+            margin: 0;
+            font-size: clamp(28px, 4.5vw, 42px);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        /* ---------- Tarjetas superiores ---------- */
+
+        .pred .tarjetas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        .pred .tarjeta {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-l);
+            box-shadow: var(--shadow-s);
+            padding: 22px 20px;
+            text-align: left;
+            transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+        }
+
+        .pred .tarjeta:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-m);
+        }
+
+        .pred .tarjeta .icono {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            margin-bottom: 12px;
+            border-radius: var(--radius-m);
+            background: var(--brand-tint);
+            color: var(--brand);
+            font-size: 18px;
+        }
+
+        .pred .tarjeta .icono i,
+        .pred .seccion h2 i,
+        .pred .modelo h3 i,
+        .pred .inventario-estado h3 i,
+        .pred .mensaje h2 i {
+            margin: 0 8px 0 0;
+        }
+
+        .pred .tarjeta .icono i {
+            margin: 0;
+        }
+
+        .pred .tarjeta h3 {
+            margin: 0 0 4px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink-soft);
+        }
+
+        .pred .valor {
+            margin: 4px 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            color: var(--ink);
+        }
+
+        .pred .unidad {
+            font-size: 14px;
+            color: var(--ink-soft);
+        }
+
+        /* ---------- Secciones ---------- */
+
+        .pred .seccion {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-l);
+            box-shadow: var(--shadow-s);
+            padding: clamp(20px, 3vw, 32px);
+            margin-bottom: 26px;
+        }
+
+        .pred .seccion > h2 {
+            margin: 0 0 24px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .pred .seccion > h2 i {
+            color: var(--brand);
+        }
+
+        .pred .modelos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: 18px;
+        }
+
+        .pred .modelo {
+            min-width: 0;
+            background: var(--surface-alt);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-m);
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .pred .modelo h3 {
+            margin: 0 0 12px;
+            font-size: 17px;
+        }
+
+        .pred .modelo h3 i {
+            color: var(--brand);
+        }
+
+        .pred .modelo p {
+            margin: 0 auto;
+            font-size: 14px;
+        }
+
+        .pred .modelo-seleccionado {
+            margin-top: 22px;
+            padding: 28px 20px;
+            text-align: center;
+            border-radius: var(--radius-m);
+            background: var(--brand-tint);
+            border: 2px solid var(--brand);
+        }
+
+        .pred .modelo-seleccionado h3 {
+            margin: 0 0 8px;
             font-size: 20px;
         }
 
-
-        /* =========================================================
-           TABLAS
-           ========================================================= */
-
-        .tabla-contenedor {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-
-            border-collapse: collapse;
-
-            margin-top: 10px;
-        }
-
-        th {
-            background: #eeeeee;
-
-            padding: 12px;
-
-            text-align: center;
-
+        .pred .modelo-seleccionado p {
+            margin: 0 auto 8px;
             font-size: 15px;
         }
 
-        td {
-            padding: 11px;
+        .pred .modelo-seleccionado .nombre-modelo {
+            margin: 8px 0;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--brand-strong);
+        }
 
+        .pred .modelo-seleccionado .valor {
+            font-size: 40px;
+            color: var(--brand-strong);
+        }
+
+        /* ---------- Métricas de evaluación ---------- */
+
+        .pred .metricas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 96px), 1fr));
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .pred .metrica {
+            display: block;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            padding: 14px 8px;
             text-align: center;
-
-            border-bottom: 1px solid #ddd;
+            border-radius: var(--radius-s);
+            background: var(--surface);
+            border: 1px solid var(--line);
         }
 
-        tr:nth-child(even) {
-            background: #f7f7f7;
+        .pred .metrica span {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink-soft);
         }
 
+        .pred .metrica strong {
+            font-size: clamp(15px, 1.5vw, 20px);
+        }
 
-        /* =========================================================
-           INVENTARIO
-           ========================================================= */
+        /* ---------- Tablas ---------- */
 
-        .inventario-estado {
-            margin-top: 20px;
+        .pred .tabla-contenedor {
+            max-height: 380px;
+            overflow: auto;
+            border-radius: var(--radius-m);
+            border: 1px solid var(--line);
+        }
 
-            padding: 22px;
+        .pred .tabla-contenedor table {
+            box-shadow: none;
+            border-radius: 0;
+        }
 
-            border-radius: 10px;
-
+        .pred .tabla-contenedor th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
             text-align: center;
-
-            background: #f5f5f5;
         }
 
-        .inventario-estado h3 {
-            font-size: 22px;
-            margin-bottom: 12px;
+        .pred .tabla-contenedor td {
+            text-align: center;
         }
 
-        .inventario-estado p {
+        /* ---------- Inventario ---------- */
+
+        .pred .inventario-estado {
+            margin-top: 22px;
+            padding: 24px 20px;
+            text-align: center;
+            border-radius: var(--radius-m);
+            background: var(--surface-alt);
+            border: 1px solid var(--line);
+            border-left: 6px solid var(--ink-soft);
+        }
+
+        .pred .inventario-estado h3 {
+            margin: 0 0 10px;
+            font-size: 21px;
+        }
+
+        .pred .inventario-estado p {
+            margin: 0 auto 10px;
             font-size: 16px;
             line-height: 1.6;
         }
 
+        .pred .inventario-estado p:last-child {
+            margin-bottom: 0;
+        }
 
-        /* =========================================================
-           ANÁLISIS TÉCNICO
-           ========================================================= */
+        .pred .estado-suficiente {
+            border-left-color: var(--ok);
+            background: color-mix(in srgb, var(--ok) 11%, var(--surface));
+        }
 
-        .analisis {
-            text-align: center;
+        .pred .estado-suficiente h3 {
+            color: var(--ok);
+        }
 
-            line-height: 1.7;
+        .pred .estado-precaucion {
+            border-left-color: var(--accent);
+            background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+        }
 
+        .pred .estado-precaucion h3 {
+            color: #a8670c;
+        }
+
+        .pred .estado-riesgo {
+            border-left-color: var(--danger);
+            background: color-mix(in srgb, var(--danger) 11%, var(--surface));
+        }
+
+        .pred .estado-riesgo h3 {
+            color: var(--danger);
+        }
+
+        /* ---------- Análisis técnico ---------- */
+
+        .pred .analisis {
+            max-width: 780px;
+            margin: 0 auto;
             font-size: 16px;
+            line-height: 1.7;
+            text-align: left;
         }
 
-        .analisis p {
-            margin-bottom: 20px;
+        .pred .analisis p {
+            max-width: none;
+            margin: 0 0 18px;
+            font-size: 16px;
+            color: var(--ink);
         }
 
+        .pred .analisis p:last-child {
+            margin-bottom: 0;
+        }
 
-        /* =========================================================
-           GRÁFICA
-           ========================================================= */
+        /* ---------- Gráfica ---------- */
 
-        .grafica-contenedor {
+        .pred .grafica-contenedor {
             position: relative;
-
             width: 100%;
-
             height: 450px;
         }
 
+        /* ---------- Mensajes sin predicción ---------- */
 
-        /* =========================================================
-           MENSAJE DE DATOS INSUFICIENTES
-           ========================================================= */
-
-        .mensaje {
-            background: white;
-
-            border-radius: 12px;
-
-            padding: 45px;
-
+        .pred .mensaje {
+            max-width: 680px;
+            margin: 0 auto 26px;
+            padding: clamp(28px, 5vw, 48px);
             text-align: center;
-
-            box-shadow:
-                0 3px 12px rgba(0, 0, 0, 0.08);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-l);
+            box-shadow: var(--shadow-m);
         }
 
-        .mensaje h2 {
-            margin-bottom: 20px;
+        .pred .mensaje h2 {
+            margin: 0 0 18px;
+            font-size: 24px;
         }
 
-        .mensaje p {
+        .pred .mensaje h2 i {
+            display: block;
+            margin: 0 0 14px;
+            font-size: 34px;
+            color: var(--brand);
+        }
+
+        .pred .mensaje p {
+            margin: 0 auto 14px;
             font-size: 17px;
-
             line-height: 1.7;
         }
 
-
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
-
-        @media (max-width: 900px) {
-
-            .tarjetas {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
-            .modelos {
-                grid-template-columns:
-                    1fr;
-            }
-
-        }
-
-
         @media (max-width: 600px) {
 
-            main {
-                width: 95%;
-            }
-
-            .tarjetas {
-                grid-template-columns:
-                    1fr;
-            }
-
-            .metricas {
-                grid-template-columns:
-                    1fr;
-            }
-
-            .grafica-contenedor {
-                height: 350px;
+            .pred .grafica-contenedor {
+                height: 340px;
             }
 
         }
@@ -417,13 +391,13 @@
 
             <li>
                 <a href="{{ url_for('consultasProducto') }}">
-                    Regresar
+                    <i class="fa-solid fa-arrow-left"></i>Regresar
                 </a>
             </li>
 
             <li class="right">
-                <a href="{{ url_for('logout2') }}">
-                    Cerrar Sesión
+                <a href="{{ url_for('logout2') }}" data-confirm="¿Deseas cerrar sesión?">
+                    <i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión
                 </a>
             </li>
 
@@ -434,7 +408,7 @@
 </header>
 
 
-<main>
+<main class="pred">
 
 
     <!-- =====================================================
@@ -464,6 +438,7 @@
         <div class="mensaje">
 
             <h2>
+                <i class="fa-solid fa-hourglass-half"></i>
                 Datos insuficientes para generar una predicción
             </h2>
 
@@ -504,6 +479,7 @@
         <div class="mensaje">
 
             <h2>
+                <i class="fa-solid fa-inbox"></i>
                 Sin datos de ventas
             </h2>
 
@@ -526,6 +502,8 @@
 
             <div class="tarjeta">
 
+                <span class="icono"><i class="fa-solid fa-receipt"></i></span>
+
                 <h3>
                     Ventas registradas
                 </h3>
@@ -542,6 +520,8 @@
 
 
             <div class="tarjeta">
+
+                <span class="icono"><i class="fa-solid fa-calendar-days"></i></span>
 
                 <h3>
                     Días históricos
@@ -560,6 +540,8 @@
 
             <div class="tarjeta">
 
+                <span class="icono"><i class="fa-solid fa-chart-simple"></i></span>
+
                 <h3>
                     Promedio diario
                 </h3>
@@ -576,6 +558,8 @@
 
 
             <div class="tarjeta">
+
+                <span class="icono"><i class="fa-solid fa-boxes-stacked"></i></span>
 
                 <h3>
                     Inventario actual
@@ -602,7 +586,7 @@
         <div class="seccion">
 
             <h2>
-                Predicción de demanda
+                <i class="fa-solid fa-bullseye"></i>Predicción de demanda
             </h2>
 
 
@@ -614,14 +598,12 @@
                 <div class="modelo">
 
                     <h3>
-                        Regresión Lineal
+                        <i class="fa-solid fa-chart-line"></i>Regresión Lineal
                     </h3>
 
                     <div class="valor">
 
-                        {{
-                            resultado.prediccion_lineal_7_dias
-                        }}
+                        {{ resultado.prediccion_lineal_7_dias }}
 
                     </div>
 
@@ -638,14 +620,12 @@
                 <div class="modelo">
 
                     <h3>
-                        Random Forest
+                        <i class="fa-solid fa-tree"></i>Random Forest
                     </h3>
 
                     <div class="valor">
 
-                        {{
-                            resultado.prediccion_bosque_7_dias
-                        }}
+                        {{ resultado.prediccion_bosque_7_dias }}
 
                     </div>
 
@@ -667,7 +647,7 @@
             <div class="modelo-seleccionado">
 
                 <h3>
-                    Resultado del análisis
+                    <i class="fa-solid fa-circle-check"></i>Resultado del análisis
                 </h3>
 
                 <p>
@@ -692,9 +672,7 @@
 
                 <div class="valor">
 
-                    {{
-                        resultado.prediccion_seleccionada_7_dias
-                    }}
+                    {{ resultado.prediccion_seleccionada_7_dias }}
 
                 </div>
 
@@ -715,7 +693,7 @@
         <div class="seccion">
 
             <h2>
-                Evaluación de los modelos
+                <i class="fa-solid fa-scale-balanced"></i>Evaluación de los modelos
             </h2>
 
 
@@ -727,7 +705,7 @@
                 <div class="modelo">
 
                     <h3>
-                        Regresión Lineal
+                        <i class="fa-solid fa-chart-line"></i>Regresión Lineal
                     </h3>
 
 
@@ -740,11 +718,7 @@
                             </span>
 
                             <strong>
-
-                                {{
-                                    resultado.metricas.lineal.mae
-                                }}
-
+                                {{ resultado.metricas.lineal.mae|round(4) }}
                             </strong>
 
                         </div>
@@ -757,11 +731,7 @@
                             </span>
 
                             <strong>
-
-                                {{
-                                    resultado.metricas.lineal.rmse
-                                }}
-
+                                {{ resultado.metricas.lineal.rmse|round(4) }}
                             </strong>
 
                         </div>
@@ -774,11 +744,7 @@
                             </span>
 
                             <strong>
-
-                                {{
-                                    resultado.metricas.lineal.r2
-                                }}
-
+                                {{ resultado.metricas.lineal.r2|round(4) }}
                             </strong>
 
                         </div>
@@ -793,7 +759,7 @@
                 <div class="modelo">
 
                     <h3>
-                        Random Forest
+                        <i class="fa-solid fa-tree"></i>Random Forest
                     </h3>
 
 
@@ -806,11 +772,7 @@
                             </span>
 
                             <strong>
-
-                                {{
-                                    resultado.metricas.bosque.mae
-                                }}
-
+                                {{ resultado.metricas.bosque.mae|round(4) }}
                             </strong>
 
                         </div>
@@ -823,11 +785,7 @@
                             </span>
 
                             <strong>
-
-                                {{
-                                    resultado.metricas.bosque.rmse
-                                }}
-
+                                {{ resultado.metricas.bosque.rmse|round(4) }}
                             </strong>
 
                         </div>
@@ -840,11 +798,7 @@
                             </span>
 
                             <strong>
-
-                                {{
-                                    resultado.metricas.bosque.r2
-                                }}
-
+                                {{ resultado.metricas.bosque.r2|round(4) }}
                             </strong>
 
                         </div>
@@ -866,7 +820,7 @@
         <div class="seccion">
 
             <h2>
-                Pronóstico seleccionado
+                <i class="fa-solid fa-calendar-check"></i>Pronóstico seleccionado
             </h2>
 
 
@@ -897,11 +851,11 @@
 
                         <tr>
 
-                            <td>
+                            <td data-label="Fecha">
                                 {{ registro.fecha }}
                             </td>
 
-                            <td>
+                            <td data-label="Unidades estimadas">
                                 {{ registro.cantidad }}
                             </td>
 
@@ -925,7 +879,7 @@
         <div class="seccion">
 
             <h2>
-                Análisis de inventario
+                <i class="fa-solid fa-warehouse"></i>Análisis de inventario
             </h2>
 
 
@@ -982,9 +936,7 @@
 
                     <div class="valor">
 
-                        {{ "%.2f"|format(
-                            diferencia_inventario
-                        ) }}
+                        {{ "%.2f"|format(diferencia_inventario) }}
 
                     </div>
 
@@ -1020,13 +972,13 @@
             </div>
 
 
-            <div class="inventario-estado">
+            <div class="inventario-estado estado-{{ estado_inventario }}">
 
 
                 {% if estado_inventario == "suficiente" %}
 
                     <h3>
-                        Inventario suficiente
+                        <i class="fa-solid fa-circle-check"></i>Inventario suficiente
                     </h3>
 
                     <p>
@@ -1044,7 +996,7 @@
                 {% elif estado_inventario == "precaucion" %}
 
                     <h3>
-                        Precaución con el inventario
+                        <i class="fa-solid fa-triangle-exclamation"></i>Precaución con el inventario
                     </h3>
 
                     <p>
@@ -1066,7 +1018,7 @@
                 {% elif estado_inventario == "riesgo" %}
 
                     <h3>
-                        Riesgo de agotamiento
+                        <i class="fa-solid fa-circle-exclamation"></i>Riesgo de agotamiento
                     </h3>
 
                     <p>
@@ -1080,11 +1032,7 @@
 
                         <strong>
 
-                            {{
-                                "%.2f"|format(
-                                    diferencia_inventario|abs
-                                )
-                            }}
+                            {{ "%.2f"|format(diferencia_inventario|abs) }}
 
                             unidades
 
@@ -1107,7 +1055,7 @@
                 {% else %}
 
                     <h3>
-                        Información insuficiente
+                        <i class="fa-solid fa-circle-question"></i>Información insuficiente
                     </h3>
 
                     <p>
@@ -1130,7 +1078,7 @@
         <div class="seccion">
 
             <h2>
-                Comportamiento de la demanda
+                <i class="fa-solid fa-chart-area"></i>Comportamiento de la demanda
             </h2>
 
 
@@ -1150,7 +1098,7 @@
         <div class="seccion">
 
             <h2>
-                Historial de demanda
+                <i class="fa-solid fa-clock-rotate-left"></i>Historial de demanda
             </h2>
 
 
@@ -1181,11 +1129,11 @@
 
                         <tr>
 
-                            <td>
+                            <td data-label="Fecha">
                                 {{ registro.fecha }}
                             </td>
 
-                            <td>
+                            <td data-label="Unidades vendidas">
                                 {{ registro.cantidad }}
                             </td>
 
@@ -1209,7 +1157,7 @@
         <div class="seccion">
 
             <h2>
-                Análisis técnico
+                <i class="fa-solid fa-microscope"></i>Análisis técnico
             </h2>
 
 
@@ -1304,9 +1252,7 @@
 
                     <strong>
 
-                        {{
-                            resultado.prediccion_seleccionada_7_dias
-                        }}
+                        {{ resultado.prediccion_seleccionada_7_dias }}
 
                     </strong>
 
@@ -1359,19 +1305,16 @@
 
             const historial = [
 
-                {% for registro in resultado.serie_historica %}
+                /* {% for registro in resultado.serie_historica %} */
 
                 {
-                    fecha:
-                        "{{ registro.fecha }}",
-
-                    cantidad:
-                        {{ registro.cantidad }}
+                    fecha: "{{ registro.fecha }}",
+                    cantidad: Number("{{ registro.cantidad }}")
                 }
 
-                {% if not loop.last %},{% endif %}
+                /* {% if not loop.last %} */ , /* {% endif %} */
 
-                {% endfor %}
+                /* {% endfor %} */
 
             ];
 
@@ -1384,26 +1327,23 @@
 
             const pronostico = [
 
-                {% for registro in resultado.predicciones_seleccionadas %}
+                /* {% for registro in resultado.predicciones_seleccionadas %} */
 
                 {
-                    fecha:
-                        "{{ registro.fecha }}",
-
-                    cantidad:
-                        {{ registro.cantidad }}
+                    fecha: "{{ registro.fecha }}",
+                    cantidad: Number("{{ registro.cantidad }}")
                 }
 
-                {% if not loop.last %},{% endif %}
+                /* {% if not loop.last %} */ , /* {% endif %} */
 
-                {% endfor %}
+                /* {% endfor %} */
 
             ];
 
 
             /*
              * =====================================================
-             * FECHAS
+             * FECHAS Y VALORES
              * =====================================================
              */
 
@@ -1480,6 +1420,30 @@
 
             /*
              * =====================================================
+             * COLORES (tomados de las variables CSS del tema)
+             * =====================================================
+             */
+
+            const estilosTema =
+                getComputedStyle(
+                    document.documentElement
+                );
+
+            const colorMarca =
+                estilosTema.getPropertyValue("--brand").trim() || "#0f6b8a";
+
+            const colorAcento =
+                estilosTema.getPropertyValue("--accent").trim() || "#f2a93b";
+
+            const colorTexto =
+                estilosTema.getPropertyValue("--ink-soft").trim() || "#5b6578";
+
+            const colorLinea =
+                estilosTema.getPropertyValue("--line").trim() || "#e2e6ef";
+
+
+            /*
+             * =====================================================
              * CREAR GRÁFICA
              * =====================================================
              */
@@ -1491,6 +1455,13 @@
 
 
             if (canvas) {
+
+                Chart.defaults.font.family =
+                    "'Manrope', 'Segoe UI', Arial, sans-serif";
+
+                Chart.defaults.color =
+                    colorTexto;
+
 
                 new Chart(
 
@@ -1517,14 +1488,26 @@
                                     data:
                                         datosHistoricos,
 
+                                    borderColor:
+                                        colorMarca,
+
+                                    backgroundColor:
+                                        colorMarca + "22",
+
+                                    fill:
+                                        true,
+
                                     tension:
                                         0.3,
 
                                     borderWidth:
-                                        2,
+                                        2.5,
 
                                     pointRadius:
-                                        3
+                                        3,
+
+                                    pointHoverRadius:
+                                        6
 
                                 },
 
@@ -1537,17 +1520,26 @@
                                     data:
                                         datosPronostico,
 
+                                    borderColor:
+                                        colorAcento,
+
+                                    backgroundColor:
+                                        colorAcento,
+
                                     tension:
                                         0.3,
 
                                     borderWidth:
-                                        2,
+                                        2.5,
 
                                     borderDash:
                                         [6, 6],
 
                                     pointRadius:
-                                        3
+                                        3,
+
+                                    pointHoverRadius:
+                                        6
 
                                 }
 
@@ -1581,7 +1573,14 @@
                                 legend: {
 
                                     display:
-                                        true
+                                        true,
+
+                                    labels: {
+
+                                        usePointStyle:
+                                            true
+
+                                    }
 
                                 }
 
@@ -1594,6 +1593,13 @@
 
                                     beginAtZero:
                                         true,
+
+                                    grid: {
+
+                                        color:
+                                            colorLinea
+
+                                    },
 
                                     title: {
 
@@ -1609,6 +1615,13 @@
 
 
                                 x: {
+
+                                    grid: {
+
+                                        display:
+                                            false
+
+                                    },
 
                                     title: {
 
@@ -1648,6 +1661,10 @@
     </p>
 
 </footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
 
 
 </body>

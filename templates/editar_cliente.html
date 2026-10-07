@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mi Tienda en Línea</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 
@@ -11,7 +14,7 @@
     <nav>
         <ul>
             <li>
-                <a href="{{url_for('consultasClientes')}}">Regresar</a>
+                <a href="{{url_for('consultasClientes')}}"><i class="fa-solid fa-arrow-left"></i>Regresar</a>
             </li>
         </ul>
     </nav>
@@ -19,43 +22,66 @@
 
 <main>
 
-<h1>Editar información del cliente</h1>
+<div class="login">
 
-<form method="POST">
+    <div class="login-titulo">
+        <span class="login-icono"><i class="fa-solid fa-user-pen"></i></span>
+        <h1>Editar información del cliente</h1>
+    </div>
 
-    {{forma.csrf_token}}
+    <form method="POST" data-confirm="¿Guardar los cambios?">
 
-    <p>
-        {{forma.nombre.label}}
-        {{forma.nombre(size=30)}}
-    </p>
+        {{forma.csrf_token}}
 
-    <p>
-        {{forma.numero_telefono.label}}
-        {{forma.numero_telefono(size=30)}}
-    </p>
+        <div class="grupo">
+            {{forma.nombre.label}}
+            <div class="campo">
+                <i class="fa-solid fa-user"></i>
+                {{forma.nombre(size=30)}}
+            </div>
+        </div>
 
-    <p>
-        {{forma.correo.label}}
-        {{forma.correo(size=30)}}
-    </p>
+        <div class="grupo">
+            {{forma.numero_telefono.label}}
+            <div class="campo">
+                <i class="fa-solid fa-phone"></i>
+                {{forma.numero_telefono(size=30)}}
+            </div>
+        </div>
 
-    <p>
-        {{forma.contraseña.label}}
-        {{forma.contraseña(size=30)}}
-    </p>
+        <div class="grupo">
+            {{forma.correo.label}}
+            <div class="campo">
+                <i class="fa-solid fa-envelope"></i>
+                {{forma.correo(size=30)}}
+            </div>
+        </div>
 
-    <p>
-        {{forma.enviar()}}
-    </p>
+        <div class="grupo">
+            {{forma.contraseña.label}}
+            <div class="campo">
+                <i class="fa-solid fa-lock"></i>
+                {{forma.contraseña(size=30)}}
+                <button type="button" class="ver-clave" onclick="var c=this.closest('.campo');var i=c.querySelector('input');var v=i.type==='text';i.type=v?'password':'text';this.querySelector('i').className=v?'fa-solid fa-eye':'fa-solid fa-eye-slash';" aria-label="Mostrar u ocultar contraseña"><i class="fa-solid fa-eye"></i></button>
+            </div>
+        </div>
 
-</form>
+        <div class="acciones-form">
+            {{forma.enviar()}}
+        </div>
+
+    </form>
+
+</div>
 
 </main>
 
 <footer>
     <p>Derechos Reservados &copy; ShopEase 2023</p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 
 </body>
 </html>

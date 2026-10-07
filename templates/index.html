@@ -1,29 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<style>
+		/* Estilos propios de esta página (puedes moverlos a style.css) */
+		.hero {
+			background: var(--surface);
+			border: 1px solid var(--line);
+			border-radius: var(--radius-l);
+			box-shadow: var(--shadow-m);
+			padding: clamp(32px, 6vw, 72px) clamp(20px, 5vw, 64px);
+			margin-bottom: 32px;
+		}
+
+		.hero h1 {
+			font-size: clamp(32px, 5.5vw, 56px);
+			margin-bottom: 16px;
+		}
+
+		.hero p {
+			font-size: 18px;
+			margin-bottom: 32px;
+		}
+
+		.hero-acciones {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 12px;
+		}
+
+		.btn-link {
+			display: inline-flex;
+			align-items: center;
+			padding: 12px 24px;
+			border-radius: var(--radius-s);
+			font-weight: 700;
+			text-decoration: none;
+			background: var(--brand);
+			color: #fff;
+			box-shadow: var(--shadow-s);
+			transition: background-color var(--t) var(--ease), transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+		}
+
+		.btn-link:hover {
+			background: var(--brand-strong);
+			color: #fff;
+			transform: translateY(-1px);
+			box-shadow: var(--shadow-m);
+		}
+
+		.btn-link.secundario {
+			background: transparent;
+			color: var(--brand);
+			box-shadow: inset 0 0 0 2px var(--brand);
+		}
+
+		.btn-link.secundario:hover {
+			background: var(--brand-tint);
+			color: var(--brand-strong);
+		}
+
+		.ventajas {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+			gap: 20px;
+		}
+
+		.ventajas .card {
+			text-align: left;
+		}
+
+		.ventajas .icono {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 46px;
+			height: 46px;
+			border-radius: var(--radius-m);
+			background: var(--brand-tint);
+			color: var(--brand);
+			font-size: 20px;
+			margin-bottom: 14px;
+		}
+
+		.ventajas .icono i {
+			margin: 0;
+		}
+
+		.ventajas h3 {
+			margin: 0 0 6px;
+			font-size: 18px;
+		}
+
+		.ventajas p {
+			margin: 0;
+			font-size: 15px;
+			max-width: none;
+		}
+
+		footer p {
+			margin: 0;
+			max-width: none;
+			font-size: 14px;
+			color: var(--header-ink);
+		}
+	</style>
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-				<li><a href="{{url_for('inicio')}}">Home</a></li>
-				<li><a href="{{url_for('Catalogo')}}">Catalogo</a></li>
-				<li><a href="{{url_for('login')}}">Iniciar sesión</a></li>
-				<li><a href="{{url_for('agregarCliente')}}">Registrarse</a></li>
-                <li><a href="{{url_for('AdminLogin')}}">Admin</a></li>
+				<li><a href="{{url_for('inicio')}}"><i class="fa-solid fa-house"></i>Home</a></li>
+				<li><a href="{{url_for('Catalogo')}}"><i class="fa-solid fa-store"></i>Catalogo</a></li>
+				<li class="right"><a href="{{url_for('login')}}"><i class="fa-solid fa-right-to-bracket"></i>Iniciar sesión</a></li>
+				<li><a href="{{url_for('agregarCliente')}}"><i class="fa-solid fa-user-plus"></i>Registrarse</a></li>
+				<li><a href="{{url_for('AdminLogin')}}"><i class="fa-solid fa-user-shield"></i>Admin</a></li>
 			</ul>
 		</nav>
 	</header>
 
 	<main>
-		<h1>Tienda en linea</h1>
-		<p>Descubre un mundo de compras en nuestra página principal. Sumérgete en una experiencia única donde encontrarás una amplia gama de productos de calidad y las últimas tendencias.Tenemos todo lo que necesitas al alcance de tu mano.</p>
+		<section class="hero">
+			<h1>Tienda en línea</h1>
+			<p>Descubre un mundo de compras en nuestra página principal. Sumérgete en una experiencia única donde encontrarás una amplia gama de productos de calidad y las últimas tendencias. Tenemos todo lo que necesitas al alcance de tu mano.</p>
+			<div class="hero-acciones">
+				<a class="btn-link" href="{{url_for('Catalogo')}}"><i class="fa-solid fa-bag-shopping"></i>Ver catálogo</a>
+				<a class="btn-link secundario" href="{{url_for('agregarCliente')}}"><i class="fa-solid fa-user-plus"></i>Crear cuenta</a>
+			</div>
+		</section>
+
+		<section class="ventajas">
+			<article class="card">
+				<span class="icono"><i class="fa-solid fa-boxes-stacked"></i></span>
+				<h3>Amplia variedad</h3>
+				<p>Productos de calidad para todo lo que necesitas, en un solo lugar.</p>
+			</article>
+			<article class="card">
+				<span class="icono"><i class="fa-solid fa-fire"></i></span>
+				<h3>Últimas tendencias</h3>
+				<p>Encuentra lo más nuevo y mantente al día con cada temporada.</p>
+			</article>
+			<article class="card">
+				<span class="icono"><i class="fa-solid fa-hand-pointer"></i></span>
+				<h3>Compra fácil</h3>
+				<p>Todo al alcance de tu mano, desde tu computadora o tu celular.</p>
+			</article>
+		</section>
 	</main>
 
 	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
 	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>

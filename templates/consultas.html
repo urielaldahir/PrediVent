@@ -1,118 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <title>Consultas - PrediVent</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mi Tienda en Línea</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
-
 <body>
+	<header>
+		<nav>
+			<ul>
+				<li><a href="{{url_for('HomeAdmin')}}"><i class="fa-solid fa-arrow-left"></i>Regresar</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
+			</ul>
+		</nav>
+	</header>
 
-<header>
+	<main>
+		<h1>Consultas</h1>
+		<p>Selecciona la consulta que deseas realizar.</p>
 
-    <nav>
+		<section class="panel-grid">
+			<a class="panel-tile" href="{{url_for('consultasProducto')}}">
+				<span class="icono"><i class="fa-solid fa-box-open"></i></span>
+				<strong>Productos</strong>
+				<span class="detalle">Inventario, precios y predicción de venta.</span>
+				<span class="ir">Consultar<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('consultasEmpleados')}}">
+				<span class="icono"><i class="fa-solid fa-users"></i></span>
+				<strong>Empleados</strong>
+				<span class="detalle">Consulta, edita y administra al personal.</span>
+				<span class="ir">Consultar<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('consultasProveedores')}}">
+				<span class="icono"><i class="fa-solid fa-truck"></i></span>
+				<strong>Proveedores</strong>
+				<span class="detalle">Datos de contacto y registro de proveedores.</span>
+				<span class="ir">Consultar<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+		</section>
+	</main>
 
-        <ul>
+	<footer>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
+	</footer>
 
-            <li>
-                <a href="{{ url_for('HomeAdmin') }}">
-                    Regresar
-                </a>
-            </li>
-
-            <li class="right">
-                <a href="{{ url_for('logout2') }}">
-                    Cerrar Sesión
-                </a>
-            </li>
-
-        </ul>
-
-    </nav>
-
-</header>
-
-
-<main>
-
-    <h1>
-        Consultas
-    </h1>
-
-
-    <p>
-        Selecciona la consulta que deseas realizar.
-    </p>
-
-
-    <!-- ================================================
-         CONSULTA DE PRODUCTOS
-    ================================================= -->
-
-    <button
-        type="button"
-        onclick="window.location.href='{{ url_for('consultasProducto') }}'"
-    >
-        Productos
-    </button>
-
-
-    <!-- ================================================
-         CONSULTA DE EMPLEADOS
-    ================================================= -->
-
-    <button
-        type="button"
-        onclick="window.location.href='{{ url_for('consultasEmpleados') }}'"
-    >
-        Empleados
-    </button>
-
-
-    <!-- ================================================
-         CONSULTA DE PROVEEDORES
-    ================================================= -->
-
-    <button
-        type="button"
-        onclick="window.location.href='{{ url_for('consultasProveedores') }}'"
-    >
-        Proveedores
-    </button>
-
-
-    <!-- ================================================
-         HISTORIAL DE VENTAS
-    ================================================= -->
-
-    <button
-        type="button"
-        onclick="window.location.href='{{ url_for('historialVentasAdmin') }}'"
-    >
-        Historial de ventas
-    </button>
-
-
-</main>
-
-
-<footer>
-
-    <p>
-        Derechos Reservados &copy; PrediVent
-    </p>
-
-</footer>
-
-
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
-
 </html>

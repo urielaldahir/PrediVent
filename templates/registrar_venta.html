@@ -5,7 +5,11 @@
 
     <meta charset="UTF-8">
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Registrar Venta - PrediVent</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link
         rel="stylesheet"
@@ -24,25 +28,25 @@
 
             <li>
                 <a href="{{ url_for('HomeEmpleado') }}">
-                    Home
+                    <i class="fa-solid fa-house"></i>Home
                 </a>
             </li>
 
             <li>
                 <a href="{{ url_for('Catalogo') }}">
-                    Catálogo
+                    <i class="fa-solid fa-store"></i>Catálogo
                 </a>
             </li>
 
             <li>
                 <a href="{{ url_for('registrarVentaEmpleado') }}">
-                    Registrar venta
+                    <i class="fa-solid fa-cash-register"></i>Registrar venta
                 </a>
             </li>
 
             <li class="right">
-                <a href="{{ url_for('logout2') }}">
-                    Cerrar Sesión
+                <a href="{{ url_for('logout2') }}" data-confirm="¿Deseas cerrar sesión?">
+                    <i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión
                 </a>
             </li>
 
@@ -55,147 +59,169 @@
 
 <main>
 
-    <h1>Registrar venta</h1>
+    <div class="login">
 
-    <p>
-        Empleado:
-        <strong>
-            {{ session.get('nombre_empleado') }}
-        </strong>
-    </p>
+        <div class="login-titulo">
+            <span class="login-icono"><i class="fa-solid fa-cash-register"></i></span>
+            <h1>Registrar venta</h1>
+        </div>
 
-
-    {% if error %}
-
-        <p>
-            {{ error }}
+        <p class="chip-empleado">
+            <i class="fa-solid fa-id-badge"></i>
+            Empleado:
+            <strong>{{ session.get('nombre_empleado') }}</strong>
         </p>
 
-    {% endif %}
+
+        {% if error %}
+
+            <p class="mensaje-error" data-titulo="No se pudo registrar la venta">
+                {{ error }}
+            </p>
+
+        {% endif %}
 
 
-    {% if mensaje %}
+        {% if mensaje %}
 
-        <p>
-            {{ mensaje }}
-        </p>
+            <p class="mensaje-ok" data-titulo="Venta registrada">
+                {{ mensaje }}
+            </p>
 
-    {% endif %}
+        {% endif %}
 
 
-    <form method="POST">
+        <form method="POST">
 
-        <!-- ============================================= -->
-        <!-- CLIENTE -->
-        <!-- ============================================= -->
+            <!-- ==================================================
+                 CLIENTE
+            =================================================== -->
 
-        <p>
+            <div class="grupo">
 
-            <label>
-                Cliente:
-            </label>
+                <label for="id_cliente">
+                    Cliente:
+                </label>
 
-            <select
-                name="id_cliente"
-                required
-            >
+                <div class="campo">
 
-                <option value="">
-                    Selecciona un cliente
-                </option>
+                    <i class="fa-solid fa-user"></i>
 
-                {% for cliente in clientes %}
-
-                    <option
-                        value="{{ cliente.id_cliente }}"
+                    <select
+                        name="id_cliente"
+                        id="id_cliente"
+                        required
                     >
 
-                        {{ cliente.nombre }}
+                        <option value="">
+                            Selecciona un cliente
+                        </option>
 
-                        {% if cliente.correo %}
-                            - {{ cliente.correo }}
-                        {% endif %}
+                        {% for cliente in clientes %}
 
-                    </option>
+                            <option value="{{ cliente.id_cliente }}">
 
-                {% endfor %}
+                                {{ cliente.nombre }}
 
-            </select>
+                                -
+                                {{ cliente.correo }}
 
-        </p>
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
 
 
-        <!-- ============================================= -->
-        <!-- PRODUCTO -->
-        <!-- ============================================= -->
+            <!-- ==================================================
+                 PRODUCTO
+            =================================================== -->
 
-        <p>
+            <div class="grupo">
 
-            <label>
-                Producto:
-            </label>
+                <label for="id_producto">
+                    Producto:
+                </label>
 
-            <select
-                name="id_producto"
-                required
-            >
+                <div class="campo">
 
-                <option value="">
-                    Selecciona un producto
-                </option>
+                    <i class="fa-solid fa-box-open"></i>
 
-                {% for producto in productos %}
-
-                    <option
-                        value="{{ producto.id_producto }}"
+                    <select
+                        name="id_producto"
+                        id="id_producto"
+                        required
                     >
 
-                        {{ producto.nombre_producto }}
+                        <option value="">
+                            Selecciona un producto
+                        </option>
 
-                        - ${{ producto.precio }}
+                        {% for producto in productos %}
 
-                    </option>
+                            <option value="{{ producto.id_producto }}">
 
-                {% endfor %}
+                                {{ producto.nombre_producto }}
 
-            </select>
+                                - ${{ producto.precio }}
 
-        </p>
+                            </option>
 
+                        {% endfor %}
 
-        <!-- ============================================= -->
-        <!-- CANTIDAD -->
-        <!-- ============================================= -->
+                    </select>
 
-        <p>
+                </div>
 
-            <label>
-                Cantidad:
-            </label>
-
-            <input
-                type="number"
-                name="cantidad"
-                min="1"
-                required
-            >
-
-        </p>
+            </div>
 
 
-        <!-- ============================================= -->
-        <!-- BOTÓN -->
-        <!-- ============================================= -->
+            <!-- ==================================================
+                 CANTIDAD
+            =================================================== -->
 
-        <p>
+            <div class="grupo">
 
-            <button type="submit">
-                Registrar venta
-            </button>
+                <label for="cantidad">
+                    Cantidad:
+                </label>
 
-        </p>
+                <div class="campo">
 
-    </form>
+                    <i class="fa-solid fa-boxes-stacked"></i>
+
+                    <input
+                        type="number"
+                        name="cantidad"
+                        id="cantidad"
+                        min="1"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 BOTÓN
+            =================================================== -->
+
+            <div class="acciones-form">
+
+                <button type="submit">
+                    <i class="fa-solid fa-check"></i>Registrar venta
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </main>
 
@@ -207,6 +233,9 @@
     </p>
 
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
 
 </body>
 

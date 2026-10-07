@@ -2,48 +2,59 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Verificar correo - PrediVent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 <header>
     <nav>
         <ul>
-            <li><a href="{{url_for('inicio')}}">Home</a></li>
-            <li><a href="{{url_for('login')}}">Iniciar sesión</a></li>
+            <li><a href="{{url_for('inicio')}}"><i class="fa-solid fa-house"></i>Home</a></li>
+            <li><a href="{{url_for('login')}}"><i class="fa-solid fa-right-to-bracket"></i>Iniciar sesión</a></li>
         </ul>
     </nav>
 </header>
 
 <main>
     <div class="login">
-        <h1>Verifica tu correo</h1>
+        <div class="login-titulo">
+            <span class="login-icono"><i class="fa-solid fa-envelope-circle-check"></i></span>
+            <h1>Verifica tu correo</h1>
+        </div>
         <p>Enviamos un código de 6 dígitos a:</p>
         <p><strong>{{ correo }}</strong></p>
 
         <form method="POST">
             <input type="text"
+                   class="codigo-input"
                    name="codigo"
                    maxlength="6"
                    minlength="6"
                    inputmode="numeric"
                    pattern="[0-9]{6}"
+                   autocomplete="one-time-code"
+                   autofocus
                    placeholder="Código de 6 dígitos"
                    required>
 
-            <button type="submit">Verificar correo</button>
+            <button type="submit"><i class="fa-solid fa-circle-check"></i>Verificar correo</button>
         </form>
 
         {% if error %}
-            <p>{{ error }}</p>
+            <p class="mensaje-error" data-titulo="Código incorrecto">{{ error }}</p>
         {% endif %}
 
-        <p>El código tiene una vigencia de 10 minutos.</p>
+        <p><i class="fa-regular fa-clock"></i>El código tiene una vigencia de 10 minutos.</p>
     </div>
 </main>
 
 <footer>
     <p>PrediVent</p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>

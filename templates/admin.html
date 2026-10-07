@@ -1,39 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-                <li><a href="{{url_for('HomeAdmin')}}">Home</a></li>
-                <li><a href="{{url_for('consultas')}}">Consultas</a></li>
-				<li><a href="{{url_for('agregarProveedor')}}">Agregar provedores</a></li>
-				<li><a href="{{url_for('agregarProducto')}}">Agregar Productos</a></li>
-				<li><a href="{{url_for('AgregarEmpleado')}}">Agregar Usarios</a></li>
-				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
+				<li><a href="{{url_for('HomeAdmin')}}"><i class="fa-solid fa-house"></i>Home</a></li>
+				<li><a href="{{url_for('consultas')}}"><i class="fa-solid fa-chart-line"></i>Consultas</a></li>
+				<li><a href="{{url_for('agregarProveedor')}}"><i class="fa-solid fa-truck"></i>Agregar proveedores</a></li>
+				<li><a href="{{url_for('agregarProducto')}}"><i class="fa-solid fa-box-open"></i>Agregar Productos</a></li>
+				<li><a href="{{url_for('AgregarEmpleado')}}"><i class="fa-solid fa-users"></i>Agregar Usuarios</a></li>
+				<li class="right"><a href="{{url_for('logout2')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
 			</ul>
 		</nav>
 	</header>
 
 	<main>
-		<h1>
-    ¡Bienvenido de nuevo, {{ nombre_empleado }}!
-</h1>
+		<section class="card admin-bienvenida">
+			<h1>
+				¡Bienvenido de nuevo, {{ nombre_empleado }}!
+			</h1>
 
-<p>
-    Has ingresado al panel de administración de PrediVent.
-    Desde aquí puedes gestionar los productos, proveedores,
-    empleados y demás funciones administrativas del sistema.
-</p>
+			<p>
+				Has ingresado al panel de administración de PrediVent.
+				Desde aquí puedes gestionar los productos, proveedores,
+				empleados y demás funciones administrativas del sistema.
+			</p>
 
-En nuestra página principal exclusiva para administradores, te damos la bienvenida a una plataforma diseñada para potenciar tu capacidad de gestionar y controlar tus productos. Aquí podrás agregar, modificar y actualizar fácilmente el inventario de tu tienda en línea.</p>
+			<p>
+				En nuestra página principal exclusiva para administradores, te damos la bienvenida a una plataforma diseñada para potenciar tu capacidad de gestionar y controlar tus productos. Aquí podrás agregar, modificar y actualizar fácilmente el inventario de tu tienda en línea.
+			</p>
+		</section>
+
+		<section class="panel-grid">
+			<a class="panel-tile" href="{{url_for('consultas')}}">
+				<span class="icono"><i class="fa-solid fa-chart-line"></i></span>
+				<strong>Consultas</strong>
+				<span class="detalle">Revisa la información y los reportes del sistema.</span>
+				<span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('agregarProducto')}}">
+				<span class="icono"><i class="fa-solid fa-box-open"></i></span>
+				<strong>Productos</strong>
+				<span class="detalle">Agrega productos y mantén tu inventario al día.</span>
+				<span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('agregarProveedor')}}">
+				<span class="icono"><i class="fa-solid fa-truck"></i></span>
+				<strong>Proveedores</strong>
+				<span class="detalle">Registra y administra a tus proveedores.</span>
+				<span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('AgregarEmpleado')}}">
+				<span class="icono"><i class="fa-solid fa-users"></i></span>
+				<strong>Usuarios</strong>
+				<span class="detalle">Da de alta empleados y usuarios del sistema.</span>
+				<span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+		</section>
 	</main>
 
 	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
 	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>

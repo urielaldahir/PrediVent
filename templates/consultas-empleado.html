@@ -1,62 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>Consulta de Clientes</title>
 </head>
+
 <body>
-	<header>
-		<nav>
-			<ul>
-                <li><a href="{{url_for('consultas')}}">Regresar</a></li>
-				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
-			</ul>
-		</nav>
-	</header>
 
-	<main>
+<header>
+    <nav>
+        <ul>
+            <li>
+                <a href="{{ url_for('inicio') }}"><i class="fa-solid fa-house"></i>Home</a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('consultas') }}"><i class="fa-solid fa-arrow-left"></i>Regresar</a>
+            </li>
+        </ul>
+    </nav>
+</header>
 
 
+<main>
 
-      </br>
-      </br>
+    <h1>Clientes</h1>
+
+    <div class="tabla-bloque">
+
+        <div class="barra-tabla">
+            <div class="campo-buscar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="filtro-tabla" placeholder="Buscar cliente...">
+            </div>
+            <span class="contador-tabla"></span>
+        </div>
+
+        <div class="tabla-wrap">
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Contraseña</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for cliente in cliente %}
+
+                    <tr>
+
+                        <td data-label="ID">
+                            {{ cliente.id_cliente }}
+                        </td>
+
+                        <td data-label="Nombre">
+                            {{ cliente.nombre }}
+                        </td>
+
+                        <td data-label="Teléfono">
+                            {{ cliente.telefono }}
+                        </td>
+
+                        <td data-label="Correo">
+                            {{ cliente.correo }}
+                        </td>
+
+                        <td data-label="Contraseña">
+                            {{ cliente.contraseña }}
+                        </td>
+
+                        <td class="acciones" data-label="Acciones">
+                            <a class="btn-link pequeno"
+                               href="{{ url_for('editarCliente', id_cliente=cliente.id_cliente) }}">
+                                <i class="fa-solid fa-pen"></i>Editar
+                            </a>
+
+                            <a class="btn-link pequeno peligro"
+                               href="{{ url_for('eliminarCliente', id_cliente=cliente.id_cliente) }}"
+                               data-confirm="¿Seguro que deseas eliminar este cliente?">
+                                <i class="fa-solid fa-trash"></i>Eliminar
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr class="vacio">
+                        <td colspan="6">No hay clientes registrados.</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</main>
 
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Cargo</th>
-                <th>Correo</th>
-                <th>Numero</th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        <tr>
-            {%for empleado in empleado %}
-            <td>{{empleado.id_empleado}}</td>
-            <td>{{empleado.nombre_empleado}}</td>
-            <td>{{empleado.tipo_empleado}}</td>
-            <td>{{empleado.correo_empleado}}</td>
-            <td>{{empleado.telefono}}</td>
-               <td><a href="/editar/empleado/{{empleado.id_empleado}}">
-                <button>Editar</button></a></td>
-            <td><a href="/eliminar/empleado/{{empleado.id_empleado}}"  onclick="return confirm('¿Estás seguro de que deseas eliminar este registro?')">
-                <button>Eliminar</button>
-            </a></td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-  </main>
+<footer>
+    <p>
+        Derechos Reservados &copy; ShopEase 2023
+    </p>
+</footer>
 
-	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
-	</footer>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+
 </body>
 </html>
-
-

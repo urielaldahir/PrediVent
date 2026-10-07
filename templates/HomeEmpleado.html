@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Panel de Empleado - PrediVent</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link
         rel="stylesheet"
         type="text/css"
@@ -18,25 +21,25 @@
 
             <li>
                 <a href="{{ url_for('HomeEmpleado') }}">
-                    Home
+                    <i class="fa-solid fa-house"></i>Home
                 </a>
             </li>
 
             <li>
                 <a href="{{ url_for('Catalogo') }}">
-                    Catálogo
+                    <i class="fa-solid fa-store"></i>Catálogo
                 </a>
             </li>
 
             <li>
                 <a href="{{ url_for('registrarVentaEmpleado') }}">
-                    Registrar venta
+                    <i class="fa-solid fa-cash-register"></i>Registrar venta
                 </a>
             </li>
 
             <li class="right">
-                <a href="{{ url_for('logout2') }}">
-                    Cerrar Sesión
+                <a href="{{ url_for('logout2') }}" data-confirm="¿Deseas cerrar sesión?">
+                    <i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión
                 </a>
             </li>
 
@@ -47,18 +50,40 @@
 
 <main>
 
-    <h1>
-        ¡Bienvenido de nuevo, {{ nombre_empleado }}!
-    </h1>
+    <section class="card admin-bienvenida">
 
-    <p>
-        Has ingresado al panel de empleado de PrediVent.
-    </p>
+        <h1>
+            ¡Bienvenido de nuevo, {{ nombre_empleado }}!
+        </h1>
 
-    <p>
-        Desde aquí puedes realizar las funciones asignadas
-        a tu puesto dentro del sistema.
-    </p>
+        <p>
+            Has ingresado al panel de empleado de PrediVent.
+        </p>
+
+        <p>
+            Desde aquí puedes realizar las funciones asignadas
+            a tu puesto dentro del sistema.
+        </p>
+
+    </section>
+
+    <section class="panel-grid">
+
+        <a class="panel-tile" href="{{ url_for('registrarVentaEmpleado') }}">
+            <span class="icono"><i class="fa-solid fa-cash-register"></i></span>
+            <strong>Registrar venta</strong>
+            <span class="detalle">Captura las ventas realizadas en tienda.</span>
+            <span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
+        </a>
+
+        <a class="panel-tile" href="{{ url_for('Catalogo') }}">
+            <span class="icono"><i class="fa-solid fa-store"></i></span>
+            <strong>Catálogo</strong>
+            <span class="detalle">Consulta los productos disponibles.</span>
+            <span class="ir">Ver productos<i class="fa-solid fa-arrow-right"></i></span>
+        </a>
+
+    </section>
 
 </main>
 
@@ -68,6 +93,9 @@
         Derechos Reservados &copy; PrediVent
     </p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
 
 </body>
 </html>

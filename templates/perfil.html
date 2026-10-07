@@ -1,48 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-				<li><a href="{{url_for('CatalogoUsuarios')}}">Catalogo</a></li>
-                <li><a href="{{url_for('miCarrito')}}">Carrito</a></li>
-                <li><a href="{{url_for('VerHistorial')}}">Historial de compras</a></li>
-				<li><a href="{{url_for('perfil')}}">Perfil</a></li>
-				<li class="right"><a href="{{url_for('logout')}}">Cerrar Sesión</a></li>
+				<li><a href="{{url_for('CatalogoUsuarios')}}"><i class="fa-solid fa-store"></i>Catalogo</a></li>
+				<li><a href="{{url_for('miCarrito')}}"><i class="fa-solid fa-cart-shopping"></i>Carrito</a></li>
+				<li><a href="{{url_for('VerHistorial')}}"><i class="fa-solid fa-clock-rotate-left"></i>Historial de compras</a></li>
+				<li><a href="{{url_for('perfil')}}"><i class="fa-solid fa-circle-user"></i>Perfil</a></li>
+				<li class="right"><a href="{{url_for('logout')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
 			</ul>
 		</nav>
 	</header>
-  <main>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Numero</th>
-                <th>contraseña</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>{{cliente.id_cliente}}</td>
-            <td>{{cliente.nombre}}</td>
-            <td>{{cliente.correo}}</td>
-            <td>{{cliente.numero_telefono}}</td>
-            <td>{{cliente.contraseña}}</td>
-            <td><a href="/editar/perfil/{{cliente.id_cliente}}">
-                <button>Editar</button></a></td>
-        </tr>
-        </tbody>
-    </table>
-  </main>
-  <footer>
-    <p>Derechos reservados &copy;  ShopEase 2023</p>
-  </footer>
+
+	<main>
+		<section class="card perfil-card">
+
+			<div class="perfil-cabecera">
+				<span class="login-icono"><i class="fa-solid fa-circle-user"></i></span>
+				<h1>{{cliente.nombre}}</h1>
+			</div>
+
+			<ul class="perfil-lista">
+				<li>
+					<span class="icono-dato"><i class="fa-solid fa-hashtag"></i></span>
+					<span class="dato"><small>ID</small><span>{{cliente.id_cliente}}</span></span>
+				</li>
+				<li>
+					<span class="icono-dato"><i class="fa-solid fa-user"></i></span>
+					<span class="dato"><small>Nombre</small><span>{{cliente.nombre}}</span></span>
+				</li>
+				<li>
+					<span class="icono-dato"><i class="fa-solid fa-envelope"></i></span>
+					<span class="dato"><small>Correo</small><span>{{cliente.correo}}</span></span>
+				</li>
+				<li>
+					<span class="icono-dato"><i class="fa-solid fa-phone"></i></span>
+					<span class="dato"><small>Numero</small><span>{{ cliente.telefono if cliente.telefono is defined else cliente.numero_telefono }}</span></span>
+				</li>
+				<li>
+					<span class="icono-dato"><i class="fa-solid fa-lock"></i></span>
+					<span class="dato"><small>Contraseña</small><span class="secreto">{{cliente.contraseña}}</span></span>
+					<button type="button" class="ver-secreto" data-ver-secreto aria-label="Mostrar u ocultar contraseña"><i class="fa-solid fa-eye"></i></button>
+				</li>
+			</ul>
+
+			<div class="perfil-acciones">
+				<a class="btn-link" href="/editar/perfil/{{cliente.id_cliente}}">
+					<i class="fa-solid fa-pen"></i>Editar perfil
+				</a>
+			</div>
+
+		</section>
+	</main>
+
+	<footer>
+		<p>Derechos reservados &copy; ShopEase 2023</p>
+	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>

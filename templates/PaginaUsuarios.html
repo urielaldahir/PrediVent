@@ -1,30 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 	<header>
 		<nav>
 			<ul>
-				<li><a href="{{url_for('CatalogoUsuarios')}}">Catalogo</a></li>
-				<li><a href="{{url_for('miCarrito')}}">Carrito</a></li>
-				<li><a href="{{url_for('VerHistorial')}}">Historial de compras</a></li>
-				<li><a href="{{url_for('perfil')}}">Perfil</a></li>
-				<li class="right"><a href="{{url_for('logout')}}">Cerrar Sesión</a></li>
+				<li><a href="{{url_for('CatalogoUsuarios')}}"><i class="fa-solid fa-store"></i>Catalogo</a></li>
+				<li><a href="{{url_for('miCarrito')}}"><i class="fa-solid fa-cart-shopping"></i>Carrito</a></li>
+				<li><a href="{{url_for('VerHistorial')}}"><i class="fa-solid fa-clock-rotate-left"></i>Historial de compras</a></li>
+				<li><a href="{{url_for('perfil')}}"><i class="fa-solid fa-circle-user"></i>Perfil</a></li>
+				<li class="right"><a href="{{url_for('logout')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
 			</ul>
 		</nav>
 	</header>
 
 	<main>
-		<h1>
-¡Bienvenido de vuelta a nuestra tienda en línea!</h1>
+		<section class="card admin-bienvenida">
+			<h1>
+				¡Bienvenido de vuelta a nuestra tienda en línea!
+			</h1>
 			<p>Nos complace darte la bienvenida a tu espacio personalizado. Ahora que has iniciado sesión en nuestro sistema, te invitamos a disfrutar de una experiencia de compra aún más conveniente y personalizada.</p>
+		</section>
+
+		<section class="panel-grid">
+			<a class="panel-tile" href="{{url_for('CatalogoUsuarios')}}">
+				<span class="icono"><i class="fa-solid fa-store"></i></span>
+				<strong>Catálogo</strong>
+				<span class="detalle">Explora los productos disponibles.</span>
+				<span class="ir">Ver productos<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('miCarrito')}}">
+				<span class="icono"><i class="fa-solid fa-cart-shopping"></i></span>
+				<strong>Carrito</strong>
+				<span class="detalle">Revisa lo que llevas y finaliza tu compra.</span>
+				<span class="ir">Abrir carrito<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('VerHistorial')}}">
+				<span class="icono"><i class="fa-solid fa-clock-rotate-left"></i></span>
+				<strong>Historial de compras</strong>
+				<span class="detalle">Consulta todo lo que has comprado.</span>
+				<span class="ir">Ver historial<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{url_for('perfil')}}">
+				<span class="icono"><i class="fa-solid fa-circle-user"></i></span>
+				<strong>Perfil</strong>
+				<span class="detalle">Consulta y actualiza tus datos personales.</span>
+				<span class="ir">Ir al perfil<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+		</section>
 	</main>
 
 	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
+		<p>Derechos Reservados &copy; ShopEase 2023</p>
 	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="{{url_for('static', filename='js/ui.js')}}"></script>
 </body>
 </html>

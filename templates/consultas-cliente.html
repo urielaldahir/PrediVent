@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet"
           type="text/css"
           href="{{ url_for('static', filename='css/style.css') }}">
@@ -16,11 +18,11 @@
     <nav>
         <ul>
             <li>
-                <a href="{{ url_for('inicio') }}">Home</a>
+                <a href="{{ url_for('inicio') }}"><i class="fa-solid fa-house"></i>Home</a>
             </li>
 
             <li>
-                <a href="{{ url_for('consultas') }}">Regresar</a>
+                <a href="{{ url_for('consultas') }}"><i class="fa-solid fa-arrow-left"></i>Regresar</a>
             </li>
         </ul>
     </nav>
@@ -31,72 +33,85 @@
 
     <h1>Clientes</h1>
 
-    <table>
+    <div class="tabla-bloque">
 
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th>Contraseña</th>
-                <th>Editar</th>
-                <th>Eliminar</th>
-            </tr>
-        </thead>
+        <div class="barra-tabla">
+            <div class="campo-buscar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="filtro-tabla" placeholder="Buscar cliente...">
+            </div>
+            <span class="contador-tabla"></span>
+        </div>
 
-        <tbody>
+        <div class="tabla-wrap">
+            <table>
 
-            {% for cliente in cliente %}
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Contraseña</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-            <tr>
+                <tbody>
 
-                <td>
-                    {{ cliente.id_cliente }}
-                </td>
+                    {% for cliente in cliente %}
 
-                <td>
-                    {{ cliente.nombre }}
-                </td>
+                    <tr>
 
-                <td>
-                    {{ cliente.telefono }}
-                </td>
+                        <td data-label="ID">
+                            {{ cliente.id_cliente }}
+                        </td>
 
-                <td>
-                    {{ cliente.correo }}
-                </td>
+                        <td data-label="Nombre">
+                            {{ cliente.nombre }}
+                        </td>
 
-                <td>
-                    {{ cliente.contraseña }}
-                </td>
+                        <td data-label="Teléfono">
+                            {{ cliente.telefono }}
+                        </td>
 
-                <td>
-                    <a href="{{ url_for('editarCliente', id_cliente=cliente.id_cliente) }}">
-                        <button type="button">
-                            Editar
-                        </button>
-                    </a>
-                </td>
+                        <td data-label="Correo">
+                            {{ cliente.correo }}
+                        </td>
 
-                <td>
-                    <a href="{{ url_for('eliminarCliente', id_cliente=cliente.id_cliente) }}"
-                       onclick="return confirm('¿Seguro que deseas eliminar este cliente?');">
+                        <td data-label="Contraseña">
+                            {{ cliente.contraseña }}
+                        </td>
 
-                        <button type="button">
-                            Eliminar
-                        </button>
+                        <td class="acciones" data-label="Acciones">
+                            <a class="btn-link pequeno"
+                               href="{{ url_for('editarCliente', id_cliente=cliente.id_cliente) }}">
+                                <i class="fa-solid fa-pen"></i>Editar
+                            </a>
 
-                    </a>
-                </td>
+                            <a class="btn-link pequeno peligro"
+                               href="{{ url_for('eliminarCliente', id_cliente=cliente.id_cliente) }}"
+                               data-confirm="¿Seguro que deseas eliminar este cliente?">
+                                <i class="fa-solid fa-trash"></i>Eliminar
+                            </a>
+                        </td>
 
-            </tr>
+                    </tr>
 
-            {% endfor %}
+                    {% else %}
 
-        </tbody>
+                    <tr class="vacio">
+                        <td colspan="6">No hay clientes registrados.</td>
+                    </tr>
 
-    </table>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
 
 </main>
 
@@ -106,6 +121,9 @@
         Derechos Reservados &copy; ShopEase 2023
     </p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
 
 </body>
 </html>

@@ -220,6 +220,8 @@ def verificarCorreo():
 
         if correcto:
 
+            auth.update_user(uid, email_verified=True)   # <-- añadir
+
             datos = resultado
 
             # ==========================

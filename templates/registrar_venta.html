@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Registrar Venta - PrediVent</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<header>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('HomeEmpleado') }}">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('Catalogo') }}">
+                    Catálogo
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('registrarVentaEmpleado') }}">
+                    Registrar venta
+                </a>
+            </li>
+
+            <li class="right">
+                <a href="{{ url_for('logout2') }}">
+                    Cerrar Sesión
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <h1>Registrar venta</h1>
+
+    <p>
+        Empleado:
+        <strong>
+            {{ session.get('nombre_empleado') }}
+        </strong>
+    </p>
+
+
+    {% if error %}
+
+        <p>
+            {{ error }}
+        </p>
+
+    {% endif %}
+
+
+    {% if mensaje %}
+
+        <p>
+            {{ mensaje }}
+        </p>
+
+    {% endif %}
+
+
+    <form method="POST">
+
+        <!-- ============================================= -->
+        <!-- CLIENTE -->
+        <!-- ============================================= -->
+
+        <p>
+
+            <label>
+                Cliente:
+            </label>
+
+            <select
+                name="id_cliente"
+                required
+            >
+
+                <option value="">
+                    Selecciona un cliente
+                </option>
+
+                {% for cliente in clientes %}
+
+                    <option
+                        value="{{ cliente.id_cliente }}"
+                    >
+
+                        {{ cliente.nombre }}
+
+                        {% if cliente.correo %}
+                            - {{ cliente.correo }}
+                        {% endif %}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </p>
+
+
+        <!-- ============================================= -->
+        <!-- PRODUCTO -->
+        <!-- ============================================= -->
+
+        <p>
+
+            <label>
+                Producto:
+            </label>
+
+            <select
+                name="id_producto"
+                required
+            >
+
+                <option value="">
+                    Selecciona un producto
+                </option>
+
+                {% for producto in productos %}
+
+                    <option
+                        value="{{ producto.id_producto }}"
+                    >
+
+                        {{ producto.nombre_producto }}
+
+                        - ${{ producto.precio }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </p>
+
+
+        <!-- ============================================= -->
+        <!-- CANTIDAD -->
+        <!-- ============================================= -->
+
+        <p>
+
+            <label>
+                Cantidad:
+            </label>
+
+            <input
+                type="number"
+                name="cantidad"
+                min="1"
+                required
+            >
+
+        </p>
+
+
+        <!-- ============================================= -->
+        <!-- BOTÓN -->
+        <!-- ============================================= -->
+
+        <p>
+
+            <button type="submit">
+                Registrar venta
+            </button>
+
+        </p>
+
+    </form>
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+
+</footer>
+
+</body>
+
+</html>

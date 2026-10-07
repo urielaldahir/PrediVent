@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel de Empleado - PrediVent</title>
+
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+<header>
+    <nav>
+        <ul>
+
+            <li>
+                <a href="{{ url_for('HomeEmpleado') }}">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('Catalogo') }}">
+                    Catálogo
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('registrarVentaEmpleado') }}">
+                    Registrar venta
+                </a>
+            </li>
+
+            <li class="right">
+                <a href="{{ url_for('logout2') }}">
+                    Cerrar Sesión
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+</header>
+
+
+<main>
+
+    <h1>
+        ¡Bienvenido de nuevo, {{ nombre_empleado }}!
+    </h1>
+
+    <p>
+        Has ingresado al panel de empleado de PrediVent.
+    </p>
+
+    <p>
+        Desde aquí puedes realizar las funciones asignadas
+        a tu puesto dentro del sistema.
+    </p>
+
+</main>
+
+
+<footer>
+    <p>
+        Derechos Reservados &copy; PrediVent
+    </p>
+</footer>
+
+</body>
+</html>

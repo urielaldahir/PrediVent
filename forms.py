@@ -27,11 +27,31 @@ class EmpleadoFomr(FlaskForm):
 
 
 class EmpleadoEditFomr(FlaskForm):
-    nombre_empleado = StringField('Nombre', validators=[DataRequired()] )
-    tipo_empleado = StringField('Cargo',  validators=[DataRequired()], render_kw={"placeholder": "admin" })
-    correo_empleado = EmailField('Correo', validators=[DataRequired()], render_kw={"placeholder": "correo@ejemplo.com"})
-    numero_telefono = StringField('Telefono', validators=[DataRequired(), validators.Length(min=10, max=10)])
-    contraseña = StringField('Contraseña',validators=[InputRequired(), validators.Length(min=8)])
+    nombre_empleado = StringField(
+        'Nombre',
+        validators=[DataRequired()]
+    )
+
+    tipo_empleado = StringField(
+        'Cargo',
+        validators=[DataRequired()],
+        render_kw={"placeholder": "admin"}
+    )
+
+    correo_empleado = EmailField(
+        'Correo',
+        validators=[DataRequired()],
+        render_kw={"placeholder": "correo@ejemplo.com"}
+    )
+
+    numero_telefono = StringField(
+        'Telefono',
+        validators=[
+            DataRequired(),
+            validators.Length(min=10, max=10)
+        ]
+    )
+
     enviar = SubmitField('Enviar')
 
 class ProductoForm(FlaskForm):

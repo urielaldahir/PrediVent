@@ -1,42 +1,1655 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-	<title>Mi Tienda en Línea</title>
-	 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Producto - {{ producto }}
+    </title>
+
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        /* =========================================================
+           ESTRUCTURA GENERAL
+           ========================================================= */
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #111;
+        }
+
+        main {
+            width: 92%;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+
+        /* =========================================================
+           ENCABEZADO
+           ========================================================= */
+
+        .titulo-principal {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .titulo-principal h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .titulo-principal h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+
+        /* =========================================================
+           SECCIONES
+           ========================================================= */
+
+        .seccion {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .seccion h2 {
+            text-align: center;
+            font-size: 25px;
+            margin-bottom: 25px;
+        }
+
+
+        /* =========================================================
+           TARJETAS SUPERIORES
+           ========================================================= */
+
+        .tarjetas {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 25px;
+        }
+
+        .tarjeta {
+            background: white;
+
+            border-radius: 12px;
+
+            padding: 25px 15px;
+
+            text-align: center;
+
+            box-shadow:
+                0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .tarjeta h3 {
+            font-size: 17px;
+            margin-bottom: 12px;
+        }
+
+        .valor {
+            font-size: 30px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .unidad {
+            font-size: 15px;
+            color: #555;
+        }
+
+
+        /* =========================================================
+           PREDICCIÓN
+           ========================================================= */
+
+        .modelos {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 20px;
+        }
+
+        .modelo {
+            border: 1px solid #ddd;
+
+            border-radius: 10px;
+
+            padding: 25px;
+
+            text-align: center;
+
+            background: #fff;
+        }
+
+        .modelo h3 {
+            font-size: 19px;
+            margin-bottom: 15px;
+        }
+
+        .modelo .valor {
+            font-size: 30px;
+        }
+
+
+        /* =========================================================
+           MODELO SELECCIONADO
+           ========================================================= */
+
+        .modelo-seleccionado {
+            background: #f7f7f7;
+
+            border-radius: 10px;
+
+            padding: 25px;
+
+            text-align: center;
+
+            margin-top: 20px;
+        }
+
+        .modelo-seleccionado h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .modelo-seleccionado .nombre-modelo {
+            font-size: 27px;
+            font-weight: bold;
+
+            margin: 10px 0;
+        }
+
+        .modelo-seleccionado .valor {
+            font-size: 34px;
+        }
+
+
+        /* =========================================================
+           EVALUACIÓN
+           ========================================================= */
+
+        .metricas {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+
+            margin-top: 15px;
+        }
+
+        .metrica {
+            background: #f5f5f5;
+
+            border-radius: 8px;
+
+            padding: 15px;
+
+            text-align: center;
+        }
+
+        .metrica span {
+            display: block;
+
+            font-size: 14px;
+
+            margin-bottom: 8px;
+        }
+
+        .metrica strong {
+            font-size: 20px;
+        }
+
+
+        /* =========================================================
+           TABLAS
+           ========================================================= */
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 10px;
+        }
+
+        th {
+            background: #eeeeee;
+
+            padding: 12px;
+
+            text-align: center;
+
+            font-size: 15px;
+        }
+
+        td {
+            padding: 11px;
+
+            text-align: center;
+
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f7f7f7;
+        }
+
+
+        /* =========================================================
+           INVENTARIO
+           ========================================================= */
+
+        .inventario-estado {
+            margin-top: 20px;
+
+            padding: 22px;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            background: #f5f5f5;
+        }
+
+        .inventario-estado h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .inventario-estado p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+
+        /* =========================================================
+           ANÁLISIS TÉCNICO
+           ========================================================= */
+
+        .analisis {
+            text-align: center;
+
+            line-height: 1.7;
+
+            font-size: 16px;
+        }
+
+        .analisis p {
+            margin-bottom: 20px;
+        }
+
+
+        /* =========================================================
+           GRÁFICA
+           ========================================================= */
+
+        .grafica-contenedor {
+            position: relative;
+
+            width: 100%;
+
+            height: 450px;
+        }
+
+
+        /* =========================================================
+           MENSAJE DE DATOS INSUFICIENTES
+           ========================================================= */
+
+        .mensaje {
+            background: white;
+
+            border-radius: 12px;
+
+            padding: 45px;
+
+            text-align: center;
+
+            box-shadow:
+                0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .mensaje h2 {
+            margin-bottom: 20px;
+        }
+
+        .mensaje p {
+            font-size: 17px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .tarjetas {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .modelos {
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            main {
+                width: 95%;
+            }
+
+            .tarjetas {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .metricas {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .grafica-contenedor {
+                height: 350px;
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <body>
-	<header>
-		<nav>
-			<ul>
-                <li><a href="{{url_for('consultasProducto')}}">Regresar</a></li>
-				<li class="right"><a href="{{url_for('logout2')}}">Cerrar Sesión</a></li>
-			</ul>
-		</nav>
-	</header>
 
-	<main>
-        <h2>Monitor Inteligente: {{ producto }}</h2>
-        <div>
-            <div>
-                <div>Regresión Lineal</div>
-                <p class="h2 text-primary">{{ lineal if lineal is not none else "---" }} unidades</p>
-            </div>
 
-            <div>
-                <div>Random Forest</div>
-                <p class="h2 text-primary">{{ bosque if bosque is not none else "---" }} unidades</p>
-            </div>
+<header>
+
+    <nav>
+
+        <ul>
+
+            <li>
+                <a href="{{ url_for('consultasProducto') }}">
+                    Regresar
+                </a>
+            </li>
+
+            <li class="right">
+                <a href="{{ url_for('logout2') }}">
+                    Cerrar Sesión
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+
+    <!-- =====================================================
+         ENCABEZADO
+         ===================================================== -->
+
+    <div class="titulo-principal">
+
+        <h1>
+            Producto
+        </h1>
+
+        <h2>
+            {{ producto }}
+        </h2>
+
+    </div>
+
+
+    {% if resultado.estado == "datos_insuficientes" %}
+
+
+        <!-- =================================================
+             DATOS INSUFICIENTES
+             ================================================= -->
+
+        <div class="mensaje">
+
+            <h2>
+                Datos insuficientes para generar una predicción
+            </h2>
+
+            <p>
+                {{ resultado.mensaje }}
+            </p>
+
+            <p>
+                Registros de venta encontrados:
+                <strong>
+                    {{ resultado.num_ventas }}
+                </strong>
+            </p>
+
+            <p>
+                Días históricos disponibles:
+                <strong>
+                    {{ resultado.dias_historicos }}
+                </strong>
+            </p>
+
+            <p>
+                El modelo necesita un historial suficiente
+                para identificar patrones de demanda antes
+                de generar una predicción.
+            </p>
+
         </div>
 
-        <div>
-            <p><strong>Análisis técnico:</strong> El sistema procesó {{ num_ventas }} registros. 
-            Si los números difieren, es porque el Bosque Aleatorio está detectando fluctuaciones que la línea recta ignora.</p>
-        </div>
-    
-	</main>
 
-	<footer>
-		<p>Derechos Reservados &copy;  ShopEase 2023</p>
-	</footer>
+    {% elif resultado.estado == "sin_datos" %}
+
+
+        <!-- =================================================
+             SIN DATOS
+             ================================================= -->
+
+        <div class="mensaje">
+
+            <h2>
+                Sin datos de ventas
+            </h2>
+
+            <p>
+                {{ resultado.mensaje }}
+            </p>
+
+        </div>
+
+
+    {% elif resultado.estado == "ok" %}
+
+
+        <!-- =================================================
+             TARJETAS PRINCIPALES
+             ================================================= -->
+
+        <div class="tarjetas">
+
+
+            <div class="tarjeta">
+
+                <h3>
+                    Ventas registradas
+                </h3>
+
+                <div class="valor">
+                    {{ resultado.num_ventas }}
+                </div>
+
+                <div class="unidad">
+                    registros
+                </div>
+
+            </div>
+
+
+            <div class="tarjeta">
+
+                <h3>
+                    Días históricos
+                </h3>
+
+                <div class="valor">
+                    {{ resultado.dias_historicos }}
+                </div>
+
+                <div class="unidad">
+                    días
+                </div>
+
+            </div>
+
+
+            <div class="tarjeta">
+
+                <h3>
+                    Promedio diario
+                </h3>
+
+                <div class="valor">
+                    {{ resultado.promedio_diario }}
+                </div>
+
+                <div class="unidad">
+                    unidades
+                </div>
+
+            </div>
+
+
+            <div class="tarjeta">
+
+                <h3>
+                    Inventario actual
+                </h3>
+
+                <div class="valor">
+                    {{ inventario_actual }}
+                </div>
+
+                <div class="unidad">
+                    unidades
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             PREDICCIÓN DE DEMANDA
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Predicción de demanda
+            </h2>
+
+
+            <div class="modelos">
+
+
+                <!-- REGRESIÓN LINEAL -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Regresión Lineal
+                    </h3>
+
+                    <div class="valor">
+
+                        {{
+                            resultado.prediccion_lineal_7_dias
+                        }}
+
+                    </div>
+
+                    <p>
+                        unidades estimadas para
+                        los próximos 7 días
+                    </p>
+
+                </div>
+
+
+                <!-- RANDOM FOREST -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Random Forest
+                    </h3>
+
+                    <div class="valor">
+
+                        {{
+                            resultado.prediccion_bosque_7_dias
+                        }}
+
+                    </div>
+
+                    <p>
+                        unidades estimadas para
+                        los próximos 7 días
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =============================================
+                 MODELO SELECCIONADO
+                 ============================================= -->
+
+            <div class="modelo-seleccionado">
+
+                <h3>
+                    Resultado del análisis
+                </h3>
+
+                <p>
+                    Modelo seleccionado según la evaluación temporal:
+                </p>
+
+
+                <div class="nombre-modelo">
+
+                    {% if resultado.modelo_seleccionado == "lineal" %}
+
+                        Regresión Lineal
+
+                    {% elif resultado.modelo_seleccionado == "bosque" %}
+
+                        Random Forest
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="valor">
+
+                    {{
+                        resultado.prediccion_seleccionada_7_dias
+                    }}
+
+                </div>
+
+
+                <p>
+                    Demanda estimada para los próximos 7 días
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             EVALUACIÓN DE MODELOS
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Evaluación de los modelos
+            </h2>
+
+
+            <div class="modelos">
+
+
+                <!-- REGRESIÓN LINEAL -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Regresión Lineal
+                    </h3>
+
+
+                    <div class="metricas">
+
+                        <div class="metrica">
+
+                            <span>
+                                MAE
+                            </span>
+
+                            <strong>
+
+                                {{
+                                    resultado.metricas.lineal.mae
+                                }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="metrica">
+
+                            <span>
+                                RMSE
+                            </span>
+
+                            <strong>
+
+                                {{
+                                    resultado.metricas.lineal.rmse
+                                }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="metrica">
+
+                            <span>
+                                R²
+                            </span>
+
+                            <strong>
+
+                                {{
+                                    resultado.metricas.lineal.r2
+                                }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RANDOM FOREST -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Random Forest
+                    </h3>
+
+
+                    <div class="metricas">
+
+                        <div class="metrica">
+
+                            <span>
+                                MAE
+                            </span>
+
+                            <strong>
+
+                                {{
+                                    resultado.metricas.bosque.mae
+                                }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="metrica">
+
+                            <span>
+                                RMSE
+                            </span>
+
+                            <strong>
+
+                                {{
+                                    resultado.metricas.bosque.rmse
+                                }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="metrica">
+
+                            <span>
+                                R²
+                            </span>
+
+                            <strong>
+
+                                {{
+                                    resultado.metricas.bosque.r2
+                                }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PRONÓSTICO SELECCIONADO
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Pronóstico seleccionado
+            </h2>
+
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Unidades estimadas
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for registro in resultado.predicciones_seleccionadas %}
+
+                        <tr>
+
+                            <td>
+                                {{ registro.fecha }}
+                            </td>
+
+                            <td>
+                                {{ registro.cantidad }}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ANÁLISIS DE INVENTARIO
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Análisis de inventario
+            </h2>
+
+
+            <div class="modelos">
+
+
+                <!-- INVENTARIO ACTUAL -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Inventario actual
+                    </h3>
+
+                    <div class="valor">
+                        {{ inventario_actual }}
+                    </div>
+
+                    <p>
+                        unidades disponibles
+                    </p>
+
+                </div>
+
+
+                <!-- DEMANDA ESTIMADA -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Demanda estimada
+                    </h3>
+
+                    <div class="valor">
+
+                        {{ demanda_7_dias }}
+
+                    </div>
+
+                    <p>
+                        unidades para 7 días
+                    </p>
+
+                </div>
+
+
+                <!-- DIFERENCIA -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Diferencia estimada
+                    </h3>
+
+                    <div class="valor">
+
+                        {{ "%.2f"|format(
+                            diferencia_inventario
+                        ) }}
+
+                    </div>
+
+                    <p>
+                        inventario menos demanda proyectada
+                    </p>
+
+                </div>
+
+
+                <!-- REPOSICIÓN SUGERIDA -->
+
+                <div class="modelo">
+
+                    <h3>
+                        Reposición sugerida
+                    </h3>
+
+                    <div class="valor">
+
+                        {{ reposicion_sugerida }}
+
+                    </div>
+
+                    <p>
+                        unidades sugeridas para cubrir
+                        la demanda estimada
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="inventario-estado">
+
+
+                {% if estado_inventario == "suficiente" %}
+
+                    <h3>
+                        Inventario suficiente
+                    </h3>
+
+                    <p>
+                        El inventario disponible cubre
+                        la demanda estimada para los
+                        próximos 7 días.
+                    </p>
+
+                    <p>
+                        No se requiere reposición
+                        inmediata según la estimación.
+                    </p>
+
+
+                {% elif estado_inventario == "precaucion" %}
+
+                    <h3>
+                        Precaución con el inventario
+                    </h3>
+
+                    <p>
+                        El inventario actual se encuentra
+                        cercano a la demanda estimada para
+                        los próximos 7 días.
+                    </p>
+
+                    <p>
+                        Reposición sugerida:
+
+                        <strong>
+                            {{ reposicion_sugerida }}
+                            unidades
+                        </strong>
+                    </p>
+
+
+                {% elif estado_inventario == "riesgo" %}
+
+                    <h3>
+                        Riesgo de agotamiento
+                    </h3>
+
+                    <p>
+                        La demanda estimada para los próximos
+                        7 días supera el inventario disponible.
+                    </p>
+
+                    <p>
+
+                        Diferencia estimada:
+
+                        <strong>
+
+                            {{
+                                "%.2f"|format(
+                                    diferencia_inventario|abs
+                                )
+                            }}
+
+                            unidades
+
+                        </strong>
+
+                    </p>
+
+                    <p>
+
+                        Reposición sugerida:
+
+                        <strong>
+                            {{ reposicion_sugerida }}
+                            unidades
+                        </strong>
+
+                    </p>
+
+
+                {% else %}
+
+                    <h3>
+                        Información insuficiente
+                    </h3>
+
+                    <p>
+                        No existen suficientes datos para
+                        realizar el análisis de inventario.
+                    </p>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             GRÁFICA DE DEMANDA
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Comportamiento de la demanda
+            </h2>
+
+
+            <div class="grafica-contenedor">
+
+                <canvas id="graficaDemanda"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             HISTORIAL DE DEMANDA
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Historial de demanda
+            </h2>
+
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Unidades vendidas
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for registro in resultado.serie_historica %}
+
+                        <tr>
+
+                            <td>
+                                {{ registro.fecha }}
+                            </td>
+
+                            <td>
+                                {{ registro.cantidad }}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ANÁLISIS TÉCNICO
+             ================================================= -->
+
+        <div class="seccion">
+
+            <h2>
+                Análisis técnico
+            </h2>
+
+
+            <div class="analisis">
+
+                <p>
+
+                    El sistema analizó
+
+                    <strong>
+                        {{ resultado.num_ventas }}
+                    </strong>
+
+                    registros de venta distribuidos
+                    en
+
+                    <strong>
+                        {{ resultado.dias_historicos }}
+                    </strong>
+
+                    días históricos.
+
+                </p>
+
+
+                <p>
+
+                    Para realizar la predicción se utilizaron
+                    dos modelos de aprendizaje automático:
+
+                    <strong>
+                        Regresión Lineal
+                    </strong>
+
+                    y
+
+                    <strong>
+                        Random Forest
+                    </strong>.
+
+                </p>
+
+
+                <p>
+
+                    Los modelos utilizan características
+                    temporales y comportamiento reciente
+                    de las ventas para estimar la demanda
+                    futura.
+
+                </p>
+
+
+                <p>
+
+                    Las métricas
+
+                    <strong>MAE</strong>,
+
+                    <strong>RMSE</strong>
+
+                    y
+
+                    <strong>R²</strong>
+
+                    permiten evaluar el comportamiento
+                    de los modelos sobre datos históricos
+                    separados temporalmente.
+
+                </p>
+
+
+                <p>
+
+                    El modelo seleccionado es:
+
+                    <strong>
+
+                        {% if resultado.modelo_seleccionado == "lineal" %}
+
+                            Regresión Lineal
+
+                        {% elif resultado.modelo_seleccionado == "bosque" %}
+
+                            Random Forest
+
+                        {% endif %}
+
+                    </strong>
+
+                    y genera una demanda estimada de
+
+                    <strong>
+
+                        {{
+                            resultado.prediccion_seleccionada_7_dias
+                        }}
+
+                    </strong>
+
+                    unidades para los próximos 7 días.
+
+                </p>
+
+
+                <p>
+
+                    Con base en la demanda estimada y
+                    el inventario disponible, el sistema
+                    calcula una
+
+                    <strong>
+                        reposición sugerida
+                    </strong>
+
+                    cuando el inventario no es suficiente
+                    para cubrir la demanda proyectada.
+
+                </p>
+
+
+                <p>
+
+                    Las cantidades mostradas representan
+                    <strong>estimaciones</strong> basadas
+                    en el historial disponible y no
+                    garantizan las ventas futuras.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             JAVASCRIPT DE LA GRÁFICA
+             ================================================= -->
+
+        <script>
+
+            /*
+             * =====================================================
+             * HISTORIAL
+             * =====================================================
+             */
+
+            const historial = [
+
+                {% for registro in resultado.serie_historica %}
+
+                {
+                    fecha:
+                        "{{ registro.fecha }}",
+
+                    cantidad:
+                        {{ registro.cantidad }}
+                }
+
+                {% if not loop.last %},{% endif %}
+
+                {% endfor %}
+
+            ];
+
+
+            /*
+             * =====================================================
+             * PRONÓSTICO
+             * =====================================================
+             */
+
+            const pronostico = [
+
+                {% for registro in resultado.predicciones_seleccionadas %}
+
+                {
+                    fecha:
+                        "{{ registro.fecha }}",
+
+                    cantidad:
+                        {{ registro.cantidad }}
+                }
+
+                {% if not loop.last %},{% endif %}
+
+                {% endfor %}
+
+            ];
+
+
+            /*
+             * =====================================================
+             * FECHAS
+             * =====================================================
+             */
+
+            const fechasHistoricas =
+                historial.map(
+                    registro => registro.fecha
+                );
+
+
+            const valoresHistoricos =
+                historial.map(
+                    registro => registro.cantidad
+                );
+
+
+            const fechasPronostico =
+                pronostico.map(
+                    registro => registro.fecha
+                );
+
+
+            const valoresPronostico =
+                pronostico.map(
+                    registro => registro.cantidad
+                );
+
+
+            /*
+             * =====================================================
+             * COMBINAR FECHAS
+             * =====================================================
+             */
+
+            const fechas =
+                fechasHistoricas.concat(
+                    fechasPronostico
+                );
+
+
+            /*
+             * =====================================================
+             * DATOS HISTÓRICOS
+             * =====================================================
+             */
+
+            const datosHistoricos =
+                valoresHistoricos.concat(
+
+                    Array(
+                        valoresPronostico.length
+                    ).fill(null)
+
+                );
+
+
+            /*
+             * =====================================================
+             * DATOS DEL PRONÓSTICO
+             * =====================================================
+             */
+
+            const datosPronostico =
+
+                Array(
+                    valoresHistoricos.length
+                )
+
+                .fill(null)
+
+                .concat(
+                    valoresPronostico
+                );
+
+
+            /*
+             * =====================================================
+             * CREAR GRÁFICA
+             * =====================================================
+             */
+
+            const canvas =
+                document.getElementById(
+                    "graficaDemanda"
+                );
+
+
+            if (canvas) {
+
+                new Chart(
+
+                    canvas,
+
+                    {
+
+                        type: "line",
+
+
+                        data: {
+
+                            labels:
+                                fechas,
+
+
+                            datasets: [
+
+                                {
+
+                                    label:
+                                        "Demanda histórica",
+
+                                    data:
+                                        datosHistoricos,
+
+                                    tension:
+                                        0.3,
+
+                                    borderWidth:
+                                        2,
+
+                                    pointRadius:
+                                        3
+
+                                },
+
+
+                                {
+
+                                    label:
+                                        "Pronóstico",
+
+                                    data:
+                                        datosPronostico,
+
+                                    tension:
+                                        0.3,
+
+                                    borderWidth:
+                                        2,
+
+                                    borderDash:
+                                        [6, 6],
+
+                                    pointRadius:
+                                        3
+
+                                }
+
+                            ]
+
+                        },
+
+
+                        options: {
+
+                            responsive:
+                                true,
+
+                            maintainAspectRatio:
+                                false,
+
+
+                            interaction: {
+
+                                mode:
+                                    "index",
+
+                                intersect:
+                                    false
+
+                            },
+
+
+                            plugins: {
+
+                                legend: {
+
+                                    display:
+                                        true
+
+                                }
+
+                            },
+
+
+                            scales: {
+
+                                y: {
+
+                                    beginAtZero:
+                                        true,
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            "Unidades"
+
+                                    }
+
+                                },
+
+
+                                x: {
+
+                                    title: {
+
+                                        display:
+                                            true,
+
+                                        text:
+                                            "Fecha"
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+        </script>
+
+
+    {% endif %}
+
+
+</main>
+
+
+<footer>
+
+    <p>
+        Derechos Reservados &copy; ShopEase 2023
+    </p>
+
+</footer>
+
+
 </body>
+
 </html>

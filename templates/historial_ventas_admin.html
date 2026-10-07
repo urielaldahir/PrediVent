@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Historial de ventas - PrediVent</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+
+        /* ====================================================
+           CONTENEDOR PRINCIPAL
+        ==================================================== */
+
+        .ventas-container {
+
+            width: 96%;
+
+            margin: 0 auto;
+
+            padding: 40px 0;
+
+        }
+
+
+        /* ====================================================
+           TITULO
+        ==================================================== */
+
+        .ventas-container h1 {
+
+            text-align: center;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        /* ====================================================
+           TARJETAS DE RESUMEN
+        ==================================================== */
+
+        .resumen-ventas {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 20px;
+
+            margin-bottom: 35px;
+
+        }
+
+
+        .tarjeta-resumen {
+
+            background: white;
+
+            border-radius: 8px;
+
+            padding: 20px;
+
+            text-align: center;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.15);
+
+        }
+
+
+        .tarjeta-resumen h3 {
+
+            margin-top: 0;
+
+            margin-bottom: 10px;
+
+            font-size: 18px;
+
+        }
+
+
+        .tarjeta-resumen .valor {
+
+            font-size: 28px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ====================================================
+           FILTRO
+        ==================================================== */
+
+        .filtro-container {
+
+            background: white;
+
+            width: 380px;
+
+            margin: 0 auto 35px auto;
+
+            padding: 20px;
+
+            border-radius: 8px;
+
+            text-align: center;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.15);
+
+        }
+
+
+        .filtro-container label {
+
+            display: block;
+
+            font-weight: bold;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .filtro-container select {
+
+            padding: 8px;
+
+            min-width: 180px;
+
+        }
+
+
+        .filtro-container button {
+
+            padding: 9px 18px;
+
+            margin-left: 5px;
+
+            border: none;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+            background: #333;
+
+            color: white;
+
+        }
+
+
+        .filtro-container button:hover {
+
+            opacity: 0.85;
+
+        }
+
+
+        /* ====================================================
+           TABLA
+        ==================================================== */
+
+        .tabla-ventas {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            background: white;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.15);
+
+        }
+
+
+        .tabla-ventas th {
+
+            background: #006d9c;
+
+            color: white;
+
+            padding: 12px;
+
+            text-align: left;
+
+        }
+
+
+        .tabla-ventas td {
+
+            padding: 11px;
+
+            border-bottom: 1px solid #ddd;
+
+        }
+
+
+        .tabla-ventas tr:nth-child(even) {
+
+            background: #f1f1f1;
+
+        }
+
+
+        .tabla-ventas tr:hover {
+
+            background: #e8e8e8;
+
+        }
+
+
+        /* ====================================================
+           SIN VENTAS
+        ==================================================== */
+
+        .sin-ventas {
+
+            text-align: center;
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 8px;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.15);
+
+        }
+
+
+        /* ====================================================
+           RESPONSIVE
+        ==================================================== */
+
+        @media (max-width: 900px) {
+
+            .resumen-ventas {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .resumen-ventas {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .filtro-container {
+
+                width: 90%;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ========================================================
+     MENU
+========================================================= -->
+
+<header>
+
+    <nav>
+
+        <ul>
+
+            <li>
+
+                <a href="{{ url_for('HomeAdmin') }}">
+
+                    Home
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="{{ url_for('consultas') }}">
+
+                    Consultas
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="{{ url_for('agregarProveedor') }}">
+
+                    Agregar proveedores
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="{{ url_for('agregarProducto') }}">
+
+                    Agregar productos
+
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="{{ url_for('AgregarEmpleado') }}">
+                    Agregar usuarios
+                </a>
+
+            </li>
+
+
+            <li class="right">
+
+                <a href="{{ url_for('logout2') }}">
+
+                    Cerrar Sesión
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+
+<!-- ========================================================
+     CONTENIDO
+========================================================= -->
+
+<main>
+
+    <div class="ventas-container">
+
+
+        <h1>
+
+            Historial de ventas
+
+        </h1>
+
+
+        <!-- ==================================================
+             RESUMEN
+        =================================================== -->
+
+        <div class="resumen-ventas">
+
+
+            <!-- VENTAS TOTALES -->
+
+            <div class="tarjeta-resumen">
+
+                <h3>
+
+                    Ventas totales
+
+                </h3>
+
+                <div class="valor">
+
+                    ${{ "%.2f"|format(ventas_totales) }}
+
+                </div>
+
+            </div>
+
+
+            <!-- PRODUCTOS VENDIDOS -->
+
+            <div class="tarjeta-resumen">
+
+                <h3>
+
+                    Productos vendidos
+
+                </h3>
+
+                <div class="valor">
+
+                    {{ productos_vendidos }}
+
+                </div>
+
+            </div>
+
+
+            <!-- REGISTROS -->
+
+            <div class="tarjeta-resumen">
+
+                <h3>
+
+                    Registros de venta
+
+                </h3>
+
+                <div class="valor">
+
+                    {{ registros_venta }}
+
+                </div>
+
+            </div>
+
+
+            <!-- PROMEDIO -->
+
+            <div class="tarjeta-resumen">
+
+                <h3>
+
+                    Promedio por venta
+
+                </h3>
+
+                <div class="valor">
+
+                    ${{ "%.2f"|format(promedio_venta) }}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ==================================================
+             FILTRO
+        =================================================== -->
+
+        <div class="filtro-container">
+
+
+            <form
+                method="GET"
+                action="{{ url_for('historialVentasAdmin') }}"
+            >
+
+
+                <label>
+
+                    Mostrar:
+
+                </label>
+
+
+                <select name="filtro">
+
+
+                    <option
+                        value="todas"
+                        {% if filtro == 'todas' %}
+                            selected
+                        {% endif %}
+                    >
+
+                        Todas las ventas
+
+                    </option>
+
+
+                    <option
+                        value="mensual"
+                        {% if filtro == 'mensual' %}
+                            selected
+                        {% endif %}
+                    >
+
+                        Este mes
+
+                    </option>
+
+
+                    <option
+                        value="anual"
+                        {% if filtro == 'anual' %}
+                            selected
+                        {% endif %}
+                    >
+
+                        Este año
+
+                    </option>
+
+
+                </select>
+
+
+                <button type="submit">
+
+                    Filtrar
+
+                </button>
+
+
+            </form>
+
+
+        </div>
+
+
+        <!-- ==================================================
+             TABLA
+        =================================================== -->
+
+        {% if ventas %}
+
+
+            <table class="tabla-ventas">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Fecha
+                        </th>
+
+                        <th>
+                            Cliente
+                        </th>
+
+                        <th>
+                            Empleado
+                        </th>
+
+                        <th>
+                            Producto
+                        </th>
+
+                        <th>
+                            Cantidad
+                        </th>
+
+                        <th>
+                            Precio unitario
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for venta in ventas %}
+
+
+                        <tr>
+
+
+                            <td>
+
+                                {{ venta.fecha }}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ venta.cliente }}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ venta.empleado }}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ venta.producto }}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ venta.cantidad }}
+
+                            </td>
+
+
+                            <td>
+
+                                ${{ "%.2f"|format(venta.precio) }}
+
+                            </td>
+
+
+                            <td>
+
+                                ${{ "%.2f"|format(venta.total) }}
+
+                            </td>
+
+
+                        </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+        {% else %}
+
+
+            <div class="sin-ventas">
+
+                <h3>
+
+                    No hay ventas para mostrar.
+
+                </h3>
+
+                <p>
+
+                    No se encontraron ventas para el período seleccionado.
+
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+</main>
+
+
+<!-- ========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    <p>
+
+        Derechos Reservados &copy; PrediVent
+
+    </p>
+
+</footer>
+
+
+</body>
+
+</html>

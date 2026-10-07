@@ -1,0 +1,825 @@
+C:\Users\uriel\OneDrive\Escritorio\MODULAR\MODULAR2\CODE\PrediVent\.venv\Scripts\python.exe C:\Users\uriel\OneDrive\Escritorio\MODULAR\MODULAR2\CODE\PrediVent\evaluar_modelos_prediVent.py 
+Firebase conectado correctamente
+Firestore listo: <google.cloud.firestore_v1.client.Client object at 0x000001F8A33A93A0>
+
+======================================================
+        EVALUACIÓN GLOBAL DEL MÓDULO PREDIVENT
+======================================================
+
+
+======================================================
+                    RESULTADO
+======================================================
+
+Productos con predicción evaluable: 99
+
+MODELO SELECCIONADO POR PRODUCTO:
+--------------------------------------
+bosque: 69 productos
+lineal: 30 productos
+
+DETALLE:
+--------------------------------------
+Producto 1 | Laptop HP Victus 15
+  Historial: 47 ventas / 57 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.3953825902252222 | Bosque: 1.2706932539682538
+  RMSE -> Lineal: 1.6453914514763623 | Bosque: 1.4260189619866062
+  R² -> Lineal: 0.06321348491643919 | Bosque: 0.2963563737213295
+  Pronóstico 7 días -> Lineal: 13.76 | Bosque: 15.06
+
+Producto 2 | Computadora Todo en Uno Lenovo Idea
+  Historial: 50 ventas / 92 días
+  Seleccionado: bosque
+  MAE -> Lineal: 0.2057067390135785 | Bosque: 0.058823529411764705
+  RMSE -> Lineal: 0.3676721800528008 | Bosque: 0.24253562503633297
+  R² -> Lineal: -1.4417399027250735 | Bosque: -0.0625
+  Pronóstico 7 días -> Lineal: 0.0 | Bosque: 2.06
+
+Producto 3 | Monitor Gamer ASUS TUF Gaming VG27
+  Historial: 48 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.8405400671619703 | Bosque: 2.07965992063492
+  RMSE -> Lineal: 2.104452647101363 | Bosque: 2.2910967702071576
+  R² -> Lineal: -0.9771075642374705 | Bosque: -1.343359111809674
+  Pronóstico 7 días -> Lineal: 36.4 | Bosque: 35.39
+
+Producto 4 | Teclado Gamer Redragon K552 Kumara
+  Historial: 51 ventas / 92 días
+  Seleccionado: bosque
+  MAE -> Lineal: 0.09403583787099358 | Bosque: 0.10882352941176471
+  RMSE -> Lineal: 0.2636973820850333 | Bosque: 0.23724470282728724
+  R² -> Lineal: -0.25599958706540704 | Bosque: -0.016648697916666677
+  Pronóstico 7 días -> Lineal: 0.0 | Bosque: 2.1
+
+Producto 5 | Mouse Logitech M185
+  Historial: 36 ventas / 56 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.9612052242743196 | Bosque: 3.9554686507936516
+  RMSE -> Lineal: 3.3942008072297964 | Bosque: 4.7941351229864
+  R² -> Lineal: -0.11959175119527732 | Bosque: -1.2335987927552794
+  Pronóstico 7 días -> Lineal: 22.08 | Bosque: 24.52
+
+Producto 6 | Mouse Gamer Logitech G203 LIGHTSYNC
+  Historial: 45 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 7.280704154389094 | Bosque: 5.021665476190476
+  RMSE -> Lineal: 7.653714605754779 | Bosque: 5.2077239114440355
+  R² -> Lineal: -23.408061360976678 | Bosque: -10.300161807427486
+  Pronóstico 7 días -> Lineal: 52.51 | Bosque: 58.77
+
+Producto 7 | Teclado Gamer Redragon K552 Kumara
+  Historial: 40 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 3.8230931193444206 | Bosque: 4.040986309523809
+  RMSE -> Lineal: 4.571326409083041 | Bosque: 4.736106421607914
+  R² -> Lineal: -0.1975372572137566 | Bosque: -0.28542716543241964
+  Pronóstico 7 días -> Lineal: 55.75 | Bosque: 50.09
+
+Producto 8 | Webcam Logitech C920
+  Historial: 42 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.5452897991027386 | Bosque: 1.6686464285714286
+  RMSE -> Lineal: 1.985236002030263 | Bosque: 1.852164471461382
+  R² -> Lineal: -0.6699838914225009 | Bosque: -0.45360730056941545
+  Pronóstico 7 días -> Lineal: 18.94 | Bosque: 15.62
+
+Producto 9 | Micrófono USB FIFINE K669B
+  Historial: 47 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.9283808287943884 | Bosque: 1.5506453823953827
+  RMSE -> Lineal: 2.190827322556983 | Bosque: 1.843502401326336
+  R² -> Lineal: -0.3752791854619484 | Bosque: 0.026217448797717147
+  Pronóstico 7 días -> Lineal: 15.66 | Bosque: 19.33
+
+Producto 10 | Bocinas USB Creative Pebble V3
+  Historial: 78 ventas / 92 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.8085392974139087 | Bosque: 3.4183820028011196
+  RMSE -> Lineal: 3.262604533853655 | Bosque: 3.9140171743021948
+  R² -> Lineal: -0.7321430357596741 | Bosque: -1.4928740413128962
+  Pronóstico 7 días -> Lineal: 62.36 | Bosque: 54.67
+
+Producto 11 | Audífonos por Cable JBL Quantum 100
+  Historial: 43 ventas / 92 días
+  Seleccionado: bosque
+  MAE -> Lineal: 0.2824509591420879 | Bosque: 0.24033543417366943
+  RMSE -> Lineal: 0.5052899885884694 | Bosque: 0.2841725260908132
+  R² -> Lineal: -3.611680879504723 | Bosque: -0.45861956906356305
+  Pronóstico 7 días -> Lineal: 0.0 | Bosque: 1.93
+
+Producto 12 | Soporte para Laptop Nexstand K2
+  Historial: 41 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.3565931508144558 | Bosque: 3.728005952380953
+  RMSE -> Lineal: 2.6276385143512355 | Bosque: 4.04039374871522
+  R² -> Lineal: -0.09769223562829388 | Bosque: -1.5953547924732958
+  Pronóstico 7 días -> Lineal: 37.68 | Bosque: 36.02
+
+Producto 13 | Soporte para Monitor VIVO STAND-V00
+  Historial: 44 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.4027703191290697 | Bosque: 3.048441071428571
+  RMSE -> Lineal: 4.446241820745659 | Bosque: 3.4911556132516863
+  R² -> Lineal: -0.36904891471936807 | Bosque: 0.15594407784357633
+  Pronóstico 7 días -> Lineal: 44.26 | Bosque: 41.07
+
+Producto 14 | Extensor WiFi TP-Link RE315
+  Historial: 41 ventas / 57 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.73632417532624 | Bosque: 2.502573412698413
+  RMSE -> Lineal: 3.984209354298259 | Bosque: 3.24348347824461
+  R² -> Lineal: -0.8544303947287091 | Bosque: -0.2289935833698311
+  Pronóstico 7 días -> Lineal: 67.02 | Bosque: 48.96
+
+Producto 15 | Adaptador USB UGREEN USB 3.0
+  Historial: 46 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.484191348200193 | Bosque: 4.324195346320346
+  RMSE -> Lineal: 5.591004491675732 | Bosque: 5.250750824676975
+  R² -> Lineal: -0.013596991761939403 | Bosque: 0.10601866981692853
+  Pronóstico 7 días -> Lineal: 59.4 | Bosque: 52.97
+
+Producto 16 | Memoria USB SanDisk Ultra USB 3.0
+  Historial: 46 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.5101541921555792 | Bosque: 1.7927924603174603
+  RMSE -> Lineal: 1.865620917151411 | Bosque: 2.1590803598838537
+  R² -> Lineal: -0.6978250763477425 | Bosque: -1.2739648782615571
+  Pronóstico 7 días -> Lineal: 12.09 | Bosque: 13.32
+
+Producto 17 | Tarjeta SD SanDisk Ultra SDXC
+  Historial: 47 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.0841867813147927 | Bosque: 1.081706746031746
+  RMSE -> Lineal: 1.308530020980891 | Bosque: 1.5919262955336437
+  R² -> Lineal: 0.28656216007989554 | Bosque: -0.05592888767144588
+  Pronóstico 7 días -> Lineal: 21.38 | Bosque: 19.18
+
+Producto 18 | SSD Externo Kingston XS1000
+  Historial: 48 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.3812766611846101 | Bosque: 1.9586801587301585
+  RMSE -> Lineal: 1.6237114835901376 | Bosque: 2.222782461237217
+  R² -> Lineal: -0.6375397403369478 | Bosque: -2.0687961925365093
+  Pronóstico 7 días -> Lineal: 34.63 | Bosque: 29.3
+
+Producto 19 | HDD Externo Seagate Expansion
+  Historial: 50 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.6066437408738183 | Bosque: 1.8084732142857143
+  RMSE -> Lineal: 2.90535137577145 | Bosque: 2.563263389025023
+  R² -> Lineal: -0.2770146167469074 | Bosque: 0.006003146517995828
+  Pronóstico 7 días -> Lineal: 29.73 | Bosque: 31.74
+
+Producto 20 | Cable Ethernet TP-Link Cat 6
+  Historial: 51 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.822911936511832 | Bosque: 2.1232692460317457
+  RMSE -> Lineal: 4.270884091285706 | Bosque: 2.577676303961102
+  R² -> Lineal: -6.125176141092707 | Bosque: -1.5954746593760025
+  Pronóstico 7 días -> Lineal: 42.0 | Bosque: 42.02
+
+Producto 21 | Memoria RAM Kingston Fury Beast DDR
+  Historial: 39 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 3.382441578187037 | Bosque: 3.671633802308802
+  RMSE -> Lineal: 3.8058920233619444 | Bosque: 3.938438966398689
+  R² -> Lineal: 0.15589661459848048 | Bosque: 0.09607800162892921
+  Pronóstico 7 días -> Lineal: 30.16 | Bosque: 28.14
+
+Producto 22 | Tarjeta Gráfica ASUS Dual GeForce R
+  Historial: 46 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 3.4518987617819903 | Bosque: 3.76949908008658
+  RMSE -> Lineal: 4.162508506083206 | Bosque: 4.442143254675724
+  R² -> Lineal: 0.026602412178930113 | Bosque: -0.10857509522814768
+  Pronóstico 7 días -> Lineal: 34.38 | Bosque: 43.96
+
+Producto 23 | Fuente de Poder Corsair CX650
+  Historial: 42 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.970654282289706 | Bosque: 3.0846535714285728
+  RMSE -> Lineal: 5.032276085766852 | Bosque: 3.5896060026242607
+  R² -> Lineal: -0.11069309663951521 | Bosque: 0.4348565239440296
+  Pronóstico 7 días -> Lineal: 62.26 | Bosque: 38.98
+
+Producto 24 | Gabinete para PC NZXT H5 Flow
+  Historial: 48 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.8136550126782622 | Bosque: 1.3061809523809527
+  RMSE -> Lineal: 2.24943168359007 | Bosque: 1.6296118711702532
+  R² -> Lineal: -1.108309541307856 | Bosque: -0.10651452110792259
+  Pronóstico 7 días -> Lineal: 12.39 | Bosque: 15.66
+
+Producto 25 | Ventilador para PC Cooler Master Si
+  Historial: 44 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.8583687075505737 | Bosque: 1.3887998015873015
+  RMSE -> Lineal: 2.2096065545662684 | Bosque: 1.7368390996618128
+  R² -> Lineal: -0.7131091670113034 | Bosque: -0.05845966951370385
+  Pronóstico 7 días -> Lineal: 20.28 | Bosque: 16.69
+
+Producto 26 | Celular Samsung Galaxy S24
+  Historial: 45 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.817095275632181 | Bosque: 1.6439472222222213
+  RMSE -> Lineal: 2.449264655524786 | Bosque: 2.3950501426068103
+  R² -> Lineal: -0.3633857620006702 | Bosque: -0.30369663309111394
+  Pronóstico 7 días -> Lineal: 24.83 | Bosque: 22.64
+
+Producto 27 | Tablet Xiaomi Pad 7
+  Historial: 45 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.8183685560482559 | Bosque: 1.7856082251082253
+  RMSE -> Lineal: 2.597165753100956 | Bosque: 2.2506798242196377
+  R² -> Lineal: -0.6492102564988891 | Bosque: -0.23852314698027866
+  Pronóstico 7 días -> Lineal: 34.03 | Bosque: 34.52
+
+Producto 28 | Smartwatch Apple Watch Series 10
+  Historial: 37 ventas / 57 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.434871391067452 | Bosque: 2.0330560425685418
+  RMSE -> Lineal: 3.186905747549719 | Bosque: 2.9168627807334016
+  R² -> Lineal: -0.34343495287902526 | Bosque: -0.12540852931584556
+  Pronóstico 7 días -> Lineal: 35.7 | Bosque: 29.96
+
+Producto 29 | Pulsera Inteligente Xiaomi Smart Ba
+  Historial: 48 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.369058976682851 | Bosque: 0.9741099206349197
+  RMSE -> Lineal: 1.6761813448392893 | Bosque: 1.1953606533636505
+  R² -> Lineal: 0.12474021782328693 | Bosque: 0.5548638343894163
+  Pronóstico 7 días -> Lineal: 54.04 | Bosque: 52.36
+
+Producto 30 | Cargador USB-C Anker 323
+  Historial: 43 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 5.345171815042659 | Bosque: 4.754337878787879
+  RMSE -> Lineal: 5.924396530942437 | Bosque: 4.9097036225330495
+  R² -> Lineal: -1.2369964471537789 | Bosque: -0.5363409599180466
+  Pronóstico 7 días -> Lineal: 27.86 | Bosque: 37.71
+
+Producto 31 | Cargador Inalámbrico Belkin BoostCh
+  Historial: 49 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 7.0909206330948225 | Bosque: 5.862632738095238
+  RMSE -> Lineal: 8.452416402217807 | Bosque: 7.036301577413475
+  R² -> Lineal: -1.8474827834388448 | Bosque: -0.9732777954687668
+  Pronóstico 7 días -> Lineal: 53.53 | Bosque: 42.58
+
+Producto 32 | Cable USB-C UGREEN
+  Historial: 47 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.0800333315220683 | Bosque: 1.6545587301587303
+  RMSE -> Lineal: 2.4843885521905493 | Bosque: 1.8870450657366236
+  R² -> Lineal: -1.411010343068536 | Bosque: -0.3909918281722411
+  Pronóstico 7 días -> Lineal: 17.88 | Bosque: 13.64
+
+Producto 33 | Cable Lightning Anker PowerLine II
+  Historial: 45 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.9971760538203114 | Bosque: 1.939985912698413
+  RMSE -> Lineal: 2.333636444986578 | Bosque: 2.1890757991792054
+  R² -> Lineal: -0.1813143291474173 | Bosque: -0.039490857820406955
+  Pronóstico 7 días -> Lineal: 18.87 | Bosque: 18.01
+
+Producto 34 | Cable Micro USB UGREEN
+  Historial: 44 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.1530672598732794 | Bosque: 2.4055738095238097
+  RMSE -> Lineal: 2.5295258100423803 | Bosque: 2.777394016851787
+  R² -> Lineal: 0.11744816225233645 | Bosque: -0.06398862411642825
+  Pronóstico 7 días -> Lineal: 21.74 | Bosque: 24.66
+
+Producto 35 | Power Bank Xiaomi 10000mAh
+  Historial: 38 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.7382228794962997 | Bosque: 2.75801369047619
+  RMSE -> Lineal: 3.353263239377105 | Bosque: 3.211633954729748
+  R² -> Lineal: -1.078442579031023 | Bosque: -0.906579049754721
+  Pronóstico 7 días -> Lineal: 15.0 | Bosque: 20.69
+
+Producto 36 | Funda para iPhone Spigen Ultra Hybr
+  Historial: 47 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.862507834380972 | Bosque: 2.461948214285714
+  RMSE -> Lineal: 3.4767676098936326 | Bosque: 2.877869786628712
+  R² -> Lineal: -0.027883759626316618 | Bosque: 0.29573686149741585
+  Pronóstico 7 días -> Lineal: 34.2 | Bosque: 36.08
+
+Producto 37 | Protector de Cristal Spigen Glas.tR
+  Historial: 48 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 5.142638098706447 | Bosque: 4.318642099567101
+  RMSE -> Lineal: 6.356573834503665 | Bosque: 5.724021880896683
+  R² -> Lineal: -1.8840850045322366 | Bosque: -1.3386457168439692
+  Pronóstico 7 días -> Lineal: 34.58 | Bosque: 34.48
+
+Producto 38 | Soporte para Celular UGREEN Foldabl
+  Historial: 46 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 3.6914804026904315 | Bosque: 3.9134954365079366
+  RMSE -> Lineal: 4.411120042753304 | Bosque: 4.472324827583351
+  R² -> Lineal: 0.03721029037209711 | Bosque: 0.010307305125262234
+  Pronóstico 7 días -> Lineal: 46.79 | Bosque: 51.01
+
+Producto 39 | Selfie Stick Xiaomi
+  Historial: 39 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.79516626279181 | Bosque: 4.665420977633479
+  RMSE -> Lineal: 5.553543531199437 | Bosque: 4.820514203535609
+  R² -> Lineal: -0.28293867524655214 | Bosque: 0.03338780422260612
+  Pronóstico 7 días -> Lineal: 54.71 | Bosque: 55.84
+
+Producto 40 | Lector de Tarjetas UGREEN USB 3.0
+  Historial: 44 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.4109947177379127 | Bosque: 1.5117285714285713
+  RMSE -> Lineal: 1.5562625500488227 | Bosque: 1.7674984525261637
+  R² -> Lineal: 0.24549746894564972 | Bosque: 0.026775458042871292
+  Pronóstico 7 días -> Lineal: 18.42 | Bosque: 16.23
+
+Producto 41 | Adaptador OTG UGREEN USB-C
+  Historial: 44 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.0584587015838336 | Bosque: 1.8286470238095234
+  RMSE -> Lineal: 3.3241205590556056 | Bosque: 2.041283224031625
+  R² -> Lineal: -4.497401736883657 | Bosque: -1.073053333688033
+  Pronóstico 7 días -> Lineal: 18.42 | Bosque: 21.47
+
+Producto 42 | Audífonos Inalámbricos JBL Tune Bud
+  Historial: 36 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.1916696737070027 | Bosque: 2.158476785714286
+  RMSE -> Lineal: 2.5381448670369875 | Bosque: 2.427114143211208
+  R² -> Lineal: -0.22708178401261092 | Bosque: -0.122072964604929
+  Pronóstico 7 días -> Lineal: 19.55 | Bosque: 19.0
+
+Producto 43 | Audífonos Inalámbricos Apple AirPod
+  Historial: 42 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 6.369482817094979 | Bosque: 3.88874816017316
+  RMSE -> Lineal: 7.454623233345266 | Bosque: 4.5545686320181185
+  R² -> Lineal: -6.419413558228443 | Bosque: -1.769572152705393
+  Pronóstico 7 días -> Lineal: 26.64 | Bosque: 16.79
+
+Producto 44 | Audífonos de Diadema Sony WH-CH520
+  Historial: 44 ventas / 56 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.958872322919195 | Bosque: 2.496339285714286
+  RMSE -> Lineal: 3.898786279997545 | Bosque: 3.3938000698481745
+  R² -> Lineal: -0.3149251260464616 | Bosque: 0.003643692551775657
+  Pronóstico 7 días -> Lineal: 36.13 | Bosque: 37.52
+
+Producto 45 | Bocina JBL Charge 5
+  Historial: 47 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.3080149701880033 | Bosque: 3.0254976190476177
+  RMSE -> Lineal: 2.651558778826661 | Bosque: 3.43043003168123
+  R² -> Lineal: 0.36315543862565824 | Bosque: -0.06592846034968147
+  Pronóstico 7 días -> Lineal: 45.29 | Bosque: 45.65
+
+Producto 46 | Consola PlayStation 5 Slim
+  Historial: 43 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.9152020080041665 | Bosque: 3.2218357142857137
+  RMSE -> Lineal: 4.052271683240261 | Bosque: 3.992166332492883
+  R² -> Lineal: -0.24778919413304368 | Bosque: -0.21104802631380504
+  Pronóstico 7 días -> Lineal: 54.35 | Bosque: 48.32
+
+Producto 47 | Consola Xbox Series X
+  Historial: 48 ventas / 57 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.576491613252642 | Bosque: 2.938463997113997
+  RMSE -> Lineal: 3.397233983835103 | Bosque: 3.6008401870229325
+  R² -> Lineal: 0.2285294959275317 | Bosque: 0.13328542429950896
+  Pronóstico 7 días -> Lineal: 71.93 | Bosque: 65.7
+
+Producto 48 | Consola Xbox Series S
+  Historial: 50 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.083390886547204 | Bosque: 1.7855805555555553
+  RMSE -> Lineal: 2.385568472218084 | Bosque: 1.8959544684793126
+  R² -> Lineal: -1.2230222404847355 | Bosque: -0.40415755724479396
+  Pronóstico 7 días -> Lineal: 18.71 | Bosque: 14.8
+
+Producto 49 | Consola Nintendo Switch OLED
+  Historial: 39 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.919266536992336 | Bosque: 1.8061700396825393
+  RMSE -> Lineal: 2.1228138325833177 | Bosque: 2.020319971294519
+  R² -> Lineal: -0.3061850921179925 | Bosque: -0.1830993583801408
+  Pronóstico 7 días -> Lineal: 11.51 | Bosque: 15.02
+
+Producto 50 | Control Gamer Sony DualSense
+  Historial: 46 ventas / 57 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.524675309102173 | Bosque: 1.5858065476190482
+  RMSE -> Lineal: 1.753098841195966 | Bosque: 1.853406414848589
+  R² -> Lineal: 0.16711231788546377 | Bosque: 0.06907443398322488
+  Pronóstico 7 días -> Lineal: 28.95 | Bosque: 30.08
+
+Producto 51 | Control Gamer Xbox Wireless Control
+  Historial: 43 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.0667274341645907 | Bosque: 1.800490476190476
+  RMSE -> Lineal: 2.3804232140663877 | Bosque: 2.124716271659647
+  R² -> Lineal: -0.7223144918134197 | Bosque: -0.37216390123260523
+  Pronóstico 7 días -> Lineal: 32.05 | Bosque: 30.32
+
+Producto 52 | Control Joy-Con Nintendo Switch
+  Historial: 48 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.128545975495888 | Bosque: 2.856588095238096
+  RMSE -> Lineal: 3.586120614663653 | Bosque: 3.5210996641121333
+  R² -> Lineal: -0.796125846775924 | Bosque: -0.7315841961746616
+  Pronóstico 7 días -> Lineal: 38.5 | Bosque: 40.84
+
+Producto 53 | Luces LED Govee RGBIC Neon Rope
+  Historial: 43 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.142266141683853 | Bosque: 3.522757738095238
+  RMSE -> Lineal: 4.687271114706474 | Bosque: 3.9857743919950632
+  R² -> Lineal: -0.9272377634001465 | Bosque: -0.3935436406915451
+  Pronóstico 7 días -> Lineal: 41.9 | Bosque: 44.23
+
+Producto 54 | Foco LED Philips 9W
+  Historial: 43 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 6.816317191946053 | Bosque: 5.613205357142856
+  RMSE -> Lineal: 7.215080151642138 | Bosque: 5.770597676429011
+  R² -> Lineal: -4.290384308396376 | Bosque: -2.384125766586169
+  Pronóstico 7 días -> Lineal: 52.89 | Bosque: 50.67
+
+Producto 55 | Consola Portátil ASUS ROG Ally
+  Historial: 40 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 9.432481538703906 | Bosque: 5.468441666666669
+  RMSE -> Lineal: 10.37455777323143 | Bosque: 6.905237645700233
+  R² -> Lineal: -4.162179807679457 | Bosque: -1.2869211963355256
+  Pronóstico 7 días -> Lineal: 45.53 | Bosque: 43.05
+
+Producto 56 | Consola Portátil Lenovo Legion Go
+  Historial: 37 ventas / 55 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.8196133182246228 | Bosque: 1.7294478174603178
+  RMSE -> Lineal: 2.265630797309278 | Bosque: 2.263743249865264
+  R² -> Lineal: -0.39107937932690406 | Bosque: -0.38876246647982327
+  Pronóstico 7 días -> Lineal: 10.79 | Bosque: 13.26
+
+Producto 57 | Cámara Nintendo Switch HORI
+  Historial: 44 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.3105687855393855 | Bosque: 1.9440224206349206
+  RMSE -> Lineal: 2.7901100162850683 | Bosque: 2.2948067047330634
+  R² -> Lineal: -1.109678564491671 | Bosque: -0.4271376184519846
+  Pronóstico 7 días -> Lineal: 16.96 | Bosque: 18.12
+
+Producto 58 | Volante Gamer Logitech G29 Driving 
+  Historial: 48 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.0041640509361915 | Bosque: 2.837487121212122
+  RMSE -> Lineal: 4.678017394606028 | Bosque: 3.3854156287809185
+  R² -> Lineal: -2.0184616198946994 | Bosque: -0.5808329627026347
+  Pronóstico 7 días -> Lineal: 22.63 | Bosque: 13.89
+
+Producto 59 | SSD M.2 Kingston NV2 NVMe
+  Historial: 43 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.952495506715332 | Bosque: 2.2153138888888892
+  RMSE -> Lineal: 5.416728768535043 | Bosque: 2.4095067644249495
+  R² -> Lineal: -4.91551422416838 | Bosque: -0.17050863867128818
+  Pronóstico 7 días -> Lineal: 40.48 | Bosque: 34.58
+
+Producto 60 | TV TCL 55P635 4K
+  Historial: 45 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.5463229107957317 | Bosque: 2.468345238095238
+  RMSE -> Lineal: 3.9646143091390273 | Bosque: 2.796241470385851
+  R² -> Lineal: -1.308100825290738 | Bosque: -0.1481595243326912
+  Pronóstico 7 días -> Lineal: 40.03 | Bosque: 38.7
+
+Producto 61 | Google Chromecast with Google TV
+  Historial: 50 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.350239833685586 | Bosque: 3.2860680555555555
+  RMSE -> Lineal: 4.426129131827051 | Bosque: 4.008169476424228
+  R² -> Lineal: -0.3566910728260444 | Bosque: -0.11256388862457523
+  Pronóstico 7 días -> Lineal: 43.97 | Bosque: 33.49
+
+Producto 62 | TV Box Xiaomi TV Box S
+  Historial: 46 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.6560283486090612 | Bosque: 2.6875027958152975
+  RMSE -> Lineal: 3.1052630920870756 | Bosque: 3.064276216951967
+  R² -> Lineal: 0.346703328517738 | Bosque: 0.36383545164109365
+  Pronóstico 7 días -> Lineal: 48.05 | Bosque: 46.25
+
+Producto 63 | Roku Express 4K
+  Historial: 42 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 4.465085161019476 | Bosque: 4.927176731601731
+  RMSE -> Lineal: 5.719519220898886 | Bosque: 6.154738121177924
+  R² -> Lineal: -0.20268015140558093 | Bosque: -0.39267651986326335
+  Pronóstico 7 días -> Lineal: 41.95 | Bosque: 38.45
+
+Producto 64 | Fire TV Stick Amazon 4K
+  Historial: 42 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.2327953896919963 | Bosque: 1.474576352813852
+  RMSE -> Lineal: 2.4082598744550183 | Bosque: 1.643102147359263
+  R² -> Lineal: -2.1349814177892434 | Bosque: -0.45934306305763295
+  Pronóstico 7 días -> Lineal: 17.94 | Bosque: 13.68
+
+Producto 65 | Barra de Sonido Sonos Beam
+  Historial: 46 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.214721394669482 | Bosque: 2.1180126984126986
+  RMSE -> Lineal: 2.639821184618344 | Bosque: 2.5295270121956035
+  R² -> Lineal: -1.074004728202321 | Bosque: -0.9043175313771483
+  Pronóstico 7 días -> Lineal: 23.5 | Bosque: 24.5
+
+Producto 66 | Barra de Sonido JBL Bar 2.1 Deep Ba
+  Historial: 42 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.0220095060197596 | Bosque: 2.2768392857142854
+  RMSE -> Lineal: 2.2080281127849943 | Bosque: 2.5147024807608185
+  R² -> Lineal: 0.130946854394142 | Bosque: -0.12722434344823763
+  Pronóstico 7 días -> Lineal: 23.36 | Bosque: 22.72
+
+Producto 67 | Equipo de Sonido Sony MHC-V43D
+  Historial: 48 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.978747203337307 | Bosque: 2.6321452380952395
+  RMSE -> Lineal: 3.410957658466623 | Bosque: 3.041612207653478
+  R² -> Lineal: -0.13619454568868194 | Bosque: 0.09654249787630242
+  Pronóstico 7 días -> Lineal: 29.57 | Bosque: 29.35
+
+Producto 68 | Altavoz Inteligente Amazon Echo Dot
+  Historial: 45 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.3782523321212694 | Bosque: 2.906351785714287
+  RMSE -> Lineal: 4.0177473858697965 | Bosque: 3.5722534477941332
+  R² -> Lineal: -6.337406389392537 | Bosque: -4.800452134216851
+  Pronóstico 7 días -> Lineal: 46.5 | Bosque: 43.9
+
+Producto 69 | Proyector 4K Epson EpiqVision Mini
+  Historial: 48 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.4758704820255786 | Bosque: 2.5040345238095236
+  RMSE -> Lineal: 1.7952412431340679 | Bosque: 2.845996107381862
+  R² -> Lineal: 0.12658777207329164 | Bosque: -1.1950389819058844
+  Pronóstico 7 días -> Lineal: 60.71 | Bosque: 51.99
+
+Producto 70 | Reproductor Blu-ray Sony BDP-S1700
+  Historial: 37 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.657936140436982 | Bosque: 3.2546017857142844
+  RMSE -> Lineal: 3.4055958560071393 | Bosque: 3.479339517596637
+  R² -> Lineal: 0.2369682148386184 | Bosque: 0.20356556061121045
+  Pronóstico 7 días -> Lineal: 55.04 | Bosque: 43.09
+
+Producto 71 | Cámara HD Sony para PS5
+  Historial: 42 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 8.652218177999611 | Bosque: 6.103030952380953
+  RMSE -> Lineal: 9.240798626134803 | Bosque: 6.3453460308875735
+  R² -> Lineal: -6.597184986545806 | Bosque: -2.5821544707918753
+  Pronóstico 7 días -> Lineal: 53.32 | Bosque: 56.93
+
+Producto 72 | Cámara Instantánea Fujifilm Instax 
+  Historial: 40 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.4052285229470272 | Bosque: 1.2736232142857142
+  RMSE -> Lineal: 1.9737751993210102 | Bosque: 1.8401638881188715
+  R² -> Lineal: -0.2773077171982601 | Bosque: -0.11023053611041389
+  Pronóstico 7 días -> Lineal: 8.1 | Bosque: 13.3
+
+Producto 73 | Cámara Sony Alpha a6400
+  Historial: 44 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.968584761837309 | Bosque: 2.016146031746032
+  RMSE -> Lineal: 2.1472283781145483 | Bosque: 2.211117074968954
+  R² -> Lineal: -0.05747470361936591 | Bosque: -0.12133915578423471
+  Pronóstico 7 días -> Lineal: 25.2 | Bosque: 20.9
+
+Producto 74 | Trípode para Cámara Manfrotto Compa
+  Historial: 45 ventas / 56 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.200184280221447 | Bosque: 2.274849675324675
+  RMSE -> Lineal: 3.4833181675228295 | Bosque: 2.689898264877943
+  R² -> Lineal: -6.777888112945258 | Bosque: -3.638174791918826
+  Pronóstico 7 días -> Lineal: 30.65 | Bosque: 33.4
+
+Producto 75 | Micrófono Gamer HyperX QuadCast S
+  Historial: 49 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.7356853415000046 | Bosque: 1.7733337301587297
+  RMSE -> Lineal: 2.0731987749944043 | Bosque: 2.1278320129575325
+  R² -> Lineal: 0.10641306431636222 | Bosque: 0.058696657927878704
+  Pronóstico 7 días -> Lineal: 34.38 | Bosque: 36.06
+
+Producto 76 | Router WiFi TP-Link Archer AX23
+  Historial: 47 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.004345376538163 | Bosque: 2.2897208333333334
+  RMSE -> Lineal: 4.39554212667651 | Bosque: 2.5774746941166065
+  R² -> Lineal: -1.664936632743152 | Bosque: 0.08367230361220757
+  Pronóstico 7 días -> Lineal: 49.67 | Bosque: 46.53
+
+Producto 77 | Repetidor WiFi TP-Link RE200
+  Historial: 41 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 3.1711230700524595 | Bosque: 4.007416756854257
+  RMSE -> Lineal: 3.8178082377928746 | Bosque: 4.128851813181003
+  R² -> Lineal: -0.27744607717433256 | Bosque: -0.49407688827415
+  Pronóstico 7 días -> Lineal: 34.34 | Bosque: 42.07
+
+Producto 78 | Extensor WiFi TP-Link RE550
+  Historial: 44 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 6.152910871769916 | Bosque: 5.8429738095238095
+  RMSE -> Lineal: 6.347581060357514 | Bosque: 6.1436672776228285
+  R² -> Lineal: -3.192693581457795 | Bosque: -2.9276428322719568
+  Pronóstico 7 días -> Lineal: 51.06 | Bosque: 49.63
+
+Producto 79 | Cable HDMI UGREEN 2.0
+  Historial: 45 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.873922338434788 | Bosque: 3.8791329365079354
+  RMSE -> Lineal: 5.57946404968324 | Bosque: 4.7829217355440745
+  R² -> Lineal: -0.659404002223225 | Bosque: -0.21942112624413346
+  Pronóstico 7 días -> Lineal: 53.15 | Bosque: 56.81
+
+Producto 80 | Impresora Epson EcoTank L3250
+  Historial: 50 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.1985618663435276 | Bosque: 1.207310696248196
+  RMSE -> Lineal: 1.4412042487520604 | Bosque: 1.4822139655527915
+  R² -> Lineal: 0.055877415172276845 | Bosque: 0.0013826183273946135
+  Pronóstico 7 días -> Lineal: 12.66 | Bosque: 14.82
+
+Producto 81 | Cámara WiFi TP-Link Tapo C210
+  Historial: 43 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.1 | Bosque: 1.9067630591630589
+  RMSE -> Lineal: 3.646916505762094 | Bosque: 2.2904854552732514
+  R² -> Lineal: -2.604336043360433 | Bosque: -0.4217679189209522
+  Pronóstico 7 días -> Lineal: 16.65 | Bosque: 20.2
+
+Producto 82 | Videoportero Inteligente EZVIZ HP7
+  Historial: 48 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.966931281068098 | Bosque: 2.129904166666667
+  RMSE -> Lineal: 3.537579552310056 | Bosque: 2.337536452333265
+  R² -> Lineal: -1.2188774980358539 | Bosque: 0.031192080498796626
+  Pronóstico 7 días -> Lineal: 25.63 | Bosque: 22.03
+
+Producto 83 | Enchufe WiFi TP-Link Tapo P100
+  Historial: 46 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.433819179286138 | Bosque: 3.2832521825396825
+  RMSE -> Lineal: 3.224000876007597 | Bosque: 3.583951127056771
+  R² -> Lineal: -0.2992727060622189 | Bosque: -0.6055882101414376
+  Pronóstico 7 días -> Lineal: 32.47 | Bosque: 37.56
+
+Producto 84 | Control Gamer 8BitDo Ultimate C
+  Historial: 41 ventas / 55 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.828106340944548 | Bosque: 3.646291468253968
+  RMSE -> Lineal: 4.53356025702198 | Bosque: 4.331827945862231
+  R² -> Lineal: -0.40678772101637284 | Bosque: -0.28437599949028036
+  Pronóstico 7 días -> Lineal: 35.1 | Bosque: 26.9
+
+Producto 85 | Cerradura Inteligente Yale Assure L
+  Historial: 43 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.9917548215637795 | Bosque: 2.210048214285714
+  RMSE -> Lineal: 3.521492982502918 | Bosque: 2.8321894451502825
+  R² -> Lineal: -0.9346197856189229 | Bosque: -0.25137239519823185
+  Pronóstico 7 días -> Lineal: 35.07 | Bosque: 33.75
+
+Producto 86 | Regulador de Voltaje Koblenz RS-141
+  Historial: 45 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 5.567066981735991 | Bosque: 4.956144642857143
+  RMSE -> Lineal: 6.380166858847392 | Bosque: 5.295455043181853
+  R² -> Lineal: -0.9905393225787091 | Bosque: -0.3712393209956051
+  Pronóstico 7 días -> Lineal: 36.93 | Bosque: 45.74
+
+Producto 87 | No-Break UPS CyberPower CP1500AVRLC
+  Historial: 51 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.815017576139803 | Bosque: 1.751558333333334
+  RMSE -> Lineal: 4.464212316427096 | Bosque: 2.8065462559810865
+  R² -> Lineal: -1.108909164670834 | Bosque: 0.1664865728083118
+  Pronóstico 7 días -> Lineal: 73.52 | Bosque: 57.64
+
+Producto 88 | Multicontacto Koblenz 6 Contactos
+  Historial: 37 ventas / 55 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.3976333725441066 | Bosque: 1.82879126984127
+  RMSE -> Lineal: 1.6610566562471791 | Bosque: 2.047801999421238
+  R² -> Lineal: -0.7244432595394121 | Bosque: -1.6209331430210119
+  Pronóstico 7 días -> Lineal: 6.0 | Bosque: 9.31
+
+Producto 89 | Baterías Recargables Energizer Rech
+  Historial: 47 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.0889919022204992 | Bosque: 2.359791071428572
+  RMSE -> Lineal: 2.50185020745717 | Bosque: 2.6789872357479787
+  R² -> Lineal: -1.398181785652676 | Bosque: -1.7497979345979298
+  Pronóstico 7 días -> Lineal: 15.8 | Bosque: 13.73
+
+Producto 90 | Cargador de Baterías Energizer Rech
+  Historial: 47 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 2.2390226668883884 | Bosque: 2.054020436507936
+  RMSE -> Lineal: 2.818896049673036 | Bosque: 2.728395728281857
+  R² -> Lineal: -0.2021444688142584 | Bosque: -0.1261941376863367
+  Pronóstico 7 días -> Lineal: 31.37 | Bosque: 30.44
+
+Producto 91 | Lámpara LED USB Baseus
+  Historial: 33 ventas / 59 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.8033600829676018 | Bosque: 3.425394047619048
+  RMSE -> Lineal: 4.250299351729643 | Bosque: 3.715054132149951
+  R² -> Lineal: -2.414942264520495 | Bosque: -1.6090032523259783
+  Pronóstico 7 días -> Lineal: 17.49 | Bosque: 28.77
+
+Producto 92 | Lámpara LED Philips Desk Lamp
+  Historial: 49 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 2.477434991122493 | Bosque: 2.346596825396824
+  RMSE -> Lineal: 2.7655865894135983 | Bosque: 2.989706115805576
+  R² -> Lineal: -0.15710577663303127 | Bosque: -0.352245485459193
+  Pronóstico 7 días -> Lineal: 41.03 | Bosque: 36.93
+
+Producto 93 | Localizador Bluetooth Apple AirTag
+  Historial: 44 ventas / 58 días
+  Seleccionado: lineal
+  MAE -> Lineal: 3.9404158186012865 | Bosque: 4.362317261904762
+  RMSE -> Lineal: 4.470344623880608 | Bosque: 4.530779317665929
+  R² -> Lineal: -0.13803992347712146 | Bosque: -0.16901829301761628
+  Pronóstico 7 días -> Lineal: 46.46 | Bosque: 49.7
+
+Producto 94 | Escáner Fujitsu ScanSnap iX1300
+  Historial: 51 ventas / 56 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.843776101398572 | Bosque: 5.995394841269841
+  RMSE -> Lineal: 6.326114634207034 | Bosque: 6.320148786500723
+  R² -> Lineal: -8.328607544318972 | Bosque: -8.311021138346517
+  Pronóstico 7 días -> Lineal: 63.31 | Bosque: 59.09
+
+Producto 95 | Mini Panel Solar ALLPOWERS
+  Historial: 42 ventas / 57 días
+  Seleccionado: bosque
+  MAE -> Lineal: 4.573077390833518 | Bosque: 4.310097619047619
+  RMSE -> Lineal: 5.372779973039676 | Bosque: 4.900143124806767
+  R² -> Lineal: -0.06874360009982294 | Bosque: 0.11101804355457146
+  Pronóstico 7 días -> Lineal: 54.77 | Bosque: 54.87
+
+Producto 96 | Escáner Epson WorkForce ES-50
+  Historial: 40 ventas / 57 días
+  Seleccionado: bosque
+  MAE -> Lineal: 1.634219307767598 | Bosque: 1.4981718253968257
+  RMSE -> Lineal: 1.821484117675702 | Bosque: 1.7157748779183246
+  R² -> Lineal: -0.2760786119018577 | Bosque: -0.13226285834447737
+  Pronóstico 7 días -> Lineal: 13.59 | Bosque: 15.7
+
+Producto 97 | Calculadora Científica Casio FX-991
+  Historial: 49 ventas / 59 días
+  Seleccionado: lineal
+  MAE -> Lineal: 1.5100538726947548 | Bosque: 1.4102904761904766
+  RMSE -> Lineal: 1.787332725112104 | Bosque: 1.8404681184943152
+  R² -> Lineal: -0.2054936868893058 | Bosque: -0.2782350547901906
+  Pronóstico 7 días -> Lineal: 15.75 | Bosque: 18.71
+
+Producto 98 | Adaptador Bluetooth TP-Link UB500
+  Historial: 32 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.1765823003938523 | Bosque: 3.087026388888889
+  RMSE -> Lineal: 3.4889087204144245 | Bosque: 3.234506986704579
+  R² -> Lineal: -0.2880935512575469 | Bosque: -0.10709369809954894
+  Pronóstico 7 días -> Lineal: 21.32 | Bosque: 21.71
+
+Producto 99 | HDD Interno Western Digital Blue
+  Historial: 38 ventas / 58 días
+  Seleccionado: bosque
+  MAE -> Lineal: 3.7021381384161485 | Bosque: 3.5944845238095247
+  RMSE -> Lineal: 4.822676615799154 | Bosque: 4.021736769932682
+  R² -> Lineal: -1.701301944317768 | Bosque: -0.8785559403749779
+  Pronóstico 7 días -> Lineal: 33.86 | Bosque: 26.9
+
+======================================================
+IMPORTANTE
+======================================================
+Esta prueba NO modifica Firestore.
+Esta prueba NO modifica el inventario.
+Esta prueba NO agrega ni elimina ventas.
+Solo evalúa el comportamiento actual del módulo de predicción.
+======================================================
+
+
+Process finished with exit code 0

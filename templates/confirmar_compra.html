@@ -21,7 +21,6 @@
 
 <body>
 
-
 <header>
 
     <nav>
@@ -94,7 +93,161 @@
         <div class="checkout-grid">
 
 
-            <!-- PRODUCTO -->
+            <!-- ===================================== -->
+            <!-- COMPRA DESDE EL CARRITO -->
+            <!-- ===================================== -->
+
+            {% if carrito %}
+
+            <section class="checkout-producto">
+
+                <h2>
+                    Productos
+                </h2>
+
+
+                {% for item in carrito %}
+
+                    {% set producto = item['producto'] %}
+
+                    <div class="checkout-producto-info"
+                         style="margin-bottom: 20px;">
+
+                        <div class="checkout-imagen">
+
+                            <img src="{{ producto['RutaImagen'] }}"
+                                 alt="{{ producto['nombre_producto'] }}">
+
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                {{ producto['nombre_producto'] }}
+                            </h3>
+
+
+                            <p>
+
+                                Cantidad:
+
+                                <strong>
+                                    {{ item['cantidad'] }}
+                                </strong>
+
+                            </p>
+
+
+                            <p>
+
+                                Precio unitario:
+
+                                <strong>
+                                    ${{ "%.2f"|format(producto['precio']|float) }}
+                                </strong>
+
+                            </p>
+
+
+                            <p>
+
+                                Subtotal:
+
+                                <strong>
+                                    ${{ "%.2f"|format(item['subtotal']|float) }}
+                                </strong>
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </section>
+
+
+            <aside class="checkout-resumen">
+
+                <h2>
+                    Resumen del pedido
+                </h2>
+
+
+                {% for item in carrito %}
+
+                    <div class="checkout-fila">
+
+                        <span>
+
+                            {{ item['producto']['nombre_producto'] }}
+
+                            × {{ item['cantidad'] }}
+
+                        </span>
+
+
+                        <span>
+
+                            ${{ "%.2f"|format(item['subtotal']|float) }}
+
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+
+                <div class="checkout-separador"></div>
+
+
+                <div class="checkout-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        ${{ "%.2f"|format(total|float) }}
+                    </strong>
+
+                </div>
+
+
+                <form method="POST"
+                      action="{{ url_for('confirmar_compra_carrito') }}">
+
+                    <button type="submit"
+                            class="btn-confirmar-compra">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        Confirmar compra
+
+                    </button>
+
+                </form>
+
+
+                <a class="btn-cancelar-compra"
+                   href="{{ url_for('miCarrito') }}">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Regresar al carrito
+
+                </a>
+
+            </aside>
+
+
+            <!-- ===================================== -->
+            <!-- COMPRA DIRECTA / COMPRAR AHORA -->
+            <!-- ===================================== -->
+
+            {% else %}
 
             <section class="checkout-producto">
 
@@ -119,16 +272,26 @@
                             {{ producto['nombre_producto'] }}
                         </h3>
 
-                        <p>
-                            Cantidad:
-                            <strong>{{ cantidad }}</strong>
-                        </p>
 
                         <p>
+
+                            Cantidad:
+
+                            <strong>
+                                {{ cantidad }}
+                            </strong>
+
+                        </p>
+
+
+                        <p>
+
                             Precio unitario:
+
                             <strong>
                                 ${{ "%.2f"|format(producto['precio']|float) }}
                             </strong>
+
                         </p>
 
                     </div>
@@ -137,8 +300,6 @@
 
             </section>
 
-
-            <!-- RESUMEN -->
 
             <aside class="checkout-resumen">
 
@@ -190,7 +351,8 @@
 
 
                 <form method="POST"
-                      action="{{ url_for('confirmar_compra', id_producto=producto['id_producto']) }}">
+                      action="{{ url_for('confirmar_compra',
+                                         id_producto=producto['id_producto']) }}">
 
                     <input type="hidden"
                            name="cantidad"
@@ -210,7 +372,8 @@
 
 
                 <a class="btn-cancelar-compra"
-                   href="{{ url_for('detalle_producto', id_producto=producto['id_producto']) }}">
+                   href="{{ url_for('detalle_producto',
+                                    id_producto=producto['id_producto']) }}">
 
                     <i class="fa-solid fa-arrow-left"></i>
 
@@ -219,6 +382,9 @@
                 </a>
 
             </aside>
+
+            {% endif %}
+
 
         </div>
 

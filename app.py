@@ -2116,31 +2116,21 @@ def eliminar_carrito(id_producto):
 def Comprar():
 
     if 'cliente' not in session:
-
-        return redirect(
-            url_for('login')
-        )
+        return redirect(url_for('login'))
 
     id_cliente = session['cliente']
 
-    carrito = obtener_carrito(
-        id_cliente
-    )
+    carrito = obtener_carrito(id_cliente)
 
     if not carrito:
+        return redirect(url_for('miCarrito'))
 
-        return redirect(
-            url_for('miCarrito')
-        )
+    productos_carrito = []
+    total = 0
 
     # ========================================================
-    # 1. VERIFICAR INVENTARIO
+    # VERIFICAR INVENTARIO Y PREPARAR RESUMEN
     # ========================================================
-
-    # Guardamos los productos ya leídos para reutilizarlos
-    # en el registro de la venta. Antes se volvían a leer
-    # desde Firestore en el segundo ciclo.
-    productos_carrito = {}
 
     for item in carrito:
 
@@ -2158,12 +2148,9 @@ def Comprar():
         )
 
         if producto is None:
-
             return "Producto no encontrado", 404
 
-        productos_carrito[str(id_producto)] = producto
-
-        cantidad_disponible = int(
+        stock = int(
             producto.get(
                 "cantidad",
                 producto.get(
@@ -2173,15 +2160,61 @@ def Comprar():
             )
         )
 
-        if cantidad > cantidad_disponible:
+        # Verificar inventario
+        if cantidad > stock:
 
             return (
                 f"No hay suficiente inventario de "
-                f"{producto.get('nombre_producto', 'producto')}"
+                f"{producto.get('nombre_producto', 'producto')}. "
+                f"Solo quedan {stock} unidades."
             ), 400
 
+        precio = float(
+            producto.get(
+                "precio",
+                0
+            )
+        )
+
+        subtotal = precio * cantidad
+
+        productos_carrito.append({
+            "producto": producto,
+            "cantidad": cantidad,
+            "subtotal": subtotal,
+            "stock": stock
+        })
+
+        total += subtotal
+
     # ========================================================
-    # 2. REGISTRAR VENTAS Y DESCONTAR INVENTARIO
+    # MOSTRAR PÁGINA DE CONFIRMACIÓN
+    # ========================================================
+
+    return render_template(
+        "confirmar_compra.html",
+        carrito=productos_carrito,
+        total=total
+    )
+
+@app.route('/confirmar-compra-carrito', methods=['POST'])
+def confirmar_compra_carrito():
+
+    if 'cliente' not in session:
+        return redirect(url_for('login'))
+
+    id_cliente = session['cliente']
+
+    carrito = obtener_carrito(id_cliente)
+
+    if not carrito:
+        return redirect(url_for('miCarrito'))
+
+    productos_carrito = []
+    total = 0
+
+    # ========================================================
+    # 1. VERIFICAR INVENTARIO NUEVAMENTE
     # ========================================================
 
     for item in carrito:
@@ -2195,8 +2228,63 @@ def Comprar():
             )
         )
 
-        producto = productos_carrito.get(
-            str(id_producto)
+        producto = obtener_producto(
+            id_producto
+        )
+
+        if producto is None:
+            return "Producto no encontrado", 404
+
+        stock = int(
+            producto.get(
+                "cantidad",
+                producto.get(
+                    "cantida",
+                    0
+                )
+            )
+        )
+
+        if cantidad > stock:
+
+            return (
+                f"No hay suficiente inventario de "
+                f"{producto.get('nombre_producto', 'producto')}. "
+                f"Solo quedan {stock} unidades."
+            ), 400
+
+        precio = float(
+            producto.get(
+                "precio",
+                0
+            )
+        )
+
+        total += precio * cantidad
+
+        productos_carrito.append({
+            "producto": producto,
+            "cantidad": cantidad,
+            "subtotal": precio * cantidad
+        })
+
+    # ========================================================
+    # 2. REGISTRAR TODAS LAS VENTAS
+    # ========================================================
+
+    for item in carrito:
+
+        id_producto = item["id_producto"]
+
+        cantidad = int(
+            item.get(
+                "cantidad",
+                1
+            )
+        )
+
+        producto = obtener_producto(
+            id_producto
         )
 
         precio = float(
@@ -2206,21 +2294,19 @@ def Comprar():
             )
         )
 
-        # ----------------------------------------------------
-        # REGISTRAR VENTA
-        # ----------------------------------------------------
-
         registrar_venta(
             id_cliente,
             id_producto,
             cantidad,
             precio,
-            producto_nombre=producto.get('nombre_producto')
+            producto_nombre=producto.get(
+                "nombre_producto"
+            )
         )
 
-        # ----------------------------------------------------
-        # DESCONTAR INVENTARIO
-        # ----------------------------------------------------
+        # ====================================================
+        # 3. DESCONTAR INVENTARIO
+        # ====================================================
 
         inventario_actualizado = actualizar_inventario(
             id_producto,
@@ -2235,7 +2321,7 @@ def Comprar():
             ), 400
 
     # ========================================================
-    # 3. VACIAR CARRITO
+    # 4. VACIAR CARRITO
     # ========================================================
 
     vaciar_carrito(
@@ -2243,13 +2329,14 @@ def Comprar():
     )
 
     # ========================================================
-    # 4. REGRESAR AL INICIO
+    # 5. MOSTRAR COMPRA EXITOSA
     # ========================================================
 
-    return redirect(
-        url_for('HomeClientes')
+    return render_template(
+        "compra_exitosa.html",
+        carrito=productos_carrito,
+        total=total
     )
-
 
 # ============================================================
 # COMPRAR AHORA

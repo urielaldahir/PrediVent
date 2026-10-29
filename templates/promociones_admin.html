@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promociones | PrediVent</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+/* Panel de promociones: layout amplio, legible y consistente */
+body{background:#f3f6fb;color:#172033}
+.promo-wrap{width:calc(100% - 48px)!important;max-width:1500px!important;margin:28px auto 48px!important;padding:0!important;box-sizing:border-box}
+.promo-wrap>h1{font-size:clamp(1.7rem,2.2vw,2.25rem);margin:0 0 8px;color:#152238}
+.promo-wrap>p{margin:0 0 22px;line-height:1.6}
+.promo-columns{display:grid;grid-template-columns:minmax(380px,.9fr) minmax(0,1.1fr);gap:24px;align-items:start;margin:22px 0 24px}
+.promo-card{min-width:0;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 5px 18px rgba(20,42,75,.07);box-sizing:border-box}
+.promo-card h2{font-size:1.2rem;line-height:1.35;margin:0 0 10px;color:#1d3557}
+.promo-card>p{line-height:1.55}
+.promo-create,.promo-proposals{grid-column:auto;grid-row:auto}
+.promo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px}
+.promo-card label{display:block;font-weight:600;font-size:.9rem;margin:13px 0 6px;color:#26364b}
+.promo-card input:not([type=checkbox]),.promo-card select,.promo-card textarea{display:block;width:100%;min-height:42px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033;box-sizing:border-box;font:inherit}
+.promo-card textarea{resize:vertical;min-height:92px}
+.promo-card input[type=checkbox]{width:auto!important;min-height:auto;margin-right:7px;accent-color:#2359a8}
+.promo-card small{display:block;color:#64748b;font-size:.78rem;line-height:1.4;margin-top:5px}
+.promo-card button,.promo-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;padding:10px 15px;background:#2359a8;color:#fff;cursor:pointer;text-decoration:none;font-weight:600;font-size:.88rem;min-height:38px;transition:background .15s ease}
+.promo-card button:hover,.promo-btn:hover{background:#194783}
+.promo-muted{color:#64748b;font-size:.9rem}
+.promo-alert{padding:13px 16px;border-radius:10px;margin:12px 0;background:#eaf3ff;border:1px solid #c8ddfb;color:#17447b}
+.promo-error{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
+.promo-proposal{border:1px solid #dbe5f1;border-radius:12px;padding:16px;margin:12px 0;background:#fbfdff}
+.promo-proposal h3{font-size:1rem;margin:0 0 8px;color:#1e3a5f;overflow-wrap:anywhere}
+.promo-proposal p{font-size:.88rem;line-height:1.5;margin:7px 0}
+.promo-proposal-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.promo-proposal-list .promo-proposal{margin:0}
+.promo-create form>p{margin-bottom:0}
+.promo-saved{width:100%;margin:0 0 24px}
+.promo-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.9rem}
+.promo-table th,.promo-table td{padding:13px 12px;text-align:left;border-bottom:1px solid #e8edf4;vertical-align:top;line-height:1.45}
+.promo-table th{background:#eaf3fb;color:#244360;font-weight:700;white-space:nowrap}
+.promo-table th:first-child{border-radius:8px 0 0 0}.promo-table th:last-child{border-radius:0 8px 0 0}
+.promo-table td small{overflow-wrap:anywhere}
+.promo-actions{min-width:140px}.promo-actions form{display:block;margin:0 0 7px}.promo-actions button{width:100%;white-space:nowrap}
+@media(max-width:1050px){.promo-wrap{width:calc(100% - 28px)!important}.promo-columns{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.promo-card{padding:18px}.promo-proposal-list{grid-template-columns:1fr}}
+@media(max-width:760px){.promo-wrap{width:calc(100% - 20px)!important;margin:18px auto 30px!important}.promo-columns{grid-template-columns:1fr}.promo-create,.promo-proposals{grid-column:1}.promo-grid{grid-template-columns:1fr}.promo-card{padding:16px}.promo-table{min-width:760px;font-size:.82rem}}
+</style>
+</head>
+<body>
+<header><nav><ul>
+<li><a href="{{ url_for('HomeAdmin') }}"><i class="fa-solid fa-house"></i> Panel admin</a></li>
+<li><a href="{{ url_for('panel_promociones') }}"><i class="fa-solid fa-tags"></i> Promociones</a></li>
+<li><a href="{{ url_for('logout2') }}"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a></li>
+</ul></nav></header>
+<main class="promo-wrap">
+<h1><i class="fa-solid fa-tags"></i> Promociones inteligentes</h1>
+<p class="promo-muted">Crea campañas temporales, revisa propuestas basadas en ventas e inventario y aprueba cada promoción antes de activarla.</p>
+{% if mensaje %}<div class="promo-alert">{{ mensaje }}</div>{% endif %}
+{% if error %}<div class="promo-alert promo-error">{{ error }}</div>{% endif %}
+
+<div class="promo-columns">
+<section class="promo-card promo-create">
+<h2><i class="fa-solid fa-calendar-plus"></i> Crear promoción o campaña</h2>
+<p class="promo-muted">Fechas y horas locales del servidor. El guardado crea un borrador pendiente de aprobación; no cambia el precio base de los productos.</p>
+<form method="post" action="{{ url_for('crear_promocion_route') }}">
+<div class="promo-grid">
+<div><label for="nombre">Nombre de campaña</label><input id="nombre" name="nombre" required maxlength="100" placeholder="Ej. Black Friday accesorios"></div>
+<div><label for="tipo">Tipo</label><select id="tipo" name="tipo" required>
+<option value="porcentaje">Descuento por producto (%)</option>
+<option value="cantidad">Descuento por cantidad</option>
+<option value="paquete">Paquete de productos</option>
+<option value="bienvenida">Bienvenida (nuevo cliente)</option>
+</select></div>
+<div><label for="porcentaje">Descuento (%)</label><input id="porcentaje" name="porcentaje" type="number" min="1" max="50" step="0.5" value="5" required></div>
+<div><label for="cantidad_minima">Cantidad mínima (solo descuento por cantidad)</label><input id="cantidad_minima" name="cantidad_minima" type="number" min="2" value="2"></div>
+<div><label for="fecha_inicio">Inicio</label><input id="fecha_inicio" name="fecha_inicio" type="datetime-local" required></div>
+<div><label for="fecha_fin">Fin</label><input id="fecha_fin" name="fecha_fin" type="datetime-local" required></div>
+<div><label for="ids_productos">IDs de productos separados por coma</label><input id="ids_productos" name="ids_productos" placeholder="Ej. 2, 8, 15"><small>Consulta los IDs en el módulo de productos. Para bienvenida, deja vacío si aplica a toda la tienda.</small></div>
+<div><label for="descripcion">Descripción y condiciones</label><textarea id="descripcion" name="descripcion" rows="3" placeholder="Productos incluidos, restricciones, motivo comercial..."></textarea></div>
+</div>
+<label style="font-weight:normal"><input type="checkbox" name="combinable" style="width:auto"> Permitir combinar con otras promociones (solo si se revisó expresamente)</label>
+<p><button type="submit">Guardar como borrador</button></p>
+</form>
+</section>
+
+<section class="promo-card promo-proposals">
+<h2><i class="fa-solid fa-wand-magic-sparkles"></i> Propuestas de campaña</h2>
+<p>PrediVent analiza las ventas registradas y el inventario para sugerir combinaciones y productos que podrían necesitar impulso. Son recomendaciones basadas en reglas y datos de Firestore, no una publicación automática ni un modelo de IA generativa conectado.</p>
+<form method="post" action="{{ url_for('propuestas_promociones_route') }}"><button type="submit">Generar propuestas</button></form>
+<div class="promo-proposal-list">
+{% for p in propuestas %}
+<div class="promo-proposal">
+<h3>{{ p.nombre }}</h3><p>{{ p.descripcion }}</p><p><strong>Motivo:</strong> {{ p.motivo }}</p>
+<p><strong>Descuento sugerido:</strong> {{ p.porcentaje }}% · <strong>Tipo:</strong> {{ p.tipo }}</p>
+<p><strong>ID(s) de producto:</strong> {{ p.ids_productos | join(', ') }}</p>
+<p class="promo-muted">La propuesta no se ha guardado ni activado. Si te parece adecuada, crea una promoción abajo y revisa los IDs.</p>
+</div>
+{% else %}
+<p class="promo-muted">Pulsa “Generar propuestas” para analizar los datos disponibles.</p>
+{% endfor %}
+</div>
+</section>
+</div>
+
+<section class="promo-card promo-saved">
+<h2><i class="fa-solid fa-list-check"></i> Promociones guardadas</h2>
+{% if promociones %}
+<div style="overflow-x:auto"><table class="promo-table"><thead><tr><th>Promoción</th><th>Tipo / descuento</th><th>Vigencia</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+{% for p in promociones %}
+<tr><td><strong>{{ p.nombre }}</strong><br><small>{{ p.descripcion or '' }}</small><br><small>Productos: {{ p.ids_productos | join(', ') if p.ids_productos else 'Todos / según condiciones' }}</small></td>
+<td>{{ p.tipo }}<br>{{ p.porcentaje or 0 }}%{% if p.tipo == 'cantidad' %}<br>Mínimo: {{ p.cantidad_minima }}{% endif %}<br><small>{% if p.combinable %}Combinable{% else %}No combinable{% endif %}</small></td>
+<td>{{ p.fecha_inicio }}<br>hasta<br>{{ p.fecha_fin }}</td><td>{{ p.estado_calculado }}</td>
+<td class="promo-actions">
+{% if not p.aprobada %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='aprobar') }}"><button type="submit">Aprobar</button></form>{% endif %}
+{% if p.aprobada and not p.activa %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='activar') }}"><button type="submit">Activar</button></form>{% endif %}
+{% if p.activa %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='desactivar') }}"><button type="submit">Desactivar</button></form>{% endif %}
+<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='eliminar') }}" onsubmit="return confirm('¿Eliminar esta promoción?')"><button type="submit" style="background:#a83232">Eliminar</button></form>
+</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% else %}<p class="promo-muted">Todavía no hay promociones guardadas.</p>{% endif %}
+</section>
+</main>
+</body></html>

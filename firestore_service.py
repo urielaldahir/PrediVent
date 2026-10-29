@@ -92,7 +92,7 @@ def obtener_productos():
     documentos = (
         db.collection(COLECCION_PRODUCTOS)
         .order_by("id_producto")
-        .stream()
+        .stream(timeout=30)
     )
 
     for documento in documentos:

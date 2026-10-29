@@ -14,6 +14,12 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
 
+
+<style>
+.pv-promos{max-width:1050px;margin:28px auto 30px;padding:24px 28px;background:linear-gradient(135deg,#eff6ff,#fff);color:#203a5e;border:1px solid #dbe7f8;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.pv-promos-head{text-align:center;margin-bottom:18px}.pv-eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.05em;color:#2864bd}.pv-promos-head h2{margin:8px 0;font-size:1.45rem;color:#203a5e}.pv-promos-head p{margin:0;color:#71829a;font-size:.92rem}.pv-promos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.pv-promo-card{display:flex;align-items:flex-start;gap:13px;padding:16px;background:#fff;border:1px solid #dce7f6;border-radius:12px}.pv-promo-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:10px;background:#e8f1ff;color:#2864bd}.pv-promo-info{display:flex;flex-direction:column;gap:6px;min-width:0}.pv-promo-status{font-size:.68rem;font-weight:800;color:#15803d}.pv-promo-info h3{font-size:1rem;margin:0;color:#24364b}.pv-promo-info p{margin:0;color:#718096;font-size:.85rem}.pv-promo-info strong{color:#d92d20;font-size:.95rem}.pv-promo-info small{color:#718096}.pv-empty-message{display:flex;gap:14px;align-items:center;padding:18px;border:1px dashed #c9d8ed;border-radius:12px;color:#2864bd;background:rgba(255,255,255,.65)}.pv-empty-message p{margin:5px 0 0;color:#8a9bb2;font-size:.9rem}.pv-promos-empty{padding-bottom:20px}@media(max-width:600px){.pv-promos{margin:18px 12px;padding:18px}.pv-promos-grid{grid-template-columns:1fr}}
+</style>
+
 </head>
 
 <body>
@@ -127,6 +133,22 @@
 
                     <i class="fa-solid fa-circle-check"></i>
 
+{% set promociones_producto = [] %}
+{% for promo in promociones %}
+  {% if (producto.id_producto|string) in (promo.ids_productos|default([])|map('string')|list) %}
+    {% set _ = promociones_producto.append(promo) %}
+  {% endif %}
+{% endfor %}
+{% if promociones_producto %}
+<section class="pv-promos" style="margin:16px 0;padding:14px" aria-label="Promociones disponibles">
+  <strong style="color:#2864bd"><i class="fa-solid fa-tags"></i> Promociones disponibles</strong>
+  {% for promo in promociones_producto %}
+  <article class="pv-promo-card" style="margin-top:10px">
+    <div class="pv-promo-info"><h3>{{ promo.nombre }}</h3><strong>{{ promo.porcentaje|default(0) }}% de descuento</strong>{% if promo.descripcion %}<p>{{ promo.descripcion }}</p>{% endif %}<small>Válida hasta {{ promo.fecha_fin[:10] if promo.fecha_fin else 'fecha por confirmar' }}</small></div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
                     Disponible
 
                 </div>

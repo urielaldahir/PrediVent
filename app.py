@@ -2977,6 +2977,75 @@ def historialVentasAdmin():
         error_firestore=False
     )
 
+
+
+# ============================================================
+# PROMOCIONES (SOLO ADMINISTRADOR)
+# ============================================================
+from promociones_service import (
+    listar_promociones,
+    crear_promocion,
+    cambiar_estado_promocion,
+    generar_propuestas,
+    promociones_vigentes,
+)
+
+@app.route('/admin/promociones')
+@requiere_admin
+def panel_promociones():
+    return render_template(
+        'promociones_admin.html',
+        promociones=listar_promociones(),
+        propuestas=session.pop('propuestas_promociones', []),
+        error=session.pop('error_promociones', None),
+        mensaje=session.pop('mensaje_promociones', None),
+    )
+
+
+@app.route('/admin/promociones/crear', methods=['POST'])
+@requiere_admin
+def crear_promocion_route():
+    try:
+        crear_promocion(
+            request.form,
+            creado_por=session.get('nombre_empleado', 'admin'),
+            aprobada=False
+        )
+        session['mensaje_promociones'] = 'Promoción guardada como borrador. Debes aprobarla y activarla.'
+    except ValueError as e:
+        session['error_promociones'] = str(e)
+    except Exception as e:
+        print('Error al crear promoción:', e)
+        session['error_promociones'] = 'No se pudo guardar la promoción en Firestore.'
+    return redirect(url_for('panel_promociones'))
+
+
+@app.route('/admin/promociones/propuestas', methods=['POST'])
+@requiere_admin
+def propuestas_promociones_route():
+    try:
+        session['propuestas_promociones'] = generar_propuestas()
+        session['mensaje_promociones'] = 'Propuestas generadas. Ninguna se publicó ni modificó precios.'
+    except Exception as e:
+        print('Error generando propuestas:', e)
+        session['error_promociones'] = 'No se pudieron generar propuestas. Revisa la conexión con Firestore.'
+    return redirect(url_for('panel_promociones'))
+
+
+@app.route('/admin/promociones/<id_promocion>/<accion>', methods=['POST'])
+@requiere_admin
+def accion_promocion_route(id_promocion, accion):
+    try:
+        cambiar_estado_promocion(id_promocion, accion)
+        session['mensaje_promociones'] = 'Se actualizó la promoción.'
+    except ValueError as e:
+        session['error_promociones'] = str(e)
+    except Exception as e:
+        print('Error actualizando promoción:', e)
+        session['error_promociones'] = 'No se pudo actualizar la promoción.'
+    return redirect(url_for('panel_promociones'))
+
+
 # ============================================================
 # EJECUCIÓN
 # ============================================================
@@ -2985,4 +3054,150 @@ if __name__ == '__main__':
 
     app.run(
         debug=True
+    )
+
+# ============================================================
+# DETALLE Y COMPRA DE PROMOCIONES
+# ============================================================
+def _precio_numero(valor):
+    try:
+        return max(0.0, float(valor or 0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _productos_de_promocion(promocion):
+    """Resuelve los productos asociados a una promoción usando el catálogo real."""
+    ids = [str(x) for x in (promocion.get('ids_productos') or [])]
+    catalogo = {str(p.get('id_producto')): p for p in obtener_productos()}
+    seleccionados = []
+    for pid in ids:
+        producto = catalogo.get(pid) or obtener_producto(pid)
+        if producto:
+            seleccionados.append(producto)
+    return seleccionados
+
+
+def _promocion_vigente_por_id(id_promocion):
+    for p in promociones_vigentes():
+        if str(p.get('id')) == str(id_promocion):
+            return p
+    return None
+
+
+@app.route('/promocion/<id_promocion>')
+def detalle_promocion(id_promocion):
+    promocion = _promocion_vigente_por_id(id_promocion)
+    if not promocion:
+        return render_template('promocion_no_disponible.html'), 404
+
+    productos = _productos_de_promocion(promocion)
+    if not productos:
+        return render_template('promocion_no_disponible.html'), 404
+
+    porcentaje = _precio_numero(promocion.get('porcentaje'))
+    minimo = int(promocion.get('cantidad_minima', 1) or 1)
+    total_original = sum(_precio_numero(p.get('precio')) for p in productos)
+    total_promocional = total_original * (1 - porcentaje / 100)
+    stocks = [int(p.get('cantidad', p.get('cantida', 0)) or 0) for p in productos]
+    disponible = all(stock > 0 for stock in stocks)
+    if promocion.get('tipo') == 'cantidad':
+        disponible = disponible and min(stocks or [0]) >= minimo
+    return render_template(
+        'detalle_promocion.html', promocion=promocion, productos=productos,
+        total_original=total_original, total_promocional=max(0, total_promocional),
+        porcentaje=porcentaje, cantidad_minima=minimo, disponible=disponible
+    )
+
+
+@app.route('/comprar-promocion/<id_promocion>', methods=['POST'])
+def comprar_promocion(id_promocion):
+    if 'cliente' not in session:
+        session['next_url'] = url_for('detalle_promocion', id_promocion=id_promocion)
+        return redirect(url_for('login'))
+
+    promocion = _promocion_vigente_por_id(id_promocion)
+    if not promocion:
+        return 'La promoción ya no está vigente.', 400
+
+    productos = _productos_de_promocion(promocion)
+    if not productos:
+        return 'La promoción no tiene productos disponibles.', 400
+
+    tipo = promocion.get('tipo')
+    porcentaje = _precio_numero(promocion.get('porcentaje'))
+    try:
+        cantidad_solicitada = int(request.form.get('cantidad', 1))
+    except (TypeError, ValueError):
+        return 'Cantidad inválida.', 400
+    if cantidad_solicitada < 1:
+        return 'La cantidad debe ser al menos 1.', 400
+
+    if tipo == 'cantidad':
+        minimo = int(promocion.get('cantidad_minima', 2) or 2)
+        if cantidad_solicitada < minimo:
+            return f'Esta promoción requiere al menos {minimo} unidades.', 400
+        if len(productos) != 1:
+            return 'La promoción por cantidad debe estar asociada a un solo producto.', 400
+        cantidades = [cantidad_solicitada]
+    elif tipo == 'paquete':
+        # Cada paquete contiene una unidad de cada producto asociado.
+        cantidades = [cantidad_solicitada] * len(productos)
+    else:
+        if len(productos) != 1:
+            return 'Esta promoción debe estar asociada a un solo producto.', 400
+        cantidades = [cantidad_solicitada]
+
+    # Las promociones de bienvenida se limitan a un uso por cliente.
+    id_cliente = str(session['cliente'])
+    uso_ref = None
+    if tipo == 'bienvenida':
+        uso_ref = firestore_db.collection('usos_promociones').document(f'{id_promocion}_{id_cliente}')
+        if uso_ref.get().exists:
+            return 'Esta promoción de bienvenida ya fue utilizada por tu cuenta.', 400
+
+    lineas = []
+    total_original = 0.0
+    total_final = 0.0
+    for producto, cantidad in zip(productos, cantidades):
+        stock = int(producto.get('cantidad', producto.get('cantida', 0)) or 0)
+        if cantidad > stock:
+            return f"Inventario insuficiente para {producto.get('nombre_producto', 'producto')}. Disponibles: {stock}.", 400
+        precio = _precio_numero(producto.get('precio'))
+        descuento_aplicable = porcentaje
+        precio_final = round(max(0.0, precio * (1 - descuento_aplicable / 100)), 2)
+        subtotal_original = round(precio * cantidad, 2)
+        subtotal_final = round(precio_final * cantidad, 2)
+        lineas.append({
+            'producto': producto, 'cantidad': cantidad,
+            'precio_original': precio, 'precio_final': precio_final,
+            'subtotal_original': subtotal_original, 'subtotal': subtotal_final
+        })
+        total_original += subtotal_original
+        total_final += subtotal_final
+
+    # Revalidar stock antes de registrar cada línea. Los precios vienen de Firestore,
+    # nunca del formulario enviado por el navegador.
+    for linea in lineas:
+        producto = linea['producto']
+        ok = actualizar_inventario(producto.get('id_producto'), linea['cantidad'])
+        if not ok:
+            return f"No se pudo actualizar el inventario de {producto.get('nombre_producto', 'producto')}. Intenta de nuevo.", 400
+        registrar_venta(
+            id_cliente,
+            producto.get('id_producto'),
+            linea['cantidad'],
+            linea['precio_final'],
+            producto_nombre=producto.get('nombre_producto')
+        )
+
+    if uso_ref is not None:
+        uso_ref.set({
+            'id_promocion': str(id_promocion), 'id_cliente': id_cliente,
+            'usada_en': datetime.now().isoformat(timespec='seconds')
+        })
+
+    return render_template(
+        'compra_exitosa.html', carrito=lineas, total=round(total_final, 2),
+        promocion=promocion, ahorro=round(total_original-total_final, 2)
     )

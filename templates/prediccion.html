@@ -1,1672 +1,710 @@
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Producto - {{ producto }}
-    </title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="stylesheet"
-          type="text/css"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Predicciones | PrediVent</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-
-        /* Estilos propios de la vista de predicción (usan las variables de style.css) */
-
-        .pred .titulo-principal {
-            text-align: center;
-            margin-bottom: 32px;
+        * {
+            box-sizing: border-box;
         }
 
-        .pred .titulo-principal h1 {
-            margin: 0 0 8px;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--ink-soft);
-        }
-
-        .pred .titulo-principal h2 {
+        body {
             margin: 0;
-            font-size: clamp(28px, 4.5vw, 42px);
-            font-weight: 800;
-            letter-spacing: -0.02em;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #202938;
         }
 
-        /* ---------- Tarjetas superiores ---------- */
-
-        .pred .tarjetas {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 18px;
-            margin-bottom: 26px;
+        header {
+            background: #172554;
+            color: white;
+            padding: 16px 5%;
         }
 
-        .pred .tarjeta {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            box-shadow: var(--shadow-s);
-            padding: 22px 20px;
-            text-align: left;
-            transition: transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
-        }
-
-        .pred .tarjeta:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-m);
-        }
-
-        .pred .tarjeta .icono {
-            display: inline-flex;
+        nav {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            margin-bottom: 12px;
-            border-radius: var(--radius-m);
-            background: var(--brand-tint);
-            color: var(--brand);
-            font-size: 18px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .pred .tarjeta .icono i,
-        .pred .seccion h2 i,
-        .pred .modelo h3 i,
-        .pred .inventario-estado h3 i,
-        .pred .mensaje h2 i {
-            margin: 0 8px 0 0;
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 18px;
         }
 
-        .pred .tarjeta .icono i {
-            margin: 0;
+        nav a:hover {
+            text-decoration: underline;
         }
 
-        .pred .tarjeta h3 {
-            margin: 0 0 4px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--ink-soft);
+        main {
+            width: 94%;
+            max-width: 1400px;
+            margin: 28px auto;
         }
 
-        .pred .valor {
-            margin: 4px 0;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            line-height: 1.15;
-            color: var(--ink);
+        .encabezado {
+            margin-bottom: 25px;
         }
 
-        .pred .unidad {
-            font-size: 14px;
-            color: var(--ink-soft);
+        .encabezado h1 {
+            margin-bottom: 8px;
         }
 
-        /* ---------- Secciones ---------- */
-
-        .pred .seccion {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            box-shadow: var(--shadow-s);
-            padding: clamp(20px, 3vw, 32px);
-            margin-bottom: 26px;
+        .encabezado p {
+            color: #64748b;
         }
 
-        .pred .seccion > h2 {
-            margin: 0 0 24px;
-            font-size: 22px;
-            text-align: center;
-        }
-
-        .pred .seccion > h2 i {
-            color: var(--brand);
-        }
-
-        .pred .modelos {
+        .rejilla {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
         }
 
-        .pred .modelo {
-            min-width: 0;
-            background: var(--surface-alt);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-m);
-            padding: 24px 20px;
-            text-align: center;
+        .tarjeta, .seccion, .modelo {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06);
         }
 
-        .pred .modelo h3 {
-            margin: 0 0 12px;
-            font-size: 17px;
-        }
-
-        .pred .modelo h3 i {
-            color: var(--brand);
-        }
-
-        .pred .modelo p {
-            margin: 0 auto;
-            font-size: 14px;
-        }
-
-        .pred .modelo-seleccionado {
-            margin-top: 22px;
-            padding: 28px 20px;
-            text-align: center;
-            border-radius: var(--radius-m);
-            background: var(--brand-tint);
-            border: 2px solid var(--brand);
-        }
-
-        .pred .modelo-seleccionado h3 {
-            margin: 0 0 8px;
-            font-size: 20px;
-        }
-
-        .pred .modelo-seleccionado p {
-            margin: 0 auto 8px;
-            font-size: 15px;
-        }
-
-        .pred .modelo-seleccionado .nombre-modelo {
-            margin: 8px 0;
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--brand-strong);
-        }
-
-        .pred .modelo-seleccionado .valor {
-            font-size: 40px;
-            color: var(--brand-strong);
-        }
-
-        /* ---------- Métricas de evaluación ---------- */
-
-        .pred .metricas {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 96px), 1fr));
-            gap: 10px;
-            margin-top: 6px;
-        }
-
-        .pred .metrica {
-            display: block;
-            min-width: 0;
-            overflow-wrap: anywhere;
-            padding: 14px 8px;
-            text-align: center;
-            border-radius: var(--radius-s);
-            background: var(--surface);
-            border: 1px solid var(--line);
-        }
-
-        .pred .metrica span {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--ink-soft);
-        }
-
-        .pred .metrica strong {
-            font-size: clamp(15px, 1.5vw, 20px);
-        }
-
-        /* ---------- Tablas ---------- */
-
-        .pred .tabla-contenedor {
-            max-height: 380px;
-            overflow: auto;
-            border-radius: var(--radius-m);
-            border: 1px solid var(--line);
-        }
-
-        .pred .tabla-contenedor table {
-            box-shadow: none;
-            border-radius: 0;
-        }
-
-        .pred .tabla-contenedor th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .pred .tabla-contenedor td {
-            text-align: center;
-        }
-
-        /* ---------- Inventario ---------- */
-
-        .pred .inventario-estado {
-            margin-top: 22px;
-            padding: 24px 20px;
-            text-align: center;
-            border-radius: var(--radius-m);
-            background: var(--surface-alt);
-            border: 1px solid var(--line);
-            border-left: 6px solid var(--ink-soft);
-        }
-
-        .pred .inventario-estado h3 {
-            margin: 0 0 10px;
-            font-size: 21px;
-        }
-
-        .pred .inventario-estado p {
-            margin: 0 auto 10px;
+        .tarjeta h3, .modelo h3 {
+            margin-top: 0;
             font-size: 16px;
+        }
+
+        .valor {
+            font-size: 27px;
+            font-weight: bold;
+            margin: 12px 0;
+            color: #1d4ed8;
+            overflow-wrap: anywhere;
+        }
+
+        .subtexto {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .seccion {
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .seccion h2 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .modelos {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .modelo {
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            min-width: 0;
+        }
+
+        .modelo.seleccionado {
+            border: 2px solid #2563eb;
+            background: #eff6ff;
+        }
+
+        .etiqueta {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            margin-bottom: 12px;
+        }
+
+        .metricas {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .metrica {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .metrica span {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .metrica strong {
+            overflow-wrap: anywhere;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 520px;
+        }
+
+        th, td {
+            padding: 13px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .grafica {
+            position: relative;
+            height: 380px;
+        }
+
+        .mensaje {
+            padding: 22px;
+            border-radius: 10px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
             line-height: 1.6;
         }
 
-        .pred .inventario-estado p:last-child {
-            margin-bottom: 0;
-        }
-
-        .pred .estado-suficiente {
-            border-left-color: var(--ok);
-            background: color-mix(in srgb, var(--ok) 11%, var(--surface));
-        }
-
-        .pred .estado-suficiente h3 {
-            color: var(--ok);
-        }
-
-        .pred .estado-precaucion {
-            border-left-color: var(--accent);
-            background: color-mix(in srgb, var(--accent) 16%, var(--surface));
-        }
-
-        .pred .estado-precaucion h3 {
-            color: #a8670c;
-        }
-
-        .pred .estado-riesgo {
-            border-left-color: var(--danger);
-            background: color-mix(in srgb, var(--danger) 11%, var(--surface));
-        }
-
-        .pred .estado-riesgo h3 {
-            color: var(--danger);
-        }
-
-        /* ---------- Análisis técnico ---------- */
-
-        .pred .analisis {
-            max-width: 780px;
-            margin: 0 auto;
-            font-size: 16px;
+        .estado {
+            border-radius: 10px;
+            padding: 18px;
+            background: #f8fafc;
             line-height: 1.7;
-            text-align: left;
         }
 
-        .pred .analisis p {
-            max-width: none;
-            margin: 0 0 18px;
-            font-size: 16px;
-            color: var(--ink);
-        }
-
-        .pred .analisis p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* ---------- Gráfica ---------- */
-
-        .pred .grafica-contenedor {
-            position: relative;
-            width: 100%;
-            height: 450px;
-        }
-
-        /* ---------- Mensajes sin predicción ---------- */
-
-        .pred .mensaje {
-            max-width: 680px;
-            margin: 0 auto 26px;
-            padding: clamp(28px, 5vw, 48px);
+        footer {
             text-align: center;
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-l);
-            box-shadow: var(--shadow-m);
+            padding: 25px;
+            color: #64748b;
         }
 
-        .pred .mensaje h2 {
-            margin: 0 0 18px;
-            font-size: 24px;
-        }
-
-        .pred .mensaje h2 i {
-            display: block;
-            margin: 0 0 14px;
-            font-size: 34px;
-            color: var(--brand);
-        }
-
-        .pred .mensaje p {
-            margin: 0 auto 14px;
-            font-size: 17px;
-            line-height: 1.7;
-        }
-
-        @media (max-width: 600px) {
-
-            .pred .grafica-contenedor {
-                height: 340px;
+        @media (max-width: 900px) {
+            .rejilla {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
+            .modelos {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
+        @media (max-width: 580px) {
+            .rejilla, .modelos {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                width: 92%;
+            }
+
+            .grafica {
+                height: 300px;
+            }
+        }
     </style>
-
 </head>
-
 
 <body>
 
-
 <header>
-
     <nav>
+        <div>
+            <strong>PrediVent</strong>
+            &nbsp; | &nbsp;
+            <a href="{{ url_for('consultasProducto') }}">Regresar a productos</a>
+        </div>
 
-        <ul>
-
-            <li>
-                <a href="{{ url_for('consultasProducto') }}">
-                    <i class="fa-solid fa-arrow-left"></i>Regresar
-                </a>
-            </li>
-
-            <li class="right">
-                <a href="{{ url_for('logout2') }}" data-confirm="¿Deseas cerrar sesión?">
-                    <i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión
-                </a>
-            </li>
-
-        </ul>
-
+        <a href="{{ url_for('logout2') }}">Cerrar sesión</a>
     </nav>
-
 </header>
 
+<main>
 
-<main class="pred">
-
-
-    <!-- =====================================================
-         ENCABEZADO
-         ===================================================== -->
-
-    <div class="titulo-principal">
-
-        <h1>
-            Producto
-        </h1>
-
-        <h2>
-            {{ producto }}
-        </h2>
-
+    <div class="encabezado">
+        <h1>Monitor inteligente de demanda</h1>
+        <h2>{{ producto }}</h2>
+        <p>
+            Comparación de modelos de aprendizaje automático
+            y pronóstico de demanda para los próximos siete días.
+        </p>
     </div>
 
-
-    {% if resultado.estado == "datos_insuficientes" %}
-
-
-        <!-- =================================================
-             DATOS INSUFICIENTES
-             ================================================= -->
+    {% if resultado.estado != "ok" %}
 
         <div class="mensaje">
-
-            <h2>
-                <i class="fa-solid fa-hourglass-half"></i>
-                Datos insuficientes para generar una predicción
-            </h2>
-
+            <h2>No se pudo generar la predicción</h2>
+            <p>{{ resultado.mensaje }}</p>
             <p>
-                {{ resultado.mensaje }}
+                Registros disponibles: {{ resultado.num_ventas }}.
+                Días históricos: {{ resultado.dias_historicos }}.
             </p>
+        </div>
 
-            <p>
-                Registros de venta encontrados:
-                <strong>
-                    {{ resultado.num_ventas }}
-                </strong>
-            </p>
+    {% else %}
 
-            <p>
-                Días históricos disponibles:
-                <strong>
-                    {{ resultado.dias_historicos }}
-                </strong>
-            </p>
+        {% set modelos = [
+            {"clave": "lineal", "nombre": "Regresión lineal"},
+            {"clave": "arbol", "nombre": "Árbol de decisión"},
+            {"clave": "bosque", "nombre": "Bosque aleatorio (Random Forest)"},
+            {"clave": "extra_trees", "nombre": "Extra Trees"},
+            {"clave": "gradient_boosting", "nombre": "Gradient Boosting"},
+            {"clave": "svr", "nombre": "SVR"}
+        ] %}
 
-            <p>
-                El modelo necesita un historial suficiente
-                para identificar patrones de demanda antes
-                de generar una predicción.
-            </p>
+        <div class="rejilla">
+
+            <div class="tarjeta">
+                <h3>Registros de venta</h3>
+                <div class="valor">{{ resultado.num_ventas }}</div>
+                <div class="subtexto">Registros encontrados</div>
+            </div>
+
+            <div class="tarjeta">
+                <h3>Días históricos</h3>
+                <div class="valor">{{ resultado.dias_historicos }}</div>
+                <div class="subtexto">Días en la serie diaria</div>
+            </div>
+
+            <div class="tarjeta">
+                <h3>Promedio diario</h3>
+                <div class="valor">
+                    {{ "%.2f"|format(resultado.promedio_diario|float) }}
+                </div>
+                <div class="subtexto">Unidades por día</div>
+            </div>
+
+            <div class="tarjeta">
+                <h3>Inventario actual</h3>
+                <div class="valor">
+                    {{ "%.2f"|format(inventario_actual|float) }}
+                </div>
+                <div class="subtexto">Unidades disponibles</div>
+            </div>
 
         </div>
 
+        <section class="seccion">
+            <h2>Comparativa de los seis modelos</h2>
 
-    {% elif resultado.estado == "sin_datos" %}
-
-
-        <!-- =================================================
-             SIN DATOS
-             ================================================= -->
-
-        <div class="mensaje">
-
-            <h2>
-                <i class="fa-solid fa-inbox"></i>
-                Sin datos de ventas
-            </h2>
-
-            <p>
-                {{ resultado.mensaje }}
+            <p class="subtexto">
+                El modelo seleccionado es el que obtuvo el menor RMSE
+                en el bloque temporal de prueba. Un resultado ganador
+                no garantiza por sí mismo una precisión alta.
             </p>
-
-        </div>
-
-
-    {% elif resultado.estado == "ok" %}
-
-
-        <!-- =================================================
-             TARJETAS PRINCIPALES
-             ================================================= -->
-
-        <div class="tarjetas">
-
-
-            <div class="tarjeta">
-
-                <span class="icono"><i class="fa-solid fa-receipt"></i></span>
-
-                <h3>
-                    Ventas registradas
-                </h3>
-
-                <div class="valor">
-                    {{ resultado.num_ventas }}
-                </div>
-
-                <div class="unidad">
-                    registros
-                </div>
-
-            </div>
-
-
-            <div class="tarjeta">
-
-                <span class="icono"><i class="fa-solid fa-calendar-days"></i></span>
-
-                <h3>
-                    Días históricos
-                </h3>
-
-                <div class="valor">
-                    {{ resultado.dias_historicos }}
-                </div>
-
-                <div class="unidad">
-                    días
-                </div>
-
-            </div>
-
-
-            <div class="tarjeta">
-
-                <span class="icono"><i class="fa-solid fa-chart-simple"></i></span>
-
-                <h3>
-                    Promedio diario
-                </h3>
-
-                <div class="valor">
-                    {{ resultado.promedio_diario }}
-                </div>
-
-                <div class="unidad">
-                    unidades
-                </div>
-
-            </div>
-
-
-            <div class="tarjeta">
-
-                <span class="icono"><i class="fa-solid fa-boxes-stacked"></i></span>
-
-                <h3>
-                    Inventario actual
-                </h3>
-
-                <div class="valor">
-                    {{ inventario_actual }}
-                </div>
-
-                <div class="unidad">
-                    unidades
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-        <!-- =================================================
-             PREDICCIÓN DE DEMANDA
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-bullseye"></i>Predicción de demanda
-            </h2>
-
 
             <div class="modelos">
 
+                {% for modelo in modelos %}
+                    {% set metrica = resultado.metricas.get(modelo.clave, {}) %}
+                    {% set total = resultado.pronosticos_7_dias.get(modelo.clave) %}
 
-                <!-- REGRESIÓN LINEAL -->
+                    <article class="modelo {% if resultado.modelo_seleccionado == modelo.clave %}seleccionado{% endif %}">
 
-                <div class="modelo">
-
-                    <h3>
-                        <i class="fa-solid fa-chart-line"></i>Regresión Lineal
-                    </h3>
-
-                    <div class="valor">
-
-                        {{ resultado.prediccion_lineal_7_dias }}
-
-                    </div>
-
-                    <p>
-                        unidades estimadas para
-                        los próximos 7 días
-                    </p>
-
-                </div>
-
-
-                <!-- RANDOM FOREST -->
-
-                <div class="modelo">
-
-                    <h3>
-                        <i class="fa-solid fa-tree"></i>Random Forest
-                    </h3>
-
-                    <div class="valor">
-
-                        {{ resultado.prediccion_bosque_7_dias }}
-
-                    </div>
-
-                    <p>
-                        unidades estimadas para
-                        los próximos 7 días
-                    </p>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- =============================================
-                 MODELO SELECCIONADO
-                 ============================================= -->
-
-            <div class="modelo-seleccionado">
-
-                <h3>
-                    <i class="fa-solid fa-circle-check"></i>Resultado del análisis
-                </h3>
-
-                <p>
-                    Modelo seleccionado según la evaluación temporal:
-                </p>
-
-
-                <div class="nombre-modelo">
-
-                    {% if resultado.modelo_seleccionado == "lineal" %}
-
-                        Regresión Lineal
-
-                    {% elif resultado.modelo_seleccionado == "bosque" %}
-
-                        Random Forest
-
-                    {% endif %}
-
-                </div>
-
-
-                <div class="valor">
-
-                    {{ resultado.prediccion_seleccionada_7_dias }}
-
-                </div>
-
-
-                <p>
-                    Demanda estimada para los próximos 7 días
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             EVALUACIÓN DE MODELOS
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-scale-balanced"></i>Evaluación de los modelos
-            </h2>
-
-
-            <div class="modelos">
-
-
-                <!-- REGRESIÓN LINEAL -->
-
-                <div class="modelo">
-
-                    <h3>
-                        <i class="fa-solid fa-chart-line"></i>Regresión Lineal
-                    </h3>
-
-
-                    <div class="metricas">
-
-                        <div class="metrica">
-
-                            <span>
-                                MAE
-                            </span>
-
-                            <strong>
-                                {{ resultado.metricas.lineal.mae|round(4) }}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="metrica">
-
-                            <span>
-                                RMSE
-                            </span>
-
-                            <strong>
-                                {{ resultado.metricas.lineal.rmse|round(4) }}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="metrica">
-
-                            <span>
-                                R²
-                            </span>
-
-                            <strong>
-                                {{ resultado.metricas.lineal.r2|round(4) }}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- RANDOM FOREST -->
-
-                <div class="modelo">
-
-                    <h3>
-                        <i class="fa-solid fa-tree"></i>Random Forest
-                    </h3>
-
-
-                    <div class="metricas">
-
-                        <div class="metrica">
-
-                            <span>
-                                MAE
-                            </span>
-
-                            <strong>
-                                {{ resultado.metricas.bosque.mae|round(4) }}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="metrica">
-
-                            <span>
-                                RMSE
-                            </span>
-
-                            <strong>
-                                {{ resultado.metricas.bosque.rmse|round(4) }}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="metrica">
-
-                            <span>
-                                R²
-                            </span>
-
-                            <strong>
-                                {{ resultado.metricas.bosque.r2|round(4) }}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             PRONÓSTICO SELECCIONADO
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-calendar-check"></i>Pronóstico seleccionado
-            </h2>
-
-
-            <div class="tabla-contenedor">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Fecha
-                            </th>
-
-                            <th>
-                                Unidades estimadas
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for registro in resultado.predicciones_seleccionadas %}
-
-                        <tr>
-
-                            <td data-label="Fecha">
-                                {{ registro.fecha }}
-                            </td>
-
-                            <td data-label="Unidades estimadas">
-                                {{ registro.cantidad }}
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             ANÁLISIS DE INVENTARIO
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-warehouse"></i>Análisis de inventario
-            </h2>
-
-
-            <div class="modelos">
-
-
-                <!-- INVENTARIO ACTUAL -->
-
-                <div class="modelo">
-
-                    <h3>
-                        Inventario actual
-                    </h3>
-
-                    <div class="valor">
-                        {{ inventario_actual }}
-                    </div>
-
-                    <p>
-                        unidades disponibles
-                    </p>
-
-                </div>
-
-
-                <!-- DEMANDA ESTIMADA -->
-
-                <div class="modelo">
-
-                    <h3>
-                        Demanda estimada
-                    </h3>
-
-                    <div class="valor">
-
-                        {{ demanda_7_dias }}
-
-                    </div>
-
-                    <p>
-                        unidades para 7 días
-                    </p>
-
-                </div>
-
-
-                <!-- DIFERENCIA -->
-
-                <div class="modelo">
-
-                    <h3>
-                        Diferencia estimada
-                    </h3>
-
-                    <div class="valor">
-
-                        {{ "%.2f"|format(diferencia_inventario) }}
-
-                    </div>
-
-                    <p>
-                        inventario menos demanda proyectada
-                    </p>
-
-                </div>
-
-
-                <!-- REPOSICIÓN SUGERIDA -->
-
-                <div class="modelo">
-
-                    <h3>
-                        Reposición sugerida
-                    </h3>
-
-                    <div class="valor">
-
-                        {{ reposicion_sugerida }}
-
-                    </div>
-
-                    <p>
-                        unidades sugeridas para cubrir
-                        la demanda estimada
-                    </p>
-
-                </div>
-
-
-            </div>
-
-
-            <div class="inventario-estado estado-{{ estado_inventario }}">
-
-
-                {% if estado_inventario == "suficiente" %}
-
-                    <h3>
-                        <i class="fa-solid fa-circle-check"></i>Inventario suficiente
-                    </h3>
-
-                    <p>
-                        El inventario disponible cubre
-                        la demanda estimada para los
-                        próximos 7 días.
-                    </p>
-
-                    <p>
-                        No se requiere reposición
-                        inmediata según la estimación.
-                    </p>
-
-
-                {% elif estado_inventario == "precaucion" %}
-
-                    <h3>
-                        <i class="fa-solid fa-triangle-exclamation"></i>Precaución con el inventario
-                    </h3>
-
-                    <p>
-                        El inventario actual se encuentra
-                        cercano a la demanda estimada para
-                        los próximos 7 días.
-                    </p>
-
-                    <p>
-                        Reposición sugerida:
-
-                        <strong>
-                            {{ reposicion_sugerida }}
-                            unidades
-                        </strong>
-                    </p>
-
-
-                {% elif estado_inventario == "riesgo" %}
-
-                    <h3>
-                        <i class="fa-solid fa-circle-exclamation"></i>Riesgo de agotamiento
-                    </h3>
-
-                    <p>
-                        La demanda estimada para los próximos
-                        7 días supera el inventario disponible.
-                    </p>
-
-                    <p>
-
-                        Diferencia estimada:
-
-                        <strong>
-
-                            {{ "%.2f"|format(diferencia_inventario|abs) }}
-
-                            unidades
-
-                        </strong>
-
-                    </p>
-
-                    <p>
-
-                        Reposición sugerida:
-
-                        <strong>
-                            {{ reposicion_sugerida }}
-                            unidades
-                        </strong>
-
-                    </p>
-
-
-                {% else %}
-
-                    <h3>
-                        <i class="fa-solid fa-circle-question"></i>Información insuficiente
-                    </h3>
-
-                    <p>
-                        No existen suficientes datos para
-                        realizar el análisis de inventario.
-                    </p>
-
-                {% endif %}
-
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             GRÁFICA DE DEMANDA
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-chart-area"></i>Comportamiento de la demanda
-            </h2>
-
-
-            <div class="grafica-contenedor">
-
-                <canvas id="graficaDemanda"></canvas>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             HISTORIAL DE DEMANDA
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-clock-rotate-left"></i>Historial de demanda
-            </h2>
-
-
-            <div class="tabla-contenedor">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Fecha
-                            </th>
-
-                            <th>
-                                Unidades vendidas
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for registro in resultado.serie_historica %}
-
-                        <tr>
-
-                            <td data-label="Fecha">
-                                {{ registro.fecha }}
-                            </td>
-
-                            <td data-label="Unidades vendidas">
-                                {{ registro.cantidad }}
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             ANÁLISIS TÉCNICO
-             ================================================= -->
-
-        <div class="seccion">
-
-            <h2>
-                <i class="fa-solid fa-microscope"></i>Análisis técnico
-            </h2>
-
-
-            <div class="analisis">
-
-                <p>
-
-                    El sistema analizó
-
-                    <strong>
-                        {{ resultado.num_ventas }}
-                    </strong>
-
-                    registros de venta distribuidos
-                    en
-
-                    <strong>
-                        {{ resultado.dias_historicos }}
-                    </strong>
-
-                    días históricos.
-
-                </p>
-
-
-                <p>
-
-                    Para realizar la predicción se utilizaron
-                    dos modelos de aprendizaje automático:
-
-                    <strong>
-                        Regresión Lineal
-                    </strong>
-
-                    y
-
-                    <strong>
-                        Random Forest
-                    </strong>.
-
-                </p>
-
-
-                <p>
-
-                    Los modelos utilizan características
-                    temporales y comportamiento reciente
-                    de las ventas para estimar la demanda
-                    futura.
-
-                </p>
-
-
-                <p>
-
-                    Las métricas
-
-                    <strong>MAE</strong>,
-
-                    <strong>RMSE</strong>
-
-                    y
-
-                    <strong>R²</strong>
-
-                    permiten evaluar el comportamiento
-                    de los modelos sobre datos históricos
-                    separados temporalmente.
-
-                </p>
-
-
-                <p>
-
-                    El modelo seleccionado es:
-
-                    <strong>
-
-                        {% if resultado.modelo_seleccionado == "lineal" %}
-
-                            Regresión Lineal
-
-                        {% elif resultado.modelo_seleccionado == "bosque" %}
-
-                            Random Forest
-
+                        {% if resultado.modelo_seleccionado == modelo.clave %}
+                            <span class="etiqueta">Modelo seleccionado</span>
                         {% endif %}
 
-                    </strong>
+                        <h3>{{ modelo.nombre }}</h3>
 
-                    y genera una demanda estimada de
+                        <div class="valor">
+                            {% if total is not none %}
+                                {{ "%.2f"|format(total|float) }}
+                            {% else %}
+                                N/D
+                            {% endif %}
+                        </div>
 
-                    <strong>
+                        <div class="subtexto">
+                            Unidades pronosticadas en siete días
+                        </div>
 
-                        {{ resultado.prediccion_seleccionada_7_dias }}
+                        <div class="metricas">
 
-                    </strong>
+                            <div class="metrica">
+                                <span>MAE</span>
+                                <strong>
+                                    {% if metrica.get("mae") is not none %}
+                                        {{ "%.3f"|format(metrica.get("mae")|float) }}
+                                    {% else %}N/D{% endif %}
+                                </strong>
+                            </div>
 
-                    unidades para los próximos 7 días.
+                            <div class="metrica">
+                                <span>RMSE</span>
+                                <strong>
+                                    {% if metrica.get("rmse") is not none %}
+                                        {{ "%.3f"|format(metrica.get("rmse")|float) }}
+                                    {% else %}N/D{% endif %}
+                                </strong>
+                            </div>
 
-                </p>
+                            <div class="metrica">
+                                <span>R²</span>
+                                <strong>
+                                    {% if metrica.get("r2") is not none %}
+                                        {{ "%.3f"|format(metrica.get("r2")|float) }}
+                                    {% else %}N/D{% endif %}
+                                </strong>
+                            </div>
 
+                            <div class="metrica">
+                                <span>WAPE</span>
+                                <strong>
+                                    {% if metrica.get("wape") is not none %}
+                                        {{ "%.2f"|format(metrica.get("wape")|float) }}%
+                                    {% else %}N/D{% endif %}
+                                </strong>
+                            </div>
 
-                <p>
+                            <div class="metrica">
+                                <span>sMAPE</span>
+                                <strong>
+                                    {% if metrica.get("smape") is not none %}
+                                        {{ "%.2f"|format(metrica.get("smape")|float) }}%
+                                    {% else %}N/D{% endif %}
+                                </strong>
+                            </div>
 
-                    Con base en la demanda estimada y
-                    el inventario disponible, el sistema
-                    calcula una
+                        </div>
+                    </article>
+                {% endfor %}
 
-                    <strong>
-                        reposición sugerida
-                    </strong>
+            </div>
+        </section>
 
-                    cuando el inventario no es suficiente
-                    para cubrir la demanda proyectada.
+{% if resultado.precision_limitada %}
+    <div class="mensaje">
+        <h3>Precisión limitada</h3>
+        <p>{{ resultado.mensaje_precision }}</p>
+        <p>
+            RMSE del modelo seleccionado:
+            <strong>
+                {{ "%.3f"|format(resultado.metricas[resultado.modelo_seleccionado].rmse|float) }}
+            </strong>
+        </p>
+        <p>
+            RMSE del modelo de referencia:
+            <strong>
+                {{ "%.3f"|format(resultado.metricas_baseline.rmse|float) }}
+            </strong>
+        </p>
+        <p>
+            Recomendación: revisar el historial de ventas antes de
+            utilizar esta predicción para tomar decisiones de compra.
+        </p>
+    </div>
+{% else %}
+    <div class="estado">
+        <h3>Comparación con la referencia</h3>
+        <p>{{ resultado.mensaje_precision }}</p>
+        <p>
+            RMSE del modelo seleccionado:
+            <strong>
+                {{ "%.3f"|format(resultado.metricas[resultado.modelo_seleccionado].rmse|float) }}
+            </strong>
+        </p>
+        <p>
+            RMSE del modelo de referencia:
+            <strong>
+                {{ "%.3f"|format(resultado.metricas_baseline.rmse|float) }}
+            </strong>
+        </p>
+    </div>
+{% endif %}
 
-                </p>
+        <section class="seccion">
+            <h2>Pronóstico del modelo seleccionado</h2>
 
+            <p>
+                Modelo:
+                <strong>
+                    {% for modelo in modelos %}
+                        {% if resultado.modelo_seleccionado == modelo.clave %}
+                            {{ modelo.nombre }}
+                        {% endif %}
+                    {% endfor %}
+                </strong>
+            </p>
 
-                <p>
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Unidades pronosticadas</th>
+                        </tr>
+                    </thead>
 
-                    Las cantidades mostradas representan
-                    <strong>estimaciones</strong> basadas
-                    en el historial disponible y no
-                    garantizan las ventas futuras.
+                    <tbody>
+                        {% for registro in resultado.predicciones_seleccionadas %}
+                            <tr>
+                                <td>{{ registro.fecha }}</td>
+                                <td>{{ "%.2f"|format(registro.cantidad|float) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-                </p>
+        <section class="seccion">
+            <h2>Pronóstico diario de cada modelo</h2>
+
+            <p class="subtexto">
+                Permite comparar las cantidades previstas por cada modelo
+                para cada uno de los siete días.
+            </p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            {% for modelo in modelos %}
+                                <th>{{ modelo.nombre }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for i in range(7) %}
+                            <tr>
+                                <td>
+                                    {% if resultado.predicciones_seleccionadas|length > i %}
+                                        {{ resultado.predicciones_seleccionadas[i].fecha }}
+                                    {% else %}
+                                        Día {{ i + 1 }}
+                                    {% endif %}
+                                </td>
+
+                                {% for modelo in modelos %}
+                                    {% set lista = resultado.predicciones_modelos.get(modelo.clave, []) %}
+                                    <td>
+                                        {% if lista|length > i %}
+                                            {{ "%.2f"|format(lista[i].cantidad|float) }}
+                                        {% else %}
+                                            N/D
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="seccion">
+            <h2>Comportamiento de la demanda</h2>
+            <div class="grafica">
+                <canvas id="graficaDemanda"></canvas>
+            </div>
+        </section>
+
+        <section class="seccion">
+            <h2>Análisis de inventario</h2>
+
+            <div class="rejilla">
+
+                <div class="tarjeta">
+                    <h3>Demanda estimada</h3>
+                    <div class="valor">
+                        {{ "%.2f"|format(demanda_7_dias|float) }}
+                    </div>
+                    <div class="subtexto">Unidades para siete días</div>
+                </div>
+
+                <div class="tarjeta">
+                    <h3>Diferencia estimada</h3>
+                    <div class="valor">
+                        {{ "%.2f"|format(diferencia_inventario|float) }}
+                    </div>
+                    <div class="subtexto">Inventario menos demanda</div>
+                </div>
+
+                <div class="tarjeta">
+                    <h3>Reposición sugerida</h3>
+                    <div class="valor">
+                        {{ reposicion_sugerida if reposicion_sugerida is not none else "N/D" }}
+                    </div>
+                    <div class="subtexto">Unidades para cubrir el faltante estimado</div>
+                </div>
+
+                <div class="tarjeta">
+                    <h3>Estado</h3>
+                    <div class="valor" style="font-size: 21px;">
+                        {% if estado_inventario == "suficiente" %}
+                            Suficiente
+                        {% elif estado_inventario == "precaucion" %}
+                            Precaución
+                        {% elif estado_inventario == "riesgo" %}
+                            Riesgo
+                        {% else %}
+                            Sin datos
+                        {% endif %}
+                    </div>
+                    <div class="subtexto">Comparación de existencias y demanda</div>
+                </div>
 
             </div>
 
-        </div>
+            <div class="estado">
+                {% if estado_inventario == "suficiente" %}
+                    El inventario actual supera la demanda estimada
+                    para los próximos siete días.
+                {% elif estado_inventario == "precaucion" %}
+                    El inventario está cerca de la demanda estimada.
+                    Conviene revisar las existencias.
+                {% elif estado_inventario == "riesgo" %}
+                    La demanda estimada supera el inventario disponible.
+                    La reposición sugerida es una estimación basada en el pronóstico.
+Verifica las ventas, las existencias y los pedidos pendientes antes
+de decidir una compra. Esta sugerencia no genera compras automáticamente.
+                {% else %}
+                    No hay información suficiente para evaluar el inventario.
+                {% endif %}
+            </div>
+        </section>
 
+        <section class="seccion">
+            <h2>Historial de ventas diario</h2>
 
-        <!-- =================================================
-             JAVASCRIPT DE LA GRÁFICA
-             ================================================= -->
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Unidades vendidas</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for registro in resultado.serie_historica %}
+                            <tr>
+                                <td>{{ registro.fecha }}</td>
+                                <td>{{ "%.2f"|format(registro.cantidad|float) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
         <script>
+            const historial = {{ resultado.serie_historica | tojson }};
+            const pronostico = {{ resultado.predicciones_seleccionadas | tojson }};
 
-            /*
-             * =====================================================
-             * HISTORIAL
-             * =====================================================
-             */
+            const fechasHistoricas = historial.map(item => item.fecha);
+            const valoresHistoricos = historial.map(item => item.cantidad);
 
-            const historial = [
+            const fechasPronostico = pronostico.map(item => item.fecha);
+            const valoresPronostico = pronostico.map(item => item.cantidad);
 
-                /* {% for registro in resultado.serie_historica %} */
+            const etiquetas = fechasHistoricas.concat(fechasPronostico);
 
-                {
-                    fecha: "{{ registro.fecha }}",
-                    cantidad: Number("{{ registro.cantidad }}")
-                }
+            const serieHistorica = valoresHistoricos.concat(
+                Array(fechasPronostico.length).fill(null)
+            );
 
-                /* {% if not loop.last %} */ , /* {% endif %} */
-
-                /* {% endfor %} */
-
-            ];
-
-
-            /*
-             * =====================================================
-             * PRONÓSTICO
-             * =====================================================
-             */
-
-            const pronostico = [
-
-                /* {% for registro in resultado.predicciones_seleccionadas %} */
-
-                {
-                    fecha: "{{ registro.fecha }}",
-                    cantidad: Number("{{ registro.cantidad }}")
-                }
-
-                /* {% if not loop.last %} */ , /* {% endif %} */
-
-                /* {% endfor %} */
-
-            ];
-
-
-            /*
-             * =====================================================
-             * FECHAS Y VALORES
-             * =====================================================
-             */
-
-            const fechasHistoricas =
-                historial.map(
-                    registro => registro.fecha
-                );
-
-
-            const valoresHistoricos =
-                historial.map(
-                    registro => registro.cantidad
-                );
-
-
-            const fechasPronostico =
-                pronostico.map(
-                    registro => registro.fecha
-                );
-
-
-            const valoresPronostico =
-                pronostico.map(
-                    registro => registro.cantidad
-                );
-
-
-            /*
-             * =====================================================
-             * COMBINAR FECHAS
-             * =====================================================
-             */
-
-            const fechas =
-                fechasHistoricas.concat(
-                    fechasPronostico
-                );
-
-
-            /*
-             * =====================================================
-             * DATOS HISTÓRICOS
-             * =====================================================
-             */
-
-            const datosHistoricos =
-                valoresHistoricos.concat(
-
-                    Array(
-                        valoresPronostico.length
-                    ).fill(null)
-
-                );
-
-
-            /*
-             * =====================================================
-             * DATOS DEL PRONÓSTICO
-             * =====================================================
-             */
-
-            const datosPronostico =
-
-                Array(
-                    valoresHistoricos.length
-                )
-
+            const seriePronostico = Array(fechasHistoricas.length)
                 .fill(null)
+                .concat(valoresPronostico);
 
-                .concat(
-                    valoresPronostico
-                );
-
-
-            /*
-             * =====================================================
-             * COLORES (tomados de las variables CSS del tema)
-             * =====================================================
-             */
-
-            const estilosTema =
-                getComputedStyle(
-                    document.documentElement
-                );
-
-            const colorMarca =
-                estilosTema.getPropertyValue("--brand").trim() || "#0f6b8a";
-
-            const colorAcento =
-                estilosTema.getPropertyValue("--accent").trim() || "#f2a93b";
-
-            const colorTexto =
-                estilosTema.getPropertyValue("--ink-soft").trim() || "#5b6578";
-
-            const colorLinea =
-                estilosTema.getPropertyValue("--line").trim() || "#e2e6ef";
-
-
-            /*
-             * =====================================================
-             * CREAR GRÁFICA
-             * =====================================================
-             */
-
-            const canvas =
-                document.getElementById(
-                    "graficaDemanda"
-                );
-
+            const canvas = document.getElementById("graficaDemanda");
 
             if (canvas) {
-
-                Chart.defaults.font.family =
-                    "'Manrope', 'Segoe UI', Arial, sans-serif";
-
-                Chart.defaults.color =
-                    colorTexto;
-
-
-                new Chart(
-
-                    canvas,
-
-                    {
-
-                        type: "line",
-
-
-                        data: {
-
-                            labels:
-                                fechas,
-
-
-                            datasets: [
-
-                                {
-
-                                    label:
-                                        "Demanda histórica",
-
-                                    data:
-                                        datosHistoricos,
-
-                                    borderColor:
-                                        colorMarca,
-
-                                    backgroundColor:
-                                        colorMarca + "22",
-
-                                    fill:
-                                        true,
-
-                                    tension:
-                                        0.3,
-
-                                    borderWidth:
-                                        2.5,
-
-                                    pointRadius:
-                                        3,
-
-                                    pointHoverRadius:
-                                        6
-
-                                },
-
-
-                                {
-
-                                    label:
-                                        "Pronóstico",
-
-                                    data:
-                                        datosPronostico,
-
-                                    borderColor:
-                                        colorAcento,
-
-                                    backgroundColor:
-                                        colorAcento,
-
-                                    tension:
-                                        0.3,
-
-                                    borderWidth:
-                                        2.5,
-
-                                    borderDash:
-                                        [6, 6],
-
-                                    pointRadius:
-                                        3,
-
-                                    pointHoverRadius:
-                                        6
-
-                                }
-
-                            ]
-
-                        },
-
-
-                        options: {
-
-                            responsive:
-                                true,
-
-                            maintainAspectRatio:
-                                false,
-
-
-                            interaction: {
-
-                                mode:
-                                    "index",
-
-                                intersect:
-                                    false
-
+                new Chart(canvas, {
+                    type: "line",
+                    data: {
+                        labels: etiquetas,
+                        datasets: [
+                            {
+                                label: "Ventas históricas",
+                                data: serieHistorica,
+                                borderColor: "#2563eb",
+                                backgroundColor: "rgba(37, 99, 235, 0.12)",
+                                borderWidth: 2,
+                                tension: 0.25,
+                                pointRadius: 2
                             },
-
-
-                            plugins: {
-
-                                legend: {
-
-                                    display:
-                                        true,
-
-                                    labels: {
-
-                                        usePointStyle:
-                                            true
-
-                                    }
-
-                                }
-
-                            },
-
-
-                            scales: {
-
-                                y: {
-
-                                    beginAtZero:
-                                        true,
-
-                                    grid: {
-
-                                        color:
-                                            colorLinea
-
-                                    },
-
-                                    title: {
-
-                                        display:
-                                            true,
-
-                                        text:
-                                            "Unidades"
-
-                                    }
-
-                                },
-
-
-                                x: {
-
-                                    grid: {
-
-                                        display:
-                                            false
-
-                                    },
-
-                                    title: {
-
-                                        display:
-                                            true,
-
-                                        text:
-                                            "Fecha"
-
-                                    }
-
-                                }
-
+                            {
+                                label: "Pronóstico seleccionado",
+                                data: seriePronostico,
+                                borderColor: "#ea580c",
+                                backgroundColor: "rgba(234, 88, 12, 0.12)",
+                                borderWidth: 3,
+                                borderDash: [6, 5],
+                                tension: 0.25,
+                                pointRadius: 4
                             }
-
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: "index"
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Unidades"
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    maxTicksLimit: 12
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Fecha"
+                                }
+                            }
                         }
-
                     }
-
-                );
-
+                });
             }
-
         </script>
-
 
     {% endif %}
 
-
 </main>
 
-
 <footer>
-
-    <p>
-        Derechos Reservados &copy; ShopEase 2023
-    </p>
-
+    PrediVent | Sistema de predicción de demanda
 </footer>
 
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
-
-
 </body>
-
 </html>

@@ -5,8 +5,16 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import (
+    ExtraTreesRegressor,
+    GradientBoostingRegressor,
+    RandomForestRegressor,
+)
 from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
@@ -249,9 +257,14 @@ def _calcular_metricas(real, predicho):
 
 
 def _crear_modelos():
+    """Crea los seis modelos que se comparan en PrediVent."""
     return {
         "lineal": LinearRegression(),
-
+        "arbol": DecisionTreeRegressor(
+            max_depth=8,
+            min_samples_leaf=2,
+            random_state=42,
+        ),
         "bosque": RandomForestRegressor(
             n_estimators=200,
             max_depth=10,
@@ -259,38 +272,89 @@ def _crear_modelos():
             random_state=42,
             n_jobs=-1,
         ),
+        "extra_trees": ExtraTreesRegressor(
+            n_estimators=200,
+            max_depth=10,
+            min_samples_leaf=2,
+            random_state=42,
+            n_jobs=-1,
+        ),
+        "gradient_boosting": GradientBoostingRegressor(
+            n_estimators=100,
+            learning_rate=0.05,
+            max_depth=2,
+            loss="squared_error",
+            random_state=42,
+        ),
+        # SVR necesita escalado; el pipeline ajusta el escalador
+        # únicamente con los datos de entrenamiento.
+        "svr": make_pipeline(
+            StandardScaler(),
+            SVR(kernel="rbf", C=10.0, epsilon=0.1),
+        ),
     }
 
 
 
 def _entrenar_modelos(
     entrenamiento,
-    prueba
+    prueba,
+    serie,
+    progress_callback=None,
 ):
-    X_train = entrenamiento[FEATURES]
-    y_train = entrenamiento["cantidad"]
+    """
+    Entrena los seis modelos y evalúa cada uno mediante un
+    pronóstico recursivo del bloque temporal de prueba.
 
-    X_test = prueba[FEATURES]
+    Así, las predicciones posteriores no utilizan las ventas
+    reales de los días de prueba como características.
+    """
+    X_train = entrenamiento[FEATURES].to_numpy(dtype=float)
+    y_train = entrenamiento["cantidad"].to_numpy(dtype=float)
+
+    # La serie disponible para pronosticar termina en la última
+    # fecha incluida en el entrenamiento.
+    fecha_corte = pd.to_datetime(entrenamiento["fecha"].iloc[-1])
+
+    serie_entrenamiento = serie.loc[
+        pd.to_datetime(serie["fecha"]) <= fecha_corte
+    ].copy()
+
+    if serie_entrenamiento.empty:
+        raise ValueError(
+            "No hay historial disponible antes del corte temporal."
+        )
 
     modelos = _crear_modelos()
     predicciones = {}
 
     for nombre, modelo in modelos.items():
+        if progress_callback:
+            progress_callback("iniciando_evaluacion", nombre)
 
-        modelo.fit(
-            X_train,
-            y_train
+        # Entrenar solamente con datos anteriores al bloque de prueba.
+        modelo.fit(X_train, y_train)
+
+        # Pronosticar todo el bloque de prueba de forma recursiva.
+        pronosticos = _predecir_futuro(
+            modelo,
+            serie_entrenamiento,
+            dias=len(prueba),
         )
 
         predicciones[nombre] = np.maximum(
             0.0,
             np.asarray(
-                modelo.predict(X_test),
-                dtype=float
-            )
+                [item["cantidad"] for item in pronosticos],
+                dtype=float,
+            ),
         )
 
+        if progress_callback:
+            progress_callback("evaluacion", nombre)
+
     return modelos, predicciones
+
 
 
 def _evaluar_modelos(
@@ -312,50 +376,28 @@ def _evaluar_modelos(
 
 
 def _seleccionar_modelo(metricas):
-    """
-    Selecciona únicamente entre los dos modelos
-    de Machine Learning.
-    """
-
+    """Selecciona el modelo con menor RMSE de validación; desempata con MAE."""
     candidatos = []
 
-    for nombre in (
-        "lineal",
-        "bosque"
-    ):
-
-        datos = metricas.get(nombre)
-
+    for nombre, datos in metricas.items():
         if not datos:
             continue
 
         rmse = datos.get("rmse")
         mae = datos.get("mae")
 
-        if rmse is None:
+        if rmse is None or not np.isfinite(rmse):
             continue
 
-        if mae is None:
+        if mae is None or not np.isfinite(mae):
             mae = float("inf")
 
-        candidatos.append(
-            (
-                nombre,
-                float(rmse),
-                float(mae)
-            )
-        )
+        candidatos.append((nombre, float(rmse), float(mae)))
 
     if not candidatos:
         return "lineal"
 
-    candidatos.sort(
-        key=lambda elemento: (
-            elemento[1],
-            elemento[2]
-        )
-    )
-
+    candidatos.sort(key=lambda elemento: (elemento[1], elemento[2]))
     return candidatos[0][0]
 
 
@@ -460,7 +502,7 @@ def _predecir_futuro(
 
         prediccion = float(
             modelo.predict(
-                X_futuro[FEATURES]
+                X_futuro[FEATURES].to_numpy(dtype=float)
             )[0]
         )
 
@@ -532,6 +574,8 @@ def _resultado_vacio(
         "modelo_seleccionado": None,
         "predicciones_lineal": [],
         "predicciones_bosque": [],
+        "predicciones_modelos": {},
+        "pronosticos_7_dias": {},
         "predicciones_seleccionadas": [],
         "serie_historica": serie_historica,
         "metricas": {},
@@ -539,7 +583,8 @@ def _resultado_vacio(
 
 
 def generar_prediccion(
-    historial
+    historial,
+    progress_callback=None,
 ):
     df = _normalizar_historial(
         historial
@@ -613,7 +658,9 @@ def generar_prediccion(
     modelos, predicciones_test = (
         _entrenar_modelos(
             entrenamiento,
-            prueba
+            prueba,
+            serie,
+            progress_callback=progress_callback,
         )
     )
 
@@ -622,100 +669,104 @@ def generar_prediccion(
         predicciones_test
     )
 
-    modelo_seleccionado = (
-        _seleccionar_modelo(
-            metricas
-        )
+    # Referencia: promedio de las últimas siete ventas diarias
+    # disponibles en el conjunto de entrenamiento.
+    promedio_referencia = float(
+        entrenamiento["cantidad"].tail(7).mean()
     )
 
-    modelo_final = modelos[
-        modelo_seleccionado
-    ]
-
-    # Reentrenar el modelo ML seleccionado
-    # usando todo el historial disponible.
-    modelo_final.fit(
-        features[FEATURES],
-        features["cantidad"]
-    )
-    modelo_lineal = modelos["lineal"]
-    modelo_bosque = modelos["bosque"]
-
-    modelo_lineal.fit(
-        features[FEATURES],
-        features["cantidad"]
+    prediccion_referencia = np.full(
+        len(prueba),
+        max(0.0, promedio_referencia),
+        dtype=float,
     )
 
-    modelo_bosque.fit(
-        features[FEATURES],
-        features["cantidad"]
+    metricas_baseline = _calcular_metricas(
+        prueba["cantidad"].to_numpy(dtype=float),
+        prediccion_referencia,
     )
 
-    predicciones_lineal = (
-        _predecir_futuro(
-            modelo_lineal,
-            serie,
-            DIAS_PREDICCION
-        )
+    modelo_seleccionado = _seleccionar_modelo(metricas)
+
+    # Comprobar si el mejor modelo supera a la referencia.
+    rmse_modelo = metricas[modelo_seleccionado]["rmse"]
+    rmse_baseline = metricas_baseline["rmse"]
+
+    modelo_supera_baseline = (
+            rmse_modelo is not None
+            and rmse_baseline is not None
+            and np.isfinite(rmse_modelo)
+            and np.isfinite(rmse_baseline)
+            and rmse_modelo < rmse_baseline
     )
 
-    predicciones_bosque = (
-        _predecir_futuro(
-            modelo_bosque,
-            serie,
-            DIAS_PREDICCION
-        )
-    )
+    precision_limitada = not modelo_supera_baseline
 
-    if modelo_seleccionado == "bosque":
-        predicciones_seleccionadas = (
-            predicciones_bosque
+    if precision_limitada:
+        mensaje_precision = (
+            "Precisión limitada: ninguno de los modelos evaluados "
+            "superó el pronóstico de referencia basado en el "
+            "promedio de los últimos siete días."
         )
     else:
-        predicciones_seleccionadas = (
-            predicciones_lineal
+        mensaje_precision = (
+            "El modelo seleccionado superó el pronóstico de referencia "
+            "en la evaluación temporal. Esto no garantiza su precisión futura."
         )
+
+    # Reentrenar cada modelo con todo el historial disponible para
+    # producir los pronósticos futuros. Las métricas anteriores se
+    # calculan exclusivamente sobre el bloque temporal de prueba.
+    pronosticos_7_dias = {}
+    for nombre, modelo in modelos.items():
+        if progress_callback:
+            progress_callback("iniciando_pronostico", nombre)
+        modelo.fit(
+            features[FEATURES].to_numpy(dtype=float),
+            features["cantidad"].to_numpy(dtype=float),
+        )
+        pronosticos_7_dias[nombre] = _predecir_futuro(
+            modelo,
+            serie,
+            DIAS_PREDICCION,
+        )
+        if progress_callback:
+            progress_callback("pronostico", nombre)
+
+    predicciones_lineal = pronosticos_7_dias["lineal"]
+    predicciones_bosque = pronosticos_7_dias["bosque"]
+    predicciones_seleccionadas = pronosticos_7_dias[modelo_seleccionado]
+
+    totales_7_dias = {
+        nombre: _sumar_prediccion(predicciones)
+        for nombre, predicciones in pronosticos_7_dias.items()
+    }
 
     return {
         "estado": "ok",
         "mensaje": "Predicción generada correctamente.",
-        "num_ventas": int(
-            len(df)
-        ),
-        "dias_historicos": int(
-            len(serie)
-        ),
-        "promedio_diario": round(
-            float(
-                serie["cantidad"].mean()
-            ),
-            2
-        ),
-        "prediccion_lineal_7_dias":
-            _sumar_prediccion(
-                predicciones_lineal
-            ),
-        "prediccion_bosque_7_dias":
-            _sumar_prediccion(
-                predicciones_bosque
-            ),
-        "modelo_seleccionado":
-            modelo_seleccionado,
-        "prediccion_seleccionada_7_dias":
-            _sumar_prediccion(
-                predicciones_seleccionadas
-            ),
-        "predicciones_lineal":
-            predicciones_lineal,
-        "predicciones_bosque":
-            predicciones_bosque,
-        "predicciones_seleccionadas":
-            predicciones_seleccionadas,
-        "serie_historica":
-            serie_historica,
-        "metricas":
-            metricas,
+        "num_ventas": int(len(df)),
+        "dias_historicos": int(len(serie)),
+        "promedio_diario": round(float(serie["cantidad"].mean()), 2),
+        # Se conservan las claves antiguas para no romper las vistas existentes.
+        "prediccion_lineal_7_dias": totales_7_dias["lineal"],
+        "prediccion_bosque_7_dias": totales_7_dias["bosque"],
+        "prediccion_seleccionada_7_dias": totales_7_dias[modelo_seleccionado],
+        "pronosticos_7_dias": totales_7_dias,
+        "modelo_seleccionado": modelo_seleccionado,
+        "predicciones_lineal": predicciones_lineal,
+        "predicciones_bosque": predicciones_bosque,
+        "predicciones_modelos": pronosticos_7_dias,
+        "predicciones_seleccionadas": predicciones_seleccionadas,
+        "serie_historica": serie_historica,
+        "metricas": metricas,
+        "metricas_baseline": metricas_baseline,
+        "modelo_supera_baseline": modelo_supera_baseline,
+        "precision_limitada": precision_limitada,
+        "mensaje_precision": mensaje_precision,
+
     }
+
 
 
 # Compatibilidad con código anterior.

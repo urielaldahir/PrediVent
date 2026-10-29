@@ -16,6 +16,7 @@
 				<li><a href="{{url_for('agregarProveedor')}}"><i class="fa-solid fa-truck"></i>Agregar proveedores</a></li>
 				<li><a href="{{url_for('agregarProducto')}}"><i class="fa-solid fa-box-open"></i>Agregar Productos</a></li>
 				<li><a href="{{url_for('AgregarEmpleado')}}"><i class="fa-solid fa-users"></i>Agregar Usuarios</a></li>
+				<li><a href="{{ url_for('panel_promociones') }}"><i class="fa-solid fa-tags"></i> Promociones</a></li>
 				<li class="right"><a href="{{url_for('logout2')}}" data-confirm="¿Deseas cerrar sesión?"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</a></li>
 			</ul>
 		</nav>
@@ -55,6 +56,12 @@
 				<span class="icono"><i class="fa-solid fa-truck"></i></span>
 				<strong>Proveedores</strong>
 				<span class="detalle">Registra y administra a tus proveedores.</span>
+				<span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
+			</a>
+			<a class="panel-tile" href="{{ url_for('panel_promociones') }}">
+				<span class="icono"><i class="fa-solid fa-tags"></i></span>
+				<strong>Promociones inteligentes</strong>
+				<span class="detalle">Crea campañas, revisa propuestas y programa descuentos.</span>
 				<span class="ir">Abrir<i class="fa-solid fa-arrow-right"></i></span>
 			</a>
 			<a class="panel-tile" href="{{url_for('AgregarEmpleado')}}">

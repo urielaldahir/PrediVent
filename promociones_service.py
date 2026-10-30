@@ -1,11 +1,34 @@
 from datetime import datetime
+from flask import g, has_request_context
 from firebase_config import firestore_db
+import time
+import threading
 
 COLECCION = "promociones"
 MAX_DESCUENTO_PORCENTAJE = 50
 
+# Caché breve en memoria para evitar volver a descargar productos y ventas
+# cada vez que se generan propuestas. Solo afecta las sugerencias, no los precios
+# ni la validación de inventario de una compra.
+_CACHE_PROPUESTAS = {}
+_CACHE_PROPUESTAS_LOCK = threading.Lock()
+_CACHE_PROPUESTAS_TTL = 180  # segundos
+
+
+def _cache_peticion():
+    """Devuelve el caché asociado a la petición Flask actual."""
+    if not has_request_context():
+        return None
+    if not hasattr(g, "_predi_promociones_cache"):
+        g._predi_promociones_cache = {}
+    return g._predi_promociones_cache
+
 
 def listar_promociones():
+    cache = _cache_peticion()
+    if cache is not None and "promociones" in cache:
+        return [dict(p) for p in cache["promociones"]]
+
     ahora = datetime.now()
     resultado = []
     for doc in firestore_db.collection(COLECCION).stream():
@@ -26,7 +49,10 @@ def listar_promociones():
         except (TypeError, ValueError):
             p["estado_calculado"] = "Fechas inválidas"
         resultado.append(p)
-    return sorted(resultado, key=lambda x: x.get("fecha_inicio", ""))
+    resultado = sorted(resultado, key=lambda x: x.get("fecha_inicio", ""))
+    if cache is not None:
+        cache["promociones"] = [dict(p) for p in resultado]
+    return resultado
 
 
 def crear_promocion(datos, creado_por="admin", aprobada=False):
@@ -76,19 +102,36 @@ def generar_propuestas(tipo_solicitado="todos"):
     """Sugiere promociones según ventas e inventario. No publica ni cambia precios.
     tipo_solicitado: paquete (3+), individual (1), dos (exactamente 2), todos.
     """
-    productos = {}
-    for doc in firestore_db.collection("productos").stream():
-        producto = doc.to_dict() or {}
-        # El formulario y las ventas trabajan con id_producto, no necesariamente
-        # con el ID interno del documento de Firestore.
-        pid = producto.get("id_producto", doc.id)
-        productos[str(pid)] = producto
-    ventas_por_producto = {}
-    for doc in firestore_db.collection("ventas").stream():
-        v = doc.to_dict() or {}
-        pid = v.get("id_producto")
-        if pid is not None:
-            ventas_por_producto[str(pid)] = ventas_por_producto.get(str(pid), 0) + int(v.get("cantidad", 1) or 1)
+    # Reutiliza el resultado durante 3 minutos. La generación de propuestas
+    # es orientativa; el precio y el inventario de las compras se validan aparte.
+    ahora_cache = time.monotonic()
+    with _CACHE_PROPUESTAS_LOCK:
+        entrada = _CACHE_PROPUESTAS.get("datos")
+        datos_cacheados = entrada[1] if entrada and ahora_cache - entrada[0] < _CACHE_PROPUESTAS_TTL else None
+
+    if datos_cacheados is None:
+        productos = {}
+        for doc in firestore_db.collection("productos").stream():
+            producto = doc.to_dict() or {}
+            pid = producto.get("id_producto", doc.id)
+            productos[str(pid)] = producto
+
+        ventas_por_producto = {}
+        for doc in firestore_db.collection("ventas").stream():
+            v = doc.to_dict() or {}
+            pid = v.get("id_producto", v.get("productoID"))
+            if pid is not None:
+                try:
+                    cantidad_vendida = int(v.get("cantidad", 1) or 1)
+                except (TypeError, ValueError):
+                    cantidad_vendida = 1
+                ventas_por_producto[str(pid)] = ventas_por_producto.get(str(pid), 0) + cantidad_vendida
+
+        datos_cacheados = (productos, ventas_por_producto)
+        with _CACHE_PROPUESTAS_LOCK:
+            _CACHE_PROPUESTAS["datos"] = (time.monotonic(), datos_cacheados)
+    else:
+        productos, ventas_por_producto = datos_cacheados
 
     disponibles = [
         (pid, p) for pid, p in productos.items()
@@ -218,11 +261,20 @@ def _cliente_es_nuevo(id_cliente):
     """Considera nuevo al cliente que aún no tiene ventas registradas."""
     if not id_cliente:
         return False
-    for doc in firestore_db.collection("ventas").stream():
-        venta = doc.to_dict() or {}
-        if str(venta.get("id_cliente", "")) == str(id_cliente):
-            return False
-    return True
+    # Consulta únicamente ventas de este cliente; no descarga todo el historial.
+    ventas = firestore_db.collection("ventas")
+    consulta = ventas.where("id_cliente", "==", str(id_cliente)).limit(1)
+    if next(consulta.stream(), None) is not None:
+        return False
+
+    # Compatibilidad por si los registros antiguos guardaron el ID como número.
+    try:
+        id_numerico = int(id_cliente)
+    except (TypeError, ValueError):
+        return True
+
+    consulta_numerica = ventas.where("id_cliente", "==", id_numerico).limit(1)
+    return next(consulta_numerica.stream(), None) is None
 
 
 def promocion_aplicable_a_producto(promocion, producto, id_cliente=None, cantidad=1):

@@ -1960,13 +1960,16 @@ def detalle_producto(id_producto):
     if producto is None:
         return "Producto no encontrado", 404
 
+    precio_promocional, promocion_aplicada, ahorro_unitario = calcular_precio_promocional(
+        producto, session.get('cliente')
+    )
     return render_template(
         'detalle_producto.html',
         producto=producto,
         promociones=promociones_para_producto(producto, session.get('cliente')),
-        precio_promocional=calcular_precio_promocional(producto, session.get('cliente'))[0],
-        promocion_aplicada=calcular_precio_promocional(producto, session.get('cliente'))[1],
-        ahorro_unitario=calcular_precio_promocional(producto, session.get('cliente'))[2]
+        precio_promocional=precio_promocional,
+        promocion_aplicada=promocion_aplicada,
+        ahorro_unitario=ahorro_unitario
     )
 
 

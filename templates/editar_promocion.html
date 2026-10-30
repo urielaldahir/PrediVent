@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editar borrador | PrediVent</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+body{background:#f3f6fb;color:#172033}.wrap{max-width:850px;margin:35px auto;padding:0 18px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:15px;padding:24px;box-shadow:0 5px 18px #142a4b12}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;margin:12px 0 5px;font-weight:600;font-size:.88rem}input:not([type=checkbox]),select,textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px}textarea{min-height:80px}.picker{max-height:280px;overflow:auto;border:1px solid #dbe5f1;border-radius:9px;padding:10px}.picker label{font-weight:400;margin:6px 0}.btn{background:#2359a8;color:white;border:0;border-radius:8px;padding:11px 16px;cursor:pointer;text-decoration:none;display:inline-block}.error{background:#fff1f2;color:#9f1239;padding:10px;border-radius:8px}@media(max-width:600px){.grid{grid-template-columns:1fr}}
+
+body{background:#f3f6fb!important;color:#172033!important}
+.card{background:#fff!important;color:#172033!important}
+.card h1,.card p,.card label{color:#26364b!important}
+.card input:not([type=checkbox]),.card select,.card textarea{background:#fff!important;color:#172033!important}
+.picker{background:#f8fafc!important;color:#26364b!important}
+.picker label{color:#26364b!important}
+.error{background:#fff1f2!important;color:#9f1239!important}
+</style></head><body>
+<main class="wrap"><section class="card">
+<h1>Editar borrador</h1><p>Los cambios se guardarán sin aprobar ni activar la promoción.</p>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post">
+<div class="grid">
+<div><label>Nombre</label><input name="nombre" required value="{{ promocion.nombre }}"></div>
+<div><label>Tipo</label><select name="tipo" id="tipo"><option value="porcentaje" {% if promocion.tipo=='porcentaje' %}selected{% endif %}>Descuento por producto</option><option value="cantidad" {% if promocion.tipo=='cantidad' %}selected{% endif %}>Descuento por cantidad</option><option value="paquete" {% if promocion.tipo=='paquete' %}selected{% endif %}>Paquete</option><option value="bienvenida" {% if promocion.tipo=='bienvenida' %}selected{% endif %}>Bienvenida</option></select></div>
+<div><label>Descuento (%)</label><input name="porcentaje" type="number" min="1" max="50" step=".5" value="{{ promocion.porcentaje or 5 }}" required></div>
+<div><label>Alcance</label><select name="alcance" id="alcance"><option value="todos" {% if promocion.alcance=='todos' %}selected{% endif %}>Todos los productos</option><option value="seleccionados" {% if promocion.alcance=='seleccionados' %}selected{% endif %}>Seleccionados</option><option value="paquete" {% if promocion.alcance=='paquete' %}selected{% endif %}>Paquete</option></select></div>
+<div><label>Cantidad mínima</label><input name="cantidad_minima" type="number" min="2" value="{{ promocion.cantidad_minima or 2 }}"></div>
+<div><label>Inicio</label><input name="fecha_inicio" type="datetime-local" value="{{ promocion.fecha_inicio[:16] }}" required></div>
+<div><label>Fin</label><input name="fecha_fin" type="datetime-local" value="{{ promocion.fecha_fin[:16] }}" required></div>
+</div>
+<div id="productos"><label>Productos participantes</label><div class="picker">
+{% for prod in productos %}<label><input type="checkbox" name="ids_productos" value="{{ prod.id_producto }}" {% if prod.id_producto|string in (promocion.ids_productos or [])|map('string')|list %}checked{% endif %}> {{ prod.nombre_producto }} · ID {{ prod.id_producto }} · ${{ prod.precio }}</label>{% endfor %}
+</div></div>
+<label>Descripción y condiciones</label><textarea name="descripcion">{{ promocion.descripcion or '' }}</textarea>
+<label><input type="checkbox" name="combinable" {% if promocion.combinable %}checked{% endif %}> Permitir combinar</label><br>
+<button class="btn" type="submit">Guardar cambios</button> <a class="btn" href="{{ url_for('panel_promociones') }}">Cancelar</a>
+</form></section></main>
+<script>
+const t=document.getElementById('tipo'),a=document.getElementById('alcance'),p=document.getElementById('productos');
+function sync(){if(t.value==='bienvenida'){a.value='todos';a.disabled=true;}else{a.disabled=false;}if(t.value==='paquete')a.value='paquete';p.style.display=a.value==='todos'?'none':'block';}
+t.addEventListener('change',sync);a.addEventListener('change',sync);sync();
+</script></body></html>

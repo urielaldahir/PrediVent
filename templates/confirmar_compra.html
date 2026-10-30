@@ -144,7 +144,14 @@
                                 Precio unitario:
 
                                 <strong>
-                                    ${{ "%.2f"|format(producto['precio']|float) }}
+                                    {% if item.get('precio_unitario') is not none %}
+                                        {% if item.get('precio_original', producto['precio']|float) > item.get('precio_unitario') %}
+                                            <span style="text-decoration:line-through;color:#94a3b8">${{ "%.2f"|format(item.get('precio_original')) }}</span>
+                                        {% endif %}
+                                        ${{ "%.2f"|format(item.get('precio_unitario')) }}
+                                    {% else %}
+                                        ${{ "%.2f"|format(producto['precio']|float) }}
+                                    {% endif %}
                                 </strong>
 
                             </p>
@@ -157,6 +164,9 @@
                                 <strong>
                                     ${{ "%.2f"|format(item['subtotal']|float) }}
                                 </strong>
+                                {% if item.get('ahorro', 0) > 0 %}
+                                    <small style="display:block;color:#16a34a">Descuento: -${{ "%.2f"|format(item.get('ahorro')) }}</small>
+                                {% endif %}
 
                             </p>
 
@@ -203,6 +213,9 @@
                 <div class="checkout-separador"></div>
 
 
+                {% if ahorro|default(0) > 0 %}
+                <p style="color:#16a34a">Ahorro aplicado: ${{ "%.2f"|format(ahorro|float) }}</p>
+                {% endif %}
                 <div class="checkout-total">
 
                     <span>
@@ -289,8 +302,16 @@
                             Precio unitario:
 
                             <strong>
-                                ${{ "%.2f"|format(producto['precio']|float) }}
+                                {% if precio_unitario is defined and precio_unitario < producto['precio']|float %}
+                                    <span style="text-decoration:line-through;color:#94a3b8">${{ "%.2f"|format(producto['precio']|float) }}</span>
+                                    ${{ "%.2f"|format(precio_unitario|float) }}
+                                {% else %}
+                                    ${{ "%.2f"|format(producto['precio']|float) }}
+                                {% endif %}
                             </strong>
+                            {% if ahorro|default(0) > 0 %}
+                                <small style="display:block;color:#16a34a">Ahorras ${{ "%.2f"|format(ahorro|float) }}</small>
+                            {% endif %}
 
                         </p>
 
@@ -337,6 +358,9 @@
                 <div class="checkout-separador"></div>
 
 
+                {% if ahorro|default(0) > 0 %}
+                <p style="color:#16a34a">Ahorro aplicado: ${{ "%.2f"|format(ahorro|float) }}</p>
+                {% endif %}
                 <div class="checkout-total">
 
                     <span>

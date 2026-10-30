@@ -6,117 +6,169 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <style>
-/* Panel de promociones: layout amplio, legible y consistente */
-body{background:#f3f6fb;color:#172033}
-.promo-wrap{width:calc(100% - 48px)!important;max-width:1500px!important;margin:28px auto 48px!important;padding:0!important;box-sizing:border-box}
-.promo-wrap>h1{font-size:clamp(1.7rem,2.2vw,2.25rem);margin:0 0 8px;color:#152238}
-.promo-wrap>p{margin:0 0 22px;line-height:1.6}
-.promo-columns{display:grid;grid-template-columns:minmax(380px,.9fr) minmax(0,1.1fr);gap:24px;align-items:start;margin:22px 0 24px}
-.promo-card{min-width:0;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 5px 18px rgba(20,42,75,.07);box-sizing:border-box}
-.promo-card h2{font-size:1.2rem;line-height:1.35;margin:0 0 10px;color:#1d3557}
-.promo-card>p{line-height:1.55}
-.promo-create,.promo-proposals{grid-column:auto;grid-row:auto}
-.promo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px}
-.promo-card label{display:block;font-weight:600;font-size:.9rem;margin:13px 0 6px;color:#26364b}
-.promo-card input:not([type=checkbox]),.promo-card select,.promo-card textarea{display:block;width:100%;min-height:42px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033;box-sizing:border-box;font:inherit}
-.promo-card textarea{resize:vertical;min-height:92px}
-.promo-card input[type=checkbox]{width:auto!important;min-height:auto;margin-right:7px;accent-color:#2359a8}
-.promo-card small{display:block;color:#64748b;font-size:.78rem;line-height:1.4;margin-top:5px}
-.promo-card button,.promo-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;padding:10px 15px;background:#2359a8;color:#fff;cursor:pointer;text-decoration:none;font-weight:600;font-size:.88rem;min-height:38px;transition:background .15s ease}
-.promo-card button:hover,.promo-btn:hover{background:#194783}
-.promo-muted{color:#64748b;font-size:.9rem}
-.promo-alert{padding:13px 16px;border-radius:10px;margin:12px 0;background:#eaf3ff;border:1px solid #c8ddfb;color:#17447b}
-.promo-error{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
-.promo-proposal{border:1px solid #dbe5f1;border-radius:12px;padding:16px;margin:12px 0;background:#fbfdff}
-.promo-proposal h3{font-size:1rem;margin:0 0 8px;color:#1e3a5f;overflow-wrap:anywhere}
-.promo-proposal p{font-size:.88rem;line-height:1.5;margin:7px 0}
-.promo-proposal-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.promo-proposal-list .promo-proposal{margin:0}
-.promo-create form>p{margin-bottom:0}
-.promo-saved{width:100%;margin:0 0 24px}
-.promo-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.9rem}
-.promo-table th,.promo-table td{padding:13px 12px;text-align:left;border-bottom:1px solid #e8edf4;vertical-align:top;line-height:1.45}
-.promo-table th{background:#eaf3fb;color:#244360;font-weight:700;white-space:nowrap}
-.promo-table th:first-child{border-radius:8px 0 0 0}.promo-table th:last-child{border-radius:0 8px 0 0}
-.promo-table td small{overflow-wrap:anywhere}
-.promo-actions{min-width:140px}.promo-actions form{display:block;margin:0 0 7px}.promo-actions button{width:100%;white-space:nowrap}
-@media(max-width:1050px){.promo-wrap{width:calc(100% - 28px)!important}.promo-columns{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.promo-card{padding:18px}.promo-proposal-list{grid-template-columns:1fr}}
-@media(max-width:760px){.promo-wrap{width:calc(100% - 20px)!important;margin:18px auto 30px!important}.promo-columns{grid-template-columns:1fr}.promo-create,.promo-proposals{grid-column:1}.promo-grid{grid-template-columns:1fr}.promo-card{padding:16px}.promo-table{min-width:760px;font-size:.82rem}}
+body{background:#f3f6fb;color:#172033}.promo-wrap{width:calc(100% - 40px);max-width:1450px;margin:28px auto 50px}
+.promo-wrap h1{margin-bottom:6px}.muted{color:#64748b;font-size:.9rem;line-height:1.5}
+.alert{padding:12px 16px;border-radius:9px;margin:14px 0;background:#eaf3ff;color:#17447b}.err{background:#fff1f2;color:#9f1239}
+.cols{display:grid;grid-template-columns:minmax(360px,.95fr) minmax(0,1.05fr);gap:20px;align-items:start;margin:22px 0}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:15px;padding:22px;box-shadow:0 5px 18px #142a4b12;min-width:0}
+.card h2{font-size:1.15rem;margin:0 0 8px;color:#1d3557}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:block;font-weight:600;font-size:.85rem;margin:10px 0 5px;color:#26364b}
+input:not([type=checkbox]),select,textarea{width:100%;min-height:40px;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#172033;box-sizing:border-box}
+textarea{min-height:70px}input[type=checkbox]{width:auto}
+button,.btn{display:inline-flex;justify-content:center;align-items:center;gap:7px;border:0;border-radius:8px;padding:10px 14px;background:#2359a8;color:white;text-decoration:none;font-weight:600;cursor:pointer}
+button:hover,.btn:hover{background:#194783}.secondary{background:#64748b}.danger{background:#a83232}
+.help{font-size:.76rem;color:#64748b;line-height:1.4;margin-top:4px}
+.product-picker{max-height:245px;overflow:auto;border:1px solid #dbe5f1;border-radius:9px;padding:8px;background:#f8fafc}
+.product-option{display:flex;align-items:center;gap:8px;padding:7px;border-bottom:1px solid #e8edf4;font-size:.84rem}.product-option:last-child{border:0}.product-option input{width:auto!important;min-height:auto}
+.proposal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.proposal{border:1px solid #dbe5f1;border-radius:11px;padding:14px;background:#fbfdff;min-width:0}.proposal h3{font-size:.96rem;margin:0 0 7px;color:#1e3a5f}.proposal p{font-size:.83rem;line-height:1.45;margin:6px 0}
+.proposal form{border-top:1px solid #e5eaf1;margin-top:10px;padding-top:9px}.proposal input{margin:4px 0}
+.tablewrap{overflow-x:auto}.promotable{width:100%;border-collapse:collapse;font-size:.87rem}.promotable th,.promotable td{padding:11px;text-align:left;border-bottom:1px solid #e8edf4;vertical-align:top}.promotable th{background:#eaf3fb;color:#244360;white-space:nowrap}
+.actions form{margin:0 0 6px}.actions button{width:100%;white-space:nowrap}.countdown{font-weight:700;color:#b45309;font-size:.82rem}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}@media(max-width:600px){.promo-wrap{width:calc(100% - 20px)}.card{padding:15px}.formgrid,.proposal-grid{grid-template-columns:1fr}.promotable{min-width:780px}}
+
+/* Ajustes de legibilidad específicos del módulo de promociones */
+.promo-form{background:#f8fafc!important;color:#172033!important;border:1px solid #dbe5f1!important;border-radius:12px!important;padding:18px!important;box-shadow:none!important}
+.promo-form label{color:#26364b!important}
+.promo-form input:not([type=checkbox]),.promo-form select,.promo-form textarea{background:#fff!important;color:#172033!important;border:1px solid #cbd5e1!important}
+.promo-form input::placeholder,.promo-form textarea::placeholder{color:#718096!important}
+.promo-form .help{color:#52647b!important}
+.proposal{background:#fff!important;color:#243247!important}
+.proposal h3,.proposal strong{color:#1e3a5f!important}
+.proposal p{color:#52647b!important}
+.promotable{background:#fff!important}
+.promotable tbody tr td,.promotable tbody tr:nth-child(even) td,.promotable tbody tr:hover td{background:#fff!important;color:#26364b!important}
+.promotable td strong{color:#172033!important}
+.promotable td small{color:#52647b!important}
+.promotable .countdown{color:#a85b00!important}
+.actions{min-width:145px}
+.actions form{margin:0 0 7px!important}
+.actions .btn,.actions button{width:100%;box-sizing:border-box}
+.btn-edit{background:#e7f0ff!important;color:#17447b!important;border:1px solid #bfd4f4!important}
+.btn-edit:hover{background:#d7e7ff!important;color:#12365f!important}
+.proposal .use-proposal{width:100%;margin-top:10px}
+.proposal .proposal-hint{font-size:.78rem;color:#52647b!important}
+#form-status{display:none;padding:9px 12px;margin:0 0 12px;border-radius:8px;background:#e8f5ee;color:#17603a;font-weight:600}
+
 </style>
 </head>
 <body>
-<header><nav><ul>
-<li><a href="{{ url_for('HomeAdmin') }}"><i class="fa-solid fa-house"></i> Panel admin</a></li>
-<li><a href="{{ url_for('panel_promociones') }}"><i class="fa-solid fa-tags"></i> Promociones</a></li>
-<li><a href="{{ url_for('logout2') }}"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a></li>
-</ul></nav></header>
+<header><nav><ul><li><a href="{{ url_for('HomeAdmin') }}"><i class="fa-solid fa-house"></i> Panel admin</a></li><li><a href="{{ url_for('panel_promociones') }}"><i class="fa-solid fa-tags"></i> Promociones</a></li><li><a href="{{ url_for('logout2') }}"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a></li></ul></nav></header>
 <main class="promo-wrap">
 <h1><i class="fa-solid fa-tags"></i> Promociones inteligentes</h1>
-<p class="promo-muted">Crea campañas temporales, revisa propuestas basadas en ventas e inventario y aprueba cada promoción antes de activarla.</p>
-{% if mensaje %}<div class="promo-alert">{{ mensaje }}</div>{% endif %}
-{% if error %}<div class="promo-alert promo-error">{{ error }}</div>{% endif %}
-
-<div class="promo-columns">
-<section class="promo-card promo-create">
+<p class="muted">Crea campañas, administra borradores y genera sugerencias basadas en ventas e inventario.</p>
+{% if mensaje %}<div class="alert">{{ mensaje }}</div>{% endif %}{% if error %}<div class="alert err">{{ error }}</div>{% endif %}
+<div class="cols">
+<section class="card">
 <h2><i class="fa-solid fa-calendar-plus"></i> Crear promoción o campaña</h2>
-<p class="promo-muted">Fechas y horas locales del servidor. El guardado crea un borrador pendiente de aprobación; no cambia el precio base de los productos.</p>
-<form method="post" action="{{ url_for('crear_promocion_route') }}">
-<div class="promo-grid">
-<div><label for="nombre">Nombre de campaña</label><input id="nombre" name="nombre" required maxlength="100" placeholder="Ej. Black Friday accesorios"></div>
-<div><label for="tipo">Tipo</label><select id="tipo" name="tipo" required>
-<option value="porcentaje">Descuento por producto (%)</option>
-<option value="cantidad">Descuento por cantidad</option>
-<option value="paquete">Paquete de productos</option>
-<option value="bienvenida">Bienvenida (nuevo cliente)</option>
-</select></div>
-<div><label for="porcentaje">Descuento (%)</label><input id="porcentaje" name="porcentaje" type="number" min="1" max="50" step="0.5" value="5" required></div>
-<div><label for="cantidad_minima">Cantidad mínima (solo descuento por cantidad)</label><input id="cantidad_minima" name="cantidad_minima" type="number" min="2" value="2"></div>
-<div><label for="fecha_inicio">Inicio</label><input id="fecha_inicio" name="fecha_inicio" type="datetime-local" required></div>
-<div><label for="fecha_fin">Fin</label><input id="fecha_fin" name="fecha_fin" type="datetime-local" required></div>
-<div><label for="ids_productos">IDs de productos separados por coma</label><input id="ids_productos" name="ids_productos" placeholder="Ej. 2, 8, 15"><small>Consulta los IDs en el módulo de productos. Para bienvenida, deja vacío si aplica a toda la tienda.</small></div>
-<div><label for="descripcion">Descripción y condiciones</label><textarea id="descripcion" name="descripcion" rows="3" placeholder="Productos incluidos, restricciones, motivo comercial..."></textarea></div>
+<p class="muted">Las promociones se guardan como borrador. No se activan ni modifican precios hasta que las apruebes.</p>
+<form class="promo-form" id="promo-form" method="post" action="{{ url_for('crear_promocion_route') }}">
+<div id="form-status">Propuesta cargada. Puedes modificarla antes de guardar.</div>
+<div class="formgrid">
+<div><label>Nombre de campaña</label><input name="nombre" required maxlength="100" placeholder="Ej. Descuento de bienvenida"></div>
+<div><label>Tipo</label><select name="tipo" id="tipo"><option value="porcentaje">Descuento por producto (%)</option><option value="cantidad">Descuento por cantidad</option><option value="paquete">Paquete de productos</option><option value="bienvenida">Bienvenida (cliente nuevo)</option></select></div>
+<div><label>Descuento (%)</label><input name="porcentaje" type="number" min="1" max="50" step=".5" value="5" required></div>
+<div><label>Alcance</label><select name="alcance" id="alcance"><option value="todos">Todos los productos</option><option value="seleccionados">Productos seleccionados</option><option value="paquete">Paquete de productos</option></select><small class="help">“Todos” incluye también productos agregados posteriormente.</small></div>
+<div id="cantidad-wrap"><label>Cantidad mínima</label><input name="cantidad_minima" type="number" min="2" value="2"></div>
+<div><label>Inicio</label><input name="fecha_inicio" type="datetime-local" required></div>
+<div><label>Fin</label><input name="fecha_fin" type="datetime-local" required></div>
 </div>
-<label style="font-weight:normal"><input type="checkbox" name="combinable" style="width:auto"> Permitir combinar con otras promociones (solo si se revisó expresamente)</label>
-<p><button type="submit">Guardar como borrador</button></p>
+<div id="productos-wrap"><label>Selecciona productos</label><input id="buscar-producto" placeholder="Buscar producto..." type="text">
+<div class="product-picker" id="product-picker">
+{% for prod in productos %}<label class="product-option" data-name="{{ prod.nombre_producto|lower }}"><input type="checkbox" name="ids_productos" value="{{ prod.id_producto }}"><span>{{ prod.nombre_producto }} · ID {{ prod.id_producto }} · ${{ prod.precio }}</span></label>{% endfor %}
+</div><small class="help">No escribas IDs: marca los productos. Para “Todos los productos” este apartado se oculta.</small></div>
+<label>Descripción y condiciones</label><textarea name="descripcion" placeholder="Condiciones, restricciones o motivo comercial..."></textarea>
+<label style="font-weight:normal"><input type="checkbox" name="combinable"> Permitir combinar con otras promociones (solo si se autoriza expresamente)</label>
+<p><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Guardar como borrador</button></p>
 </form>
 </section>
-
-<section class="promo-card promo-proposals">
-<h2><i class="fa-solid fa-wand-magic-sparkles"></i> Propuestas de campaña</h2>
-<p>PrediVent analiza las ventas registradas y el inventario para sugerir combinaciones y productos que podrían necesitar impulso. Son recomendaciones basadas en reglas y datos de Firestore, no una publicación automática ni un modelo de IA generativa conectado.</p>
-<form method="post" action="{{ url_for('propuestas_promociones_route') }}"><button type="submit">Generar propuestas</button></form>
-<div class="promo-proposal-list">
+<section class="card">
+<h2><i class="fa-solid fa-wand-magic-sparkles"></i> Propuestas inteligentes</h2>
+<p class="muted">Elige qué clase de recomendación deseas. Las sugerencias se basan en ventas e inventario; requieren revisión administrativa.</p>
+<form method="post" action="{{ url_for('propuestas_promociones_route') }}">
+<label>Tipo de propuesta</label><select name="tipo_propuesta"><option value="todos">Todas las opciones</option><option value="paquete">Paquete de 3 o más productos</option><option value="individual">Productos individuales</option><option value="dos">Combinación de exactamente 2 productos</option></select>
+<p><button type="submit"><i class="fa-solid fa-wand-magic-sparkles"></i> Generar propuestas</button></p>
+</form>
+<div class="proposal-grid">
 {% for p in propuestas %}
-<div class="promo-proposal">
+<article class="proposal">
 <h3>{{ p.nombre }}</h3><p>{{ p.descripcion }}</p><p><strong>Motivo:</strong> {{ p.motivo }}</p>
-<p><strong>Descuento sugerido:</strong> {{ p.porcentaje }}% · <strong>Tipo:</strong> {{ p.tipo }}</p>
-<p><strong>ID(s) de producto:</strong> {{ p.ids_productos | join(', ') }}</p>
-<p class="promo-muted">La propuesta no se ha guardado ni activado. Si te parece adecuada, crea una promoción abajo y revisa los IDs.</p>
-</div>
-{% else %}
-<p class="promo-muted">Pulsa “Generar propuestas” para analizar los datos disponibles.</p>
-{% endfor %}
+<p><strong>Descuento sugerido:</strong> {{ p.porcentaje }}%</p><p><strong>Productos:</strong> {{ p.ids_productos|join(', ') }}</p>
+<p class="proposal-hint">La propuesta se cargará en el formulario de la izquierda para que puedas ajustar sus datos antes de guardarla.</p>
+<button type="button" class="use-proposal" data-proposal="{{ p|tojson|forceescape }}"><i class="fa-solid fa-arrow-left"></i> Agregar al formulario</button>
+</article>
+{% else %}<p class="muted">Selecciona un tipo y pulsa “Generar propuestas”.</p>{% endfor %}
 </div>
 </section>
 </div>
-
-<section class="promo-card promo-saved">
+<section class="card">
 <h2><i class="fa-solid fa-list-check"></i> Promociones guardadas</h2>
-{% if promociones %}
-<div style="overflow-x:auto"><table class="promo-table"><thead><tr><th>Promoción</th><th>Tipo / descuento</th><th>Vigencia</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+<div class="tablewrap"><table class="promotable"><thead><tr><th>Promoción</th><th>Tipo / descuento</th><th>Vigencia / tiempo restante</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
 {% for p in promociones %}
-<tr><td><strong>{{ p.nombre }}</strong><br><small>{{ p.descripcion or '' }}</small><br><small>Productos: {{ p.ids_productos | join(', ') if p.ids_productos else 'Todos / según condiciones' }}</small></td>
-<td>{{ p.tipo }}<br>{{ p.porcentaje or 0 }}%{% if p.tipo == 'cantidad' %}<br>Mínimo: {{ p.cantidad_minima }}{% endif %}<br><small>{% if p.combinable %}Combinable{% else %}No combinable{% endif %}</small></td>
-<td>{{ p.fecha_inicio }}<br>hasta<br>{{ p.fecha_fin }}</td><td>{{ p.estado_calculado }}</td>
-<td class="promo-actions">
-{% if not p.aprobada %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='aprobar') }}"><button type="submit">Aprobar</button></form>{% endif %}
-{% if p.aprobada and not p.activa %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='activar') }}"><button type="submit">Activar</button></form>{% endif %}
-{% if p.activa %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='desactivar') }}"><button type="submit">Desactivar</button></form>{% endif %}
-<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='eliminar') }}" onsubmit="return confirm('¿Eliminar esta promoción?')"><button type="submit" style="background:#a83232">Eliminar</button></form>
+<tr><td><strong>{{ p.nombre }}</strong><br><small>{{ p.descripcion or '' }}</small><br><small>Alcance: {{ p.alcance or 'seleccionados' }} · Productos: {{ p.ids_productos|join(', ') if p.ids_productos else 'Todos' }}</small></td>
+<td>{{ p.tipo }}<br>{{ p.porcentaje or 0 }}%{% if p.tipo == 'cantidad' %}<br>Mínimo: {{ p.cantidad_minima }}{% endif %}</td>
+<td>{{ p.fecha_inicio }}<br>hasta {{ p.fecha_fin }}{% if p.estado_calculado == 'Activa' %}<br><span class="countdown" data-end="{{ p.fecha_fin }}">Calculando...</span>{% endif %}</td><td>{{ p.estado_calculado }}</td>
+<td class="actions">
+{% if not p.activa %}<a class="btn btn-edit" href="{{ url_for('editar_promocion_route', id_promocion=p.id) }}"><i class="fa-solid fa-pen"></i> Editar</a>{% endif %}
+{% if not p.aprobada %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='aprobar') }}"><button>Aprobar</button></form>{% endif %}
+{% if p.aprobada and not p.activa %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='activar') }}"><button>Activar</button></form>{% endif %}
+{% if p.activa %}<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='desactivar') }}"><button class="secondary">Desactivar</button></form>{% endif %}
+<form method="post" action="{{ url_for('accion_promocion_route', id_promocion=p.id, accion='eliminar') }}" onsubmit="return confirm('¿Eliminar esta promoción?')"><button class="danger">Eliminar</button></form>
 </td></tr>
-{% endfor %}
+{% else %}<tr><td colspan="5">Todavía no hay promociones guardadas.</td></tr>{% endfor %}
 </tbody></table></div>
-{% else %}<p class="promo-muted">Todavía no hay promociones guardadas.</p>{% endif %}
 </section>
 </main>
+<script>
+const tipo=document.getElementById('tipo'), alcance=document.getElementById('alcance'), wrap=document.getElementById('productos-wrap'), cantidad=document.getElementById('cantidad-wrap');
+function syncFields(){
+ if(tipo.value==='bienvenida'){alcance.value='todos';alcance.disabled=true;}else{alcance.disabled=false;}
+ if(tipo.value==='paquete')alcance.value='paquete';
+ wrap.style.display=(alcance.value==='todos')?'none':'block';
+ cantidad.style.display=(tipo.value==='cantidad')?'block':'none';
+}
+tipo.addEventListener('change',syncFields);alcance.addEventListener('change',syncFields);syncFields();
+document.getElementById('buscar-producto').addEventListener('input',e=>{
+ const q=e.target.value.toLowerCase();
+ document.querySelectorAll('.product-option').forEach(el=>el.style.display=el.dataset.name.includes(q)?'flex':'none');
+});
+
+// Cargar una propuesta en el formulario principal sin guardarla todavía.
+document.querySelectorAll('.use-proposal').forEach(btn=>{
+ btn.addEventListener('click',()=>{
+  let p;
+  try { p=JSON.parse(btn.dataset.proposal); }
+  catch(err){ alert('No se pudo leer esta propuesta. Vuelve a generarla.'); return; }
+
+  const form=document.getElementById('promo-form');
+  form.querySelector('[name="nombre"]').value=p.nombre||'';
+  form.querySelector('[name="tipo"]').value=p.tipo||'porcentaje';
+  form.querySelector('[name="porcentaje"]').value=p.porcentaje||5;
+  form.querySelector('[name="alcance"]').value=p.alcance||'seleccionados';
+  form.querySelector('[name="descripcion"]').value=(p.descripcion||'')+(p.motivo?'\nMotivo de la propuesta: '+p.motivo:'');
+  form.querySelectorAll('[name="ids_productos"]').forEach(chk=>{
+    chk.checked=(p.ids_productos||[]).map(String).includes(String(chk.value));
+  });
+  const now=new Date();
+  const later=new Date(now.getTime()+7*24*60*60*1000);
+  const toLocal=v=>{const pad=n=>String(n).padStart(2,'0');return `${v.getFullYear()}-${pad(v.getMonth()+1)}-${pad(v.getDate())}T${pad(v.getHours())}:${pad(v.getMinutes())}`;};
+  form.querySelector('[name="fecha_inicio"]').value=toLocal(now);
+  form.querySelector('[name="fecha_fin"]').value=toLocal(later);
+  form.querySelector('[name="cantidad_minima"]').value=p.cantidad_minima||2;
+  tipo.dispatchEvent(new Event('change'));
+  alcance.dispatchEvent(new Event('change'));
+  document.getElementById('form-status').style.display='block';
+  document.getElementById('promo-form').scrollIntoView({behavior:'smooth',block:'center'});
+ });
+});
+
+document.querySelectorAll('[data-end]').forEach(el=>{
+ const end=new Date(el.dataset.end);
+ function tick(){const ms=end-new Date();if(ms<=0){el.textContent='Promoción finalizada';return;}
+ const d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);
+ el.textContent=`Termina en ${d}d ${h}h ${m}m ${s}s`;}
+ tick();setInterval(tick,1000);
+});
+</script>
 </body></html>

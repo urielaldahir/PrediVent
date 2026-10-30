@@ -3,9 +3,19 @@ import math
 from flask import Flask, render_template, request, url_for, session
 from werkzeug.utils import redirect
 from firebase_admin import auth
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from firebase_config import firestore_db
+from promociones_service import (
+    listar_promociones,
+    crear_promocion,
+    cambiar_estado_promocion,
+    generar_propuestas,
+    promociones_vigentes,
+    promociones_para_producto,
+    calcular_precio_promocional,
+    actualizar_promocion_borrador,
+)
 from auth_service import (
     crear_usuario_firebase,
     generar_y_guardar_codigo,
@@ -1404,7 +1414,8 @@ def Catalogo():
 
     return render_template(
         'catalogo.html',
-        producto=producto
+        producto=producto,
+        promociones=promociones_vigentes()
     )
 
 
@@ -1937,7 +1948,8 @@ def CatalogoUsuarios():
 
     return render_template(
         'catalogo_usuario.html',
-        producto=productos
+        producto=productos,
+        promociones=promociones_vigentes()
     )
 
 @app.route('/producto/<id_producto>')
@@ -1950,7 +1962,11 @@ def detalle_producto(id_producto):
 
     return render_template(
         'detalle_producto.html',
-        producto=producto
+        producto=producto,
+        promociones=promociones_para_producto(producto, session.get('cliente')),
+        precio_promocional=calcular_precio_promocional(producto, session.get('cliente'))[0],
+        promocion_aplicada=calcular_precio_promocional(producto, session.get('cliente'))[1],
+        ahorro_unitario=calcular_precio_promocional(producto, session.get('cliente'))[2]
     )
 
 
@@ -2169,19 +2185,20 @@ def Comprar():
                 f"Solo quedan {stock} unidades."
             ), 400
 
-        precio = float(
-            producto.get(
-                "precio",
-                0
-            )
+        precio_original = float(producto.get("precio", 0) or 0)
+        precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
+            producto, id_cliente, cantidad
         )
-
-        subtotal = precio * cantidad
+        subtotal = round(precio * cantidad, 2)
 
         productos_carrito.append({
             "producto": producto,
             "cantidad": cantidad,
             "subtotal": subtotal,
+            "precio_unitario": precio,
+            "precio_original": precio_original,
+            "promocion_aplicada": promo_aplicada,
+            "ahorro": round(ahorro_unitario * cantidad, 2),
             "stock": stock
         })
 
@@ -2194,7 +2211,8 @@ def Comprar():
     return render_template(
         "confirmar_compra.html",
         carrito=productos_carrito,
-        total=total
+        total=total,
+        ahorro=sum(item.get("ahorro", 0) for item in productos_carrito)
     )
 
 @app.route('/confirmar-compra-carrito', methods=['POST'])
@@ -2253,56 +2271,51 @@ def confirmar_compra_carrito():
                 f"Solo quedan {stock} unidades."
             ), 400
 
-        precio = float(
-            producto.get(
-                "precio",
-                0
-            )
+        precio_original = float(producto.get("precio", 0) or 0)
+        precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
+            producto, id_cliente, cantidad
         )
-
-        total += precio * cantidad
+        subtotal = round(precio * cantidad, 2)
+        total += subtotal
 
         productos_carrito.append({
             "producto": producto,
             "cantidad": cantidad,
-            "subtotal": precio * cantidad
+            "subtotal": subtotal,
+            "precio_unitario": precio,
+            "precio_original": precio_original,
+            "promocion_aplicada": promo_aplicada,
+            "ahorro": round(ahorro_unitario * cantidad, 2)
         })
 
     # ========================================================
     # 2. REGISTRAR TODAS LAS VENTAS
     # ========================================================
 
-    for item in carrito:
+    for item, item_calculado in zip(carrito, productos_carrito):
 
         id_producto = item["id_producto"]
-
-        cantidad = int(
-            item.get(
-                "cantidad",
-                1
-            )
-        )
-
-        producto = obtener_producto(
-            id_producto
-        )
-
-        precio = float(
-            producto.get(
-                "precio",
-                0
-            )
-        )
+        cantidad = int(item.get("cantidad", 1))
+        producto = item_calculado["producto"]
+        precio = float(item_calculado["precio_unitario"])
+        promo_aplicada = item_calculado.get("promocion_aplicada")
 
         registrar_venta(
             id_cliente,
             id_producto,
             cantidad,
             precio,
-            producto_nombre=producto.get(
-                "nombre_producto"
-            )
+            producto_nombre=producto.get("nombre_producto")
         )
+
+        if promo_aplicada and promo_aplicada.get("tipo") == "bienvenida":
+            firestore_db.collection("usos_promociones").document(
+                f'{promo_aplicada.get("id")}_{id_cliente}'
+            ).set({
+                "id_promocion": str(promo_aplicada.get("id")),
+                "id_cliente": str(id_cliente),
+                "usada_en": datetime.now().isoformat(timespec="seconds")
+            })
 
         # ====================================================
         # 3. DESCONTAR INVENTARIO
@@ -2335,7 +2348,8 @@ def confirmar_compra_carrito():
     return render_template(
         "compra_exitosa.html",
         carrito=productos_carrito,
-        total=total
+        total=total,
+        ahorro=sum(item.get("ahorro", 0) for item in productos_carrito)
     )
 
 # ============================================================
@@ -2396,17 +2410,22 @@ def comprar_ahora(id_producto):
             f"Solo hay {stock} unidades disponibles."
         ), 400
 
-    total = (
-        float(producto.get('precio', 0))
-        * cantidad
+    precio_original = float(producto.get('precio', 0) or 0)
+    precio_promocional, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
+        producto, session.get('cliente'), cantidad
     )
+    total = round(precio_promocional * cantidad, 2)
 
     return render_template(
         'confirmar_compra.html',
         producto=producto,
         cantidad=cantidad,
         total=total,
-        stock=stock
+        stock=stock,
+        precio_unitario=precio_promocional,
+        precio_original=precio_original,
+        promocion_aplicada=promo_aplicada,
+        ahorro=round(ahorro_unitario * cantidad, 2)
     )
 
 
@@ -2474,11 +2493,9 @@ def confirmar_compra(id_producto):
         ), 400
 
 
-    precio = float(
-        producto.get(
-            'precio',
-            0
-        )
+    precio_original = float(producto.get('precio', 0) or 0)
+    precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
+        producto, id_cliente, cantidad
     )
 
 
@@ -2512,6 +2529,15 @@ def confirmar_compra(id_producto):
             "No se pudo actualizar el inventario."
         ), 400
 
+    if promo_aplicada and promo_aplicada.get("tipo") == "bienvenida":
+        firestore_db.collection("usos_promociones").document(
+            f'{promo_aplicada.get("id")}_{id_cliente}'
+        ).set({
+            "id_promocion": str(promo_aplicada.get("id")),
+            "id_cliente": str(id_cliente),
+            "usada_en": datetime.now().isoformat(timespec="seconds")
+        })
+
 
     # ========================================================
     # COMPRA EXITOSA
@@ -2521,7 +2547,9 @@ def confirmar_compra(id_producto):
         'compra_exitosa.html',
         producto=producto,
         cantidad=cantidad,
-        total=precio * cantidad
+        total=precio * cantidad,
+        ahorro=ahorro_unitario * cantidad,
+        promocion=promo_aplicada
     )
 
 # ============================================================
@@ -2982,13 +3010,6 @@ def historialVentasAdmin():
 # ============================================================
 # PROMOCIONES (SOLO ADMINISTRADOR)
 # ============================================================
-from promociones_service import (
-    listar_promociones,
-    crear_promocion,
-    cambiar_estado_promocion,
-    generar_propuestas,
-    promociones_vigentes,
-)
 
 @app.route('/admin/promociones')
 @requiere_admin
@@ -2996,7 +3017,8 @@ def panel_promociones():
     return render_template(
         'promociones_admin.html',
         promociones=listar_promociones(),
-        propuestas=session.pop('propuestas_promociones', []),
+        productos=obtener_productos(),
+        propuestas=session.get('propuestas_promociones', []),
         error=session.pop('error_promociones', None),
         mensaje=session.pop('mensaje_promociones', None),
     )
@@ -3024,12 +3046,66 @@ def crear_promocion_route():
 @requiere_admin
 def propuestas_promociones_route():
     try:
-        session['propuestas_promociones'] = generar_propuestas()
+        session['propuestas_promociones'] = generar_propuestas(request.form.get('tipo_propuesta', 'todos'))
         session['mensaje_promociones'] = 'Propuestas generadas. Ninguna se publicó ni modificó precios.'
     except Exception as e:
         print('Error generando propuestas:', e)
         session['error_promociones'] = 'No se pudieron generar propuestas. Revisa la conexión con Firestore.'
     return redirect(url_for('panel_promociones'))
+
+
+@app.route('/admin/promociones/propuesta/<int:indice>/borrador', methods=['POST'])
+@requiere_admin
+def propuesta_a_borrador_route(indice):
+    propuestas = session.get('propuestas_promociones', [])
+    if indice < 0 or indice >= len(propuestas):
+        session['error_promociones'] = 'La propuesta ya no está disponible. Genera las propuestas nuevamente.'
+        return redirect(url_for('panel_promociones'))
+    propuesta = propuestas[indice]
+    try:
+        datos = {
+            'nombre': propuesta.get('nombre', ''),
+            'descripcion': propuesta.get('descripcion', ''),
+            'tipo': propuesta.get('tipo', 'porcentaje'),
+            'alcance': propuesta.get('alcance', 'seleccionados'),
+            'porcentaje': request.form.get('porcentaje', propuesta.get('porcentaje', 5)),
+            'fecha_inicio': request.form.get('fecha_inicio') or datetime.now().strftime('%Y-%m-%dT%H:%M'),
+            'fecha_fin': request.form.get('fecha_fin') or ((datetime.now() + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')),
+            'ids_productos': propuesta.get('ids_productos', []),
+            'cantidad_minima': 2
+        }
+        crear_promocion(datos, creado_por=session.get('nombre_empleado', 'admin'), aprobada=False)
+        session['mensaje_promociones'] = 'Propuesta agregada como borrador. Ya puedes editar su porcentaje y condiciones.'
+    except Exception as e:
+        print('Error al guardar propuesta como borrador:', e)
+        session['error_promociones'] = str(e) or 'No se pudo crear el borrador.'
+    return redirect(url_for('panel_promociones'))
+
+
+@app.route('/admin/promociones/<id_promocion>/editar', methods=['GET', 'POST'])
+@requiere_admin
+def editar_promocion_route(id_promocion):
+    ref = firestore_db.collection('promociones').document(id_promocion)
+    snap = ref.get()
+    if not snap.exists:
+        return 'Promoción no encontrada.', 404
+    promo = snap.to_dict() or {}
+    # Se permite editar borradores y promociones desactivadas.
+    # Si una promoción ya había sido aprobada, el servicio la regresará a borrador
+    # para exigir una nueva aprobación antes de activarla.
+    if promo.get('activa'):
+        session['error_promociones'] = 'Primero desactiva la promoción para poder editarla.'
+        return redirect(url_for('panel_promociones'))
+    if request.method == 'POST':
+        try:
+            actualizar_promocion_borrador(id_promocion, request.form)
+            session['mensaje_promociones'] = 'Borrador actualizado correctamente.'
+            return redirect(url_for('panel_promociones'))
+        except Exception as e:
+            print('Error editando promoción:', e)
+            error = str(e)
+        return render_template('editar_promocion.html', promocion=promo, productos=obtener_productos(), error=error)
+    return render_template('editar_promocion.html', promocion=promo, productos=obtener_productos(), error=None)
 
 
 @app.route('/admin/promociones/<id_promocion>/<accion>', methods=['POST'])
@@ -3046,15 +3122,6 @@ def accion_promocion_route(id_promocion, accion):
     return redirect(url_for('panel_promociones'))
 
 
-# ============================================================
-# EJECUCIÓN
-# ============================================================
-
-if __name__ == '__main__':
-
-    app.run(
-        debug=True
-    )
 
 # ============================================================
 # DETALLE Y COMPRA DE PROMOCIONES
@@ -3067,9 +3134,12 @@ def _precio_numero(valor):
 
 
 def _productos_de_promocion(promocion):
-    """Resuelve los productos asociados a una promoción usando el catálogo real."""
+    """Resuelve productos asociados; alcance todos devuelve el catálogo completo."""
+    productos_catalogo = obtener_productos()
     ids = [str(x) for x in (promocion.get('ids_productos') or [])]
-    catalogo = {str(p.get('id_producto')): p for p in obtener_productos()}
+    if promocion.get('alcance') == 'todos' or (not ids and promocion.get('tipo') == 'bienvenida'):
+        return productos_catalogo
+    catalogo = {str(p.get('id_producto')): p for p in productos_catalogo}
     seleccionados = []
     for pid in ids:
         producto = catalogo.get(pid) or obtener_producto(pid)
@@ -3100,13 +3170,15 @@ def detalle_promocion(id_promocion):
     total_original = sum(_precio_numero(p.get('precio')) for p in productos)
     total_promocional = total_original * (1 - porcentaje / 100)
     stocks = [int(p.get('cantidad', p.get('cantida', 0)) or 0) for p in productos]
-    disponible = all(stock > 0 for stock in stocks)
-    if promocion.get('tipo') == 'cantidad':
+    promocion_general = (promocion.get('alcance') == 'todos' or (not promocion.get('ids_productos') and promocion.get('tipo') == 'bienvenida'))
+    disponible = True if promocion_general else all(stock > 0 for stock in stocks)
+    if promocion.get('tipo') == 'cantidad' and not promocion_general:
         disponible = disponible and min(stocks or [0]) >= minimo
     return render_template(
         'detalle_promocion.html', promocion=promocion, productos=productos,
         total_original=total_original, total_promocional=max(0, total_promocional),
-        porcentaje=porcentaje, cantidad_minima=minimo, disponible=disponible
+        porcentaje=porcentaje, cantidad_minima=minimo, disponible=disponible,
+        promocion_general=promocion_general
     )
 
 
@@ -3201,3 +3273,11 @@ def comprar_promocion(id_promocion):
         'compra_exitosa.html', carrito=lineas, total=round(total_final, 2),
         promocion=promocion, ahorro=round(total_original-total_final, 2)
     )
+
+
+
+# ============================================================
+# EJECUCIÓN (SIEMPRE AL FINAL: todas las rutas deben registrarse)
+# ============================================================
+if __name__ == '__main__':
+    app.run(debug=True)

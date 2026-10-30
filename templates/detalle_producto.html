@@ -118,9 +118,16 @@
 
 
             <div class="detalle-precio">
-
-                ${{ "%.2f"|format(producto['precio']|float) }}
-
+                {% if promocion_aplicada %}
+                    <span style="text-decoration:line-through;color:#94a3b8;font-size:.85em;margin-right:8px">${{ "%.2f"|format(producto['precio']|float) }}</span>
+                    <strong style="color:#22c55e">${{ "%.2f"|format(precio_promocional|float) }}</strong>
+                    <div style="font-size:.78rem;color:#22c55e;margin-top:5px">
+                        {{ promocion_aplicada.nombre }} · {{ promocion_aplicada.porcentaje }}% de descuento
+                        · Ahorras ${{ "%.2f"|format(ahorro_unitario|float) }}
+                    </div>
+                {% else %}
+                    ${{ "%.2f"|format(producto['precio']|float) }}
+                {% endif %}
             </div>
 
 
@@ -133,18 +140,17 @@
 
                     <i class="fa-solid fa-circle-check"></i>
 
-{% set promociones_producto = [] %}
-{% for promo in promociones %}
-  {% if (producto.id_producto|string) in (promo.ids_productos|default([])|map('string')|list) %}
-    {% set _ = promociones_producto.append(promo) %}
-  {% endif %}
-{% endfor %}
-{% if promociones_producto %}
+{% if promociones %}
 <section class="pv-promos" style="margin:16px 0;padding:14px" aria-label="Promociones disponibles">
   <strong style="color:#2864bd"><i class="fa-solid fa-tags"></i> Promociones disponibles</strong>
-  {% for promo in promociones_producto %}
+  {% for promo in promociones %}
   <article class="pv-promo-card" style="margin-top:10px">
-    <div class="pv-promo-info"><h3>{{ promo.nombre }}</h3><strong>{{ promo.porcentaje|default(0) }}% de descuento</strong>{% if promo.descripcion %}<p>{{ promo.descripcion }}</p>{% endif %}<small>Válida hasta {{ promo.fecha_fin[:10] if promo.fecha_fin else 'fecha por confirmar' }}</small></div>
+    <div class="pv-promo-info">
+      <h3>{{ promo.nombre }}</h3>
+      <strong>{{ promo.porcentaje|default(0) }}% de descuento</strong>
+      {% if promo.descripcion %}<p>{{ promo.descripcion }}</p>{% endif %}
+      <small>Válida hasta {{ promo.fecha_fin[:10] if promo.fecha_fin else 'fecha por confirmar' }}</small>
+    </div>
   </article>
   {% endfor %}
 </section>

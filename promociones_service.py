@@ -259,22 +259,50 @@ def crear_datos_promocion(datos, creado_por="admin", aprobada=False):
 
 def _cliente_es_nuevo(id_cliente):
     """Considera nuevo al cliente que aún no tiene ventas registradas."""
+
     if not id_cliente:
-        return False
-    # Consulta únicamente ventas de este cliente; no descarga todo el historial.
-    ventas = firestore_db.collection("ventas")
-    consulta = ventas.where("id_cliente", "==", str(id_cliente)).limit(1)
-    if next(consulta.stream(), None) is not None:
+        print("CUPÓN BIENVENIDA: No se pudo identificar al cliente.")
         return False
 
-    # Compatibilidad por si los registros antiguos guardaron el ID como número.
+    ventas = firestore_db.collection("ventas")
+
+    # Buscar ventas con ID almacenado como texto.
+    consulta = ventas.where(
+        "id_cliente", "==", str(id_cliente)
+    ).limit(1)
+
+    if next(consulta.stream(), None) is not None:
+        print(
+            f"CUPÓN BIENVENIDA: Cliente {id_cliente} NO ELEGIBLE. "
+            "No eres elegible para este cupón porque ya tienes "
+            "ventas registradas. Es exclusivo para clientes nuevos."
+        )
+        return False
+
+    # Compatibilidad con ventas antiguas que guardaron el ID como número.
     try:
         id_numerico = int(id_cliente)
     except (TypeError, ValueError):
         return True
 
-    consulta_numerica = ventas.where("id_cliente", "==", id_numerico).limit(1)
-    return next(consulta_numerica.stream(), None) is None
+    consulta_numerica = ventas.where(
+        "id_cliente", "==", id_numerico
+    ).limit(1)
+
+    if next(consulta_numerica.stream(), None) is not None:
+        print(
+            f"CUPÓN BIENVENIDA: Cliente {id_cliente} NO ELEGIBLE. "
+            "No eres elegible para este cupón porque ya tienes "
+            "ventas registradas. Es exclusivo para clientes nuevos."
+        )
+        return False
+
+    print(
+        f"CUPÓN BIENVENIDA: Cliente {id_cliente} elegible. "
+        "No tiene ventas registradas."
+    )
+
+    return True
 
 
 def promocion_aplicable_a_producto(promocion, producto, id_cliente=None, cantidad=1):

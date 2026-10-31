@@ -1,179 +1,147 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Compra realizada - PrediVent</title>
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Aislar el ticket de las reglas globales de style.css */
+        .compra-exitosa .resumen-exito {
+            display: block !important;
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
+            padding: 20px !important;
+            box-sizing: border-box;
+        }
+        .compra-exitosa .resumen-exito h3 {
+            display: block !important;
+            margin: 0 0 14px !important;
+        }
+        .compra-exitosa .resumen-exito .detalle-linea {
+            display: block !important;
+            position: static !important;
+            float: none !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            box-sizing: border-box !important;
+            clear: both !important;
+            overflow: hidden !important;
+            padding: 12px 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            border-bottom: 1px solid rgba(150,170,190,.25) !important;
+            background: transparent !important;
+        }
+        .compra-exitosa .resumen-exito .detalle-linea p,
+        .compra-exitosa .resumen-exito > p {
+            display: block !important;
+            position: static !important;
+            float: none !important;
+            width: auto !important;
+            height: auto !important;
+            min-height: 0 !important;
+            clear: both !important;
+            margin: 5px 0 !important;
+            padding: 0 !important;
+            line-height: 1.6 !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            background: transparent !important;
+        }
+        .compra-exitosa .resumen-exito .total-compra {
+            display: block !important;
+            margin-top: 18px !important;
+            padding-top: 14px !important;
+            border-top: 1px solid rgba(150,170,190,.3) !important;
+            font-size: 1.2rem !important;
+            font-weight: 700 !important;
+        }
+        .compra-exitosa .acciones-exito {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
 </head>
-
-
 <body>
-
-
 <header>
-
     <nav>
-
         <ul>
-
-            <li>
-                <a href="{{ url_for('CatalogoUsuarios') }}">
-                    <i class="fa-solid fa-store"></i>
-                    Catálogo
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('miCarrito') }}">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    Carrito
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('VerHistorial') }}">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                    Historial de compras
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('perfil') }}">
-                    <i class="fa-solid fa-circle-user"></i>
-                    Perfil
-                </a>
-            </li>
-
-            <li class="right">
-
-                <a href="{{ url_for('logout') }}">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    Cerrar Sesión
-
-                </a>
-
-            </li>
-
+            <li><a href="{{ url_for('CatalogoUsuarios') }}"><i class="fa-solid fa-store"></i> Catálogo</a></li>
+            <li><a href="{{ url_for('miCarrito') }}"><i class="fa-solid fa-cart-shopping"></i> Carrito</a></li>
+            <li><a href="{{ url_for('VerHistorial') }}"><i class="fa-solid fa-clock-rotate-left"></i> Historial de compras</a></li>
+            <li><a href="{{ url_for('perfil') }}"><i class="fa-solid fa-circle-user"></i> Perfil</a></li>
+            <li class="right"><a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
         </ul>
-
     </nav>
-
 </header>
-
-
 <main>
-
     <div class="compra-exitosa">
+        <div class="icono-exito"><i class="fa-solid fa-circle-check"></i></div>
+        <h1>¡Compra realizada correctamente!</h1>
+        <p class="mensaje-exito">Tu compra ha sido registrada correctamente.</p>
 
-
-        <div class="icono-exito">
-
-            <i class="fa-solid fa-circle-check"></i>
-
+        {% if pedido is defined and pedido %}
+        <div class="resumen-exito" style="margin-bottom:16px;">
+            <h3><i class="fa-solid fa-ticket"></i> Ticket de compra</h3>
+            <p><strong>Folio:</strong> {{ pedido.folio }}</p>
+            <p><strong>Fecha:</strong> {{ pedido.fecha }}</p>
+            <p><strong>Dirección de entrega:</strong> {{ pedido.direccion }}</p>
+            <p><strong>Método de pago:</strong> {{ pedido.metodo_pago }}</p>
+            <p><strong>Estado:</strong> {{ pedido.estado }}</p>
         </div>
-
-
-        <h1>
-            ¡Compra realizada correctamente!
-        </h1>
-
-
-        <p class="mensaje-exito">
-
-            Tu compra ha sido registrada correctamente.
-
-        </p>
-
+        {% endif %}
 
         <div class="resumen-exito">
+            {% if carrito is defined and carrito %}
+                <h3>Resumen de tu compra</h3>
+                {% for linea in carrito %}
+                    {% set articulo = linea.get('producto', linea) %}
+                    <div class="detalle-linea">
+                        <p><strong>Producto:</strong> {{ articulo.get('nombre_producto', 'Producto') }}</p>
+                        <p><strong>Cantidad:</strong> {{ linea.get('cantidad', 1) }}</p>
+                        {% if linea.get('precio_original') is not none %}
+                            <p><strong>Precio original:</strong> ${{ "%.2f"|format(linea.get('precio_original', 0)|float) }}</p>
+                        {% endif %}
+                        {% if linea.get('precio_final') is not none %}
+                            <p><strong>Precio promocional:</strong> ${{ "%.2f"|format(linea.get('precio_final', 0)|float) }}</p>
+                        {% elif linea.get('precio_unitario') is not none %}
+                            <p><strong>Precio unitario:</strong> ${{ "%.2f"|format(linea.get('precio_unitario', 0)|float) }}</p>
+                        {% endif %}
+                        {% if linea.get('subtotal') is not none %}
+                            <p><strong>Subtotal:</strong> ${{ "%.2f"|format(linea.get('subtotal', 0)|float) }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% elif producto is defined and producto %}
+                <div class="detalle-linea">
+                    <p><strong>Producto:</strong> {{ producto.get('nombre_producto', 'Producto') }}</p>
+                    <p><strong>Cantidad:</strong> {{ cantidad|default(1) }}</p>
+                    {% if promocion is defined and promocion %}
+                        <p><strong>Promoción:</strong> {{ promocion.get('nombre', 'Descuento aplicado') }}</p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p>La compra fue registrada correctamente.</p>
+            {% endif %}
 
-            <p>
-
-                <strong>
-                    Producto:
-                </strong>
-
-                {{ producto['nombre_producto'] }}
-
-            </p>
-
-
-            <p>
-
-                <strong>
-                    Cantidad:
-                </strong>
-
-                {{ cantidad }}
-
-            </p>
-
-
-            <p>
-
-                <strong>
-                    Total:
-                </strong>
-
-                ${{ "%.2f"|format(total|float) }}
-
-            </p>
-
+            {% if ahorro is defined and ahorro|float > 0 %}
+                <p><strong>Ahorro:</strong> ${{ "%.2f"|format(ahorro|float) }}</p>
+            {% endif %}
+            <p class="total-compra"><strong>Total:</strong> ${{ "%.2f"|format(total|default(0)|float) }}</p>
         </div>
-
 
         <div class="acciones-exito">
-
-            <a class="btn-link"
-               href="{{ url_for('VerHistorial') }}">
-
-                <i class="fa-solid fa-clock-rotate-left"></i>
-
-                Ver historial de compras
-
-            </a>
-
-
-            <a class="btn-link secundario"
-               href="{{ url_for('CatalogoUsuarios') }}">
-
-                <i class="fa-solid fa-store"></i>
-
-                Seguir comprando
-
-            </a>
-
+            <button class="btn-link" type="button" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir ticket</button>
+            <a class="btn-link" href="{{ url_for('VerHistorial') }}"><i class="fa-solid fa-clock-rotate-left"></i> Ver historial de compras</a>
+            <a class="btn-link secundario" href="{{ url_for('CatalogoUsuarios') }}"><i class="fa-solid fa-store"></i> Seguir comprando</a>
         </div>
-
-
     </div>
-
 </main>
-
-
-<footer>
-
-    <p>
-        Derechos Reservados &copy; PrediVent
-    </p>
-
-</footer>
-
-
+<footer><p>Derechos Reservados &copy; PrediVent</p></footer>
 </body>
-
 </html>

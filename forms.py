@@ -1,5 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators, PasswordField, EmailField, RadioField, IntegerField, DateField
+from wtforms import (
+    StringField, SubmitField, validators, PasswordField,
+    EmailField, RadioField, IntegerField, DateField, TextAreaField
+)
 from wtforms.validators import DataRequired, EqualTo, InputRequired
 
 
@@ -11,10 +14,39 @@ class ClienteForm(FlaskForm):
     enviar = SubmitField('Enviar')
 
 class ClienteForm2(FlaskForm):
-    nombre = StringField('Nombre', validators=[DataRequired()] )
-    correo = EmailField('Correo', validators=[DataRequired()], render_kw={"placeholder": "correo@ejemplo.com"})
-    numero_telefono = StringField('Telefono', validators=[DataRequired(), validators.Length(min=10, max=10)])
-    contraseña = StringField('Contraseña',validators=[InputRequired(), validators.Length(min=8)])
+    nombre = StringField(
+        'Nombre',
+        validators=[DataRequired()]
+    )
+
+    correo = EmailField(
+        'Correo',
+        validators=[DataRequired()],
+        render_kw={"placeholder": "correo@ejemplo.com"}
+    )
+
+    numero_telefono = StringField(
+        'Telefono',
+        validators=[DataRequired(), validators.Length(min=10, max=10)]
+    )
+
+    contraseña = StringField(
+        'Contraseña',
+        validators=[InputRequired(), validators.Length(min=8)]
+    )
+
+    direccion = TextAreaField(
+        'Dirección de entrega',
+        validators=[
+            DataRequired(),
+            validators.Length(min=10, max=300)
+        ],
+        render_kw={
+            "placeholder": "Calle, número, colonia, código postal, municipio y estado",
+            "rows": 4
+        }
+    )
+
     enviar = SubmitField('Enviar')
 
 class EmpleadoFomr(FlaskForm):

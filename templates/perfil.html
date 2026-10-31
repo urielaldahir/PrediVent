@@ -46,6 +46,10 @@
 					<span class="dato"><small>Numero</small><span>{{ cliente.telefono if cliente.telefono is defined else cliente.numero_telefono }}</span></span>
 				</li>
 				<li>
+					<span class="icono-dato"><i class="fa-solid fa-location-dot"></i></span>
+					<span class="dato"><small>Dirección de entrega</small><span>{{ cliente.direccion|default('Sin dirección registrada') }}</span></span>
+				</li>
+				<li>
 					<span class="icono-dato"><i class="fa-solid fa-lock"></i></span>
 					<span class="dato"><small>Contraseña</small><span class="secreto">{{cliente.contraseña}}</span></span>
 					<button type="button" class="ver-secreto" data-ver-secreto aria-label="Mostrar u ocultar contraseña"><i class="fa-solid fa-eye"></i></button>

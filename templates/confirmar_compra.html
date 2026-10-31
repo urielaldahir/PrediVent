@@ -127,6 +127,13 @@
                                 {{ producto['nombre_producto'] }}
                             </h3>
 
+                            {% if item.get('nombre_promocion') %}
+                            <small style="display:block;color:#16a085;">
+                                <i class="fa-solid fa-box"></i>
+                                {{ item.get('nombre_promocion') }}
+                            </small>
+                            {% endif %}
+
 
                             <p>
 
@@ -232,6 +239,22 @@
                 <form method="POST"
                       action="{{ url_for('confirmar_compra_carrito') }}">
 
+                    <div class="checkout-datos-entrega" style="margin:18px 0; padding:16px; border:1px solid #dbe3ec; border-radius:10px;">
+                        <h3><i class="fa-solid fa-truck"></i> Datos de entrega</h3>
+                        <label for="direccion">Dirección de entrega</label>
+                        <textarea id="direccion" name="direccion" rows="3" maxlength="300" required
+                                  style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:7px;">{{ cliente.direccion|default('') }}</textarea>
+                        <label for="metodo_pago" style="display:block;margin-top:12px;">Método de pago</label>
+                        <select id="metodo_pago" name="metodo_pago" required
+                                style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:7px;">
+                            <option value="">Selecciona una opción</option>
+                            <option value="efectivo">Efectivo contra entrega</option>
+                            <option value="transferencia">Transferencia (simulada)</option>
+                            <option value="tarjeta">Tarjeta (simulada)</option>
+                        </select>
+                        <small style="display:block;margin-top:7px;color:#64748b;">Los pagos son simulados; PrediVent no realiza cargos reales.</small>
+                    </div>
+
                     <button type="submit"
                             class="btn-confirmar-compra">
 
@@ -285,6 +308,15 @@
                             {{ producto['nombre_producto'] }}
                         </h3>
 
+                        {% if promocion_aplicada %}
+<small style="display:block;color:#16a085; margin-top: 5px;">
+    <i class="fa-solid fa-tag"></i>
+    {{ promocion_aplicada.get('nombre', 'Promoción aplicada') }}
+    {% if promocion_aplicada.get('porcentaje') %}
+        - {{ promocion_aplicada.get('porcentaje') }}% de descuento
+    {% endif %}
+</small>
+{% endif %}
 
                         <p>
 
@@ -377,6 +409,22 @@
                 <form method="POST"
                       action="{{ url_for('confirmar_compra',
                                          id_producto=producto['id_producto']) }}">
+
+                    <div class="checkout-datos-entrega" style="margin:18px 0; padding:16px; border:1px solid #dbe3ec; border-radius:10px;">
+                        <h3><i class="fa-solid fa-truck"></i> Datos de entrega</h3>
+                        <label for="direccion">Dirección de entrega</label>
+                        <textarea id="direccion" name="direccion" rows="3" maxlength="300" required
+                                  style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:7px;">{{ cliente.direccion|default('') }}</textarea>
+                        <label for="metodo_pago" style="display:block;margin-top:12px;">Método de pago</label>
+                        <select id="metodo_pago" name="metodo_pago" required
+                                style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:7px;">
+                            <option value="">Selecciona una opción</option>
+                            <option value="efectivo">Efectivo contra entrega</option>
+                            <option value="transferencia">Transferencia (simulada)</option>
+                            <option value="tarjeta">Tarjeta (simulada)</option>
+                        </select>
+                        <small style="display:block;margin-top:7px;color:#64748b;">Los pagos son simulados; PrediVent no realiza cargos reales.</small>
+                    </div>
 
                     <input type="hidden"
                            name="cantidad"

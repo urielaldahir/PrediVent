@@ -59,66 +59,101 @@
             </thead>
 
             <tbody>
+    {% for item in carrito %}
+    <tr>
+        <td data-label="Producto">
+            {{ item.producto.nombre_producto }}
 
-                {% for item in carrito %}
+            {% if item.es_paquete %}
+                <small style="display:block;color:#16a085;">
+                    <i class="fa-solid fa-box"></i>
+                    {{ item.nombre_promocion }}
+                </small>
+            {% endif %}
+        </td>
 
-                <tr>
+        <td data-label="Cantidad">
+            <span class="cantidad-control">
 
-                    <td data-label="Producto">
-                        {{ item.producto.nombre_producto }}
-                    </td>
+                {% if item.es_paquete %}
+                    <a class="btn-link btn-cant pequeno"
+                       href="{{ url_for(
+                           'modificar_paquete_carrito',
+                           grupo_paquete=item.grupo_paquete,
+                           accion='disminuir'
+                       ) }}">−</a>
 
-                    <td data-label="Cantidad">
+                    {{ item.cantidad }}
 
-                        <span class="cantidad-control">
-
-                            <a class="btn-link btn-cant pequeno"
-                               href="{{ url_for('disminuir_carrito',
-                                           id_producto=item.producto.id_producto) }}"
-                               aria-label="Disminuir cantidad">−</a>
-
-                            {{ item.cantidad }}
-
-                            <a class="btn-link btn-cant pequeno"
-                               href="{{ url_for('agregar_carrito',
-                                           id_producto=item.producto.id_producto) }}"
-                               aria-label="Aumentar cantidad">+</a>
-
-                        </span>
-
-                    </td>
-
-                    <td data-label="Precio">
-                        ${{ item.producto.precio }}
-                    </td>
-
-                    <td data-label="Subtotal">
-                        ${{ item.subtotal }}
-                    </td>
-
-                    <td class="acciones" data-label="Acciones">
-
-                        <a class="btn-link pequeno peligro"
-                           href="{{ url_for('disminuir_carrito',
-                                           id_producto=item.producto.id_producto) }}">
-                            <i class="fa-solid fa-trash"></i>Eliminar
-                        </a>
-
-                    </td>
-
-                </tr>
-
+                    <a class="btn-link btn-cant pequeno"
+                       href="{{ url_for(
+                           'modificar_paquete_carrito',
+                           grupo_paquete=item.grupo_paquete,
+                           accion='aumentar'
+                       ) }}">+</a>
                 {% else %}
+                    <a class="btn-link btn-cant pequeno"
+                       href="{{ url_for(
+                           'disminuir_carrito',
+                           id_producto=item.producto.id_producto
+                       ) }}">−</a>
 
-                <tr class="vacio">
-                    <td colspan="5">
-                        El carrito está vacío.
-                    </td>
-                </tr>
+                    {{ item.cantidad }}
 
-                {% endfor %}
+                    <a class="btn-link btn-cant pequeno"
+                       href="{{ url_for(
+                           'agregar_carrito',
+                           id_producto=item.producto.id_producto
+                       ) }}">+</a>
+                {% endif %}
 
-            </tbody>
+            </span>
+        </td>
+
+        <td data-label="Precio">
+            {% if item.precio_original > item.precio_unitario %}
+                <span style="text-decoration:line-through;color:#94a3b8;">
+                    ${{ "%.2f"|format(item.precio_original) }}
+                </span>
+                <br>
+            {% endif %}
+
+            ${{ "%.2f"|format(item.precio_unitario) }}
+        </td>
+
+        <td data-label="Subtotal">
+            ${{ "%.2f"|format(item.subtotal) }}
+        </td>
+
+        <td class="acciones" data-label="Acciones">
+            {% if item.es_paquete %}
+                <a class="btn-link pequeno peligro"
+                   href="{{ url_for(
+                       'modificar_paquete_carrito',
+                       grupo_paquete=item.grupo_paquete,
+                       accion='eliminar'
+                   ) }}">
+                    <i class="fa-solid fa-trash"></i>
+                    Eliminar paquete
+                </a>
+            {% else %}
+                <a class="btn-link pequeno peligro"
+                   href="{{ url_for(
+                       'eliminar_carrito',
+                       id_producto=item.producto.id_producto
+                   ) }}">
+                    <i class="fa-solid fa-trash"></i>
+                    Eliminar
+                </a>
+            {% endif %}
+        </td>
+    </tr>
+    {% else %}
+    <tr class="vacio">
+        <td colspan="5">El carrito está vacío.</td>
+    </tr>
+    {% endfor %}
+</tbody>
 
             <tfoot>
 

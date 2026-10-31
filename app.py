@@ -525,7 +525,8 @@ def editarPerfil(id_cliente):
             "nombre": cliente.get("nombre", ""),
             "correo": cliente.get("correo", ""),
             "numero_telefono": cliente.get("telefono", ""),
-            "contraseña": cliente.get("contraseña", "")
+            "contraseña": cliente.get("contraseña", ""),
+            "direccion": cliente.get("direccion", "")
         }
     )
 
@@ -538,7 +539,8 @@ def editarPerfil(id_cliente):
                 clienteForm.nombre.data,
                 clienteForm.correo.data,
                 clienteForm.numero_telefono.data,
-                clienteForm.contraseña.data
+                clienteForm.contraseña.data,
+                clienteForm.direccion.data
             )
 
             if not actualizado:
@@ -1977,51 +1979,71 @@ def detalle_producto(id_producto):
 def agregar_carrito(id_producto):
 
     if 'cliente' not in session:
-
-        return redirect(
-            url_for('login')
-        )
+        return redirect(url_for('login'))
 
     id_cliente = session['cliente']
-
-    producto = obtener_producto(
-        id_producto
-    )
+    producto = obtener_producto(id_producto)
 
     if producto is None:
+        return 'Producto no encontrado', 404
 
-        return "Producto no encontrado", 404
+    carrito = obtener_carrito(id_cliente)
 
-    agregar_al_carrito(
-        id_cliente,
-        id_producto
+    stock = int(
+        producto.get('cantidad', producto.get('cantida', 0)) or 0
     )
 
-    return redirect(
-        url_for('miCarrito')
+    linea = next(
+        (
+            item for item in carrito
+            if str(item.get('id_producto')) == str(id_producto)
+            and not item.get('grupo_paquete')
+        ),
+        None
     )
+
+    cantidad_actual = int(linea.get('cantidad', 1)) if linea else 0
+
+    if cantidad_actual + 1 > stock:
+        return f"Inventario insuficiente. Disponibles: {stock}.", 400
+
+    if linea:
+        linea['cantidad'] = cantidad_actual + 1
+    else:
+        carrito.append({
+            'id_producto': int(id_producto),
+            'cantidad': 1
+        })
+
+    _guardar_carrito_cliente(id_cliente, carrito)
+    return redirect(url_for('miCarrito'))
 
 
 @app.route('/carrito/disminuir/<id_producto>')
 def disminuir_carrito(id_producto):
 
     if 'cliente' not in session:
-
-        return redirect(
-            url_for('login')
-        )
+        return redirect(url_for('login'))
 
     id_cliente = session['cliente']
+    carrito = obtener_carrito(id_cliente)
 
-    disminuir_del_carrito(
-        id_cliente,
-        id_producto
-    )
+    for item in carrito:
+        if (
+            str(item.get('id_producto')) == str(id_producto)
+            and not item.get('grupo_paquete')
+        ):
+            cantidad = int(item.get('cantidad', 1)) - 1
 
-    return redirect(
-        url_for('miCarrito')
-    )
+            if cantidad > 0:
+                item['cantidad'] = cantidad
+            else:
+                carrito.remove(item)
 
+            break
+
+    _guardar_carrito_cliente(id_cliente, carrito)
+    return redirect(url_for('miCarrito'))
 
 @app.route('/carrito/vaciar')
 def vaciar_carrito_route():
@@ -2047,66 +2069,71 @@ def vaciar_carrito_route():
 def miCarrito():
 
     if 'cliente' not in session:
-
-        return redirect(
-            url_for('login')
-        )
+        return redirect(url_for('login'))
 
     id_cliente = session['cliente']
-
-    carrito = obtener_carrito(
-        id_cliente
-    )
+    carrito = obtener_carrito(id_cliente)
 
     productos_carrito = []
-
-    total = 0
+    total = 0.0
 
     for item in carrito:
+        producto = obtener_producto(item.get('id_producto'))
 
-        producto = obtener_producto(
-            item["id_producto"]
-        )
+        if producto is None:
+            continue
 
-        if producto is not None:
+        cantidad = int(item.get('cantidad', 1))
+        precio_original = _precio_numero(producto.get('precio'))
 
-            cantidad = int(
-                item.get(
-                    "cantidad",
-                    1
+        if item.get('grupo_paquete'):
+            promocion = _promocion_vigente_por_id(
+                item.get('id_promocion')
+            )
+
+            if promocion and promocion.get('tipo') == 'paquete':
+                porcentaje = _precio_numero(promocion.get('porcentaje'))
+                precio = round(
+                    precio_original * (1 - porcentaje / 100), 2
                 )
-            )
-
-            precio = float(
-                producto.get(
-                    "precio",
-                    0
+            else:
+                precio = precio_original
+        else:
+            precio, promo_aplicada, _ = calcular_precio_promocional(
+                    producto, id_cliente, cantidad
                 )
-            )
+            precio = _precio_numero(precio)
 
-            subtotal = (
-                cantidad * precio
-            )
+        subtotal = round(precio * cantidad, 2)
 
-            productos_carrito.append({
+        productos_carrito.append({
+            'producto': producto,
+            'cantidad': cantidad,
+            'subtotal': subtotal,
+            'precio_unitario': precio,
+            'precio_original': precio_original,
+            'ahorro': round(
+                max(0, precio_original - precio) * cantidad, 2
+            ),
+            'grupo_paquete': item.get('grupo_paquete'),
+            'nombre_promocion': (
+    item.get('nombre_promocion')
+    or (
+        promo_aplicada.get('nombre')
+        if not item.get('grupo_paquete')
+           and promo_aplicada
+        else None
+    )
+),
+            'es_paquete': bool(item.get('grupo_paquete'))
+        })
 
-                "producto": producto,
-
-                "cantidad": cantidad,
-
-                "subtotal": subtotal
-
-            })
-
-            total += subtotal
+        total += subtotal
 
     return render_template(
-
-        "MiCarrito.html",
-
+        'MiCarrito.html',
         carrito=productos_carrito,
-
-        total=total
+        total=round(total, 2)
     )
 
 
@@ -2114,21 +2141,22 @@ def miCarrito():
 def eliminar_carrito(id_producto):
 
     if 'cliente' not in session:
-
-        return redirect(
-            url_for('login')
-        )
+        return redirect(url_for('login'))
 
     id_cliente = session['cliente']
+    carrito = obtener_carrito(id_cliente)
 
-    disminuir_del_carrito(
-        id_cliente,
-        id_producto
-    )
+    # Eliminar solamente la línea normal, nunca un componente de paquete.
+    carrito = [
+        item for item in carrito
+        if not (
+            str(item.get('id_producto')) == str(id_producto)
+            and not item.get('grupo_paquete')
+        )
+    ]
 
-    return redirect(
-        url_for('miCarrito')
-    )
+    _guardar_carrito_cliente(id_cliente, carrito)
+    return redirect(url_for('miCarrito'))
 
 
 @app.route('/comprar')
@@ -2137,223 +2165,125 @@ def Comprar():
     if 'cliente' not in session:
         return redirect(url_for('login'))
 
-    id_cliente = session['cliente']
-
-    carrito = obtener_carrito(id_cliente)
+    try:
+        carrito, productos_carrito, total = _preparar_carrito_checkout(
+            session['cliente']
+        )
+    except ValueError as error:
+        return str(error), 400
 
     if not carrito:
         return redirect(url_for('miCarrito'))
 
-    productos_carrito = []
-    total = 0
-
-    # ========================================================
-    # VERIFICAR INVENTARIO Y PREPARAR RESUMEN
-    # ========================================================
-
-    for item in carrito:
-
-        id_producto = item["id_producto"]
-
-        cantidad = int(
-            item.get(
-                "cantidad",
-                1
-            )
-        )
-
-        producto = obtener_producto(
-            id_producto
-        )
-
-        if producto is None:
-            return "Producto no encontrado", 404
-
-        stock = int(
-            producto.get(
-                "cantidad",
-                producto.get(
-                    "cantida",
-                    0
-                )
-            )
-        )
-
-        # Verificar inventario
-        if cantidad > stock:
-
-            return (
-                f"No hay suficiente inventario de "
-                f"{producto.get('nombre_producto', 'producto')}. "
-                f"Solo quedan {stock} unidades."
-            ), 400
-
-        precio_original = float(producto.get("precio", 0) or 0)
-        precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
-            producto, id_cliente, cantidad
-        )
-        subtotal = round(precio * cantidad, 2)
-
-        productos_carrito.append({
-            "producto": producto,
-            "cantidad": cantidad,
-            "subtotal": subtotal,
-            "precio_unitario": precio,
-            "precio_original": precio_original,
-            "promocion_aplicada": promo_aplicada,
-            "ahorro": round(ahorro_unitario * cantidad, 2),
-            "stock": stock
-        })
-
-        total += subtotal
-
-    # ========================================================
-    # MOSTRAR PÁGINA DE CONFIRMACIÓN
-    # ========================================================
-
     return render_template(
-        "confirmar_compra.html",
+        'confirmar_compra.html',
         carrito=productos_carrito,
         total=total,
-        ahorro=sum(item.get("ahorro", 0) for item in productos_carrito)
+        ahorro=round(
+            sum(item.get('ahorro', 0) for item in productos_carrito), 2
+        ),
+        cliente=obtener_cliente(session['cliente']) or {}
     )
+
+
+def _datos_entrega_pago(id_cliente):
+    cliente = obtener_cliente(id_cliente) or {}
+    direccion = (request.form.get("direccion") or cliente.get("direccion") or "").strip()
+    metodo_pago = (request.form.get("metodo_pago") or "").strip().lower()
+    metodos = {"efectivo": "Efectivo", "transferencia": "Transferencia", "tarjeta": "Tarjeta (simulada)"}
+    if len(direccion) < 10 or len(direccion) > 300:
+        raise ValueError("Ingresa una dirección de entrega válida (10 a 300 caracteres).")
+    if metodo_pago not in metodos:
+        raise ValueError("Selecciona un método de pago válido.")
+    return direccion, metodos[metodo_pago]
+
+
+def _registrar_pedido(id_cliente, lineas, direccion, metodo_pago, id_promocion=None):
+    """Valida todo el stock antes de modificarlo y registra cada producto por separado."""
+    if not lineas:
+        raise ValueError("No hay productos para procesar.")
+
+    # Validación completa previa: ningún producto se procesa si otro no tiene stock.
+    for linea in lineas:
+        producto = linea.get("producto", linea)
+        pid = producto.get("id_producto")
+        cantidad = int(linea.get("cantidad", 0))
+        actual = obtener_producto(pid)
+        if actual is None:
+            raise ValueError("Uno de los productos ya no está disponible.")
+        stock = int(actual.get("cantidad", actual.get("cantida", 0)) or 0)
+        if cantidad < 1 or cantidad > stock:
+            raise ValueError(f"Inventario insuficiente para {actual.get('nombre_producto', 'un producto')}. Disponibles: {stock}.")
+        linea["_producto_actual"] = actual
+
+    folio = "PV-" + datetime.now().strftime("%Y%m%d") + "-" + __import__("uuid").uuid4().hex[:8].upper()
+
+    # Descontar inventario solamente después de validar todas las líneas.
+    for linea in lineas:
+        producto = linea.get("_producto_actual") or linea.get("producto", linea)
+        if not actualizar_inventario(producto.get("id_producto"), int(linea["cantidad"])):
+            raise ValueError(f"No se pudo actualizar el inventario de {producto.get('nombre_producto', 'un producto')}. Vuelve a intentar.")
+
+    cliente = obtener_cliente(id_cliente) or {}
+    total = 0.0
+    ahorro = 0.0
+    for linea in lineas:
+        producto = linea.get("_producto_actual") or linea.get("producto", linea)
+        precio = float(linea.get("precio_unitario", linea.get("precio_final", producto.get("precio", 0))) or 0)
+        cantidad = int(linea["cantidad"])
+        registrar_venta(
+            id_cliente, producto.get("id_producto"), cantidad, precio,
+            producto_nombre=producto.get("nombre_producto"),
+            cliente_nombre=cliente.get("nombre"),
+            folio=folio,
+            metodo_pago=metodo_pago
+        )
+        linea["subtotal"] = round(precio * cantidad, 2)
+        linea["precio_unitario"] = precio
+        linea["producto"] = producto
+        total += linea["subtotal"]
+        ahorro += float(linea.get("ahorro", 0) or 0)
+
+    pedido = {
+        "folio": folio, "id_cliente": str(id_cliente),
+        "direccion": direccion, "metodo_pago": metodo_pago,
+        "total": round(total, 2), "ahorro": round(ahorro, 2),
+        "fecha": datetime.now().isoformat(timespec="seconds"),
+        "estado": "Registrado"
+    }
+    firestore_db.collection("pedidos").document(folio).set(pedido)
+    # La dirección queda como predeterminada para próximas compras.
+    firestore_db.collection("clientes").document(str(id_cliente)).update({"direccion": direccion})
+    return pedido
+
 
 @app.route('/confirmar-compra-carrito', methods=['POST'])
 def confirmar_compra_carrito():
-
     if 'cliente' not in session:
         return redirect(url_for('login'))
-
     id_cliente = session['cliente']
+    try:
+        direccion, metodo_pago = _datos_entrega_pago(id_cliente)
+        carrito, lineas, total = _preparar_carrito_checkout(id_cliente)
+        if not carrito:
+            return redirect(url_for('miCarrito'))
+        pedido = _registrar_pedido(id_cliente, lineas, direccion, metodo_pago)
+        for linea in lineas:
+            promo = linea.get("promocion_aplicada")
+            if promo and promo.get("tipo") == "bienvenida":
+                firestore_db.collection("usos_promociones").document(f"{promo.get('id')}_{id_cliente}").set({
+                    "id_promocion": str(promo.get("id")), "id_cliente": str(id_cliente),
+                    "usada_en": datetime.now().isoformat(timespec="seconds")
+                })
+        vaciar_carrito(id_cliente)
+        return render_template("compra_exitosa.html", carrito=lineas, total=pedido["total"],
+                               ahorro=pedido["ahorro"], pedido=pedido)
+    except ValueError as error:
+        return str(error), 400
+    except Exception as error:
+        print("Error al confirmar carrito:", error)
+        return "No se pudo completar la compra. No vuelvas a enviarla; revisa el historial antes de intentar otra vez.", 500
 
-    carrito = obtener_carrito(id_cliente)
-
-    if not carrito:
-        return redirect(url_for('miCarrito'))
-
-    productos_carrito = []
-    total = 0
-
-    # ========================================================
-    # 1. VERIFICAR INVENTARIO NUEVAMENTE
-    # ========================================================
-
-    for item in carrito:
-
-        id_producto = item["id_producto"]
-
-        cantidad = int(
-            item.get(
-                "cantidad",
-                1
-            )
-        )
-
-        producto = obtener_producto(
-            id_producto
-        )
-
-        if producto is None:
-            return "Producto no encontrado", 404
-
-        stock = int(
-            producto.get(
-                "cantidad",
-                producto.get(
-                    "cantida",
-                    0
-                )
-            )
-        )
-
-        if cantidad > stock:
-
-            return (
-                f"No hay suficiente inventario de "
-                f"{producto.get('nombre_producto', 'producto')}. "
-                f"Solo quedan {stock} unidades."
-            ), 400
-
-        precio_original = float(producto.get("precio", 0) or 0)
-        precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
-            producto, id_cliente, cantidad
-        )
-        subtotal = round(precio * cantidad, 2)
-        total += subtotal
-
-        productos_carrito.append({
-            "producto": producto,
-            "cantidad": cantidad,
-            "subtotal": subtotal,
-            "precio_unitario": precio,
-            "precio_original": precio_original,
-            "promocion_aplicada": promo_aplicada,
-            "ahorro": round(ahorro_unitario * cantidad, 2)
-        })
-
-    # ========================================================
-    # 2. REGISTRAR TODAS LAS VENTAS
-    # ========================================================
-
-    for item, item_calculado in zip(carrito, productos_carrito):
-
-        id_producto = item["id_producto"]
-        cantidad = int(item.get("cantidad", 1))
-        producto = item_calculado["producto"]
-        precio = float(item_calculado["precio_unitario"])
-        promo_aplicada = item_calculado.get("promocion_aplicada")
-
-        registrar_venta(
-            id_cliente,
-            id_producto,
-            cantidad,
-            precio,
-            producto_nombre=producto.get("nombre_producto")
-        )
-
-        if promo_aplicada and promo_aplicada.get("tipo") == "bienvenida":
-            firestore_db.collection("usos_promociones").document(
-                f'{promo_aplicada.get("id")}_{id_cliente}'
-            ).set({
-                "id_promocion": str(promo_aplicada.get("id")),
-                "id_cliente": str(id_cliente),
-                "usada_en": datetime.now().isoformat(timespec="seconds")
-            })
-
-        # ====================================================
-        # 3. DESCONTAR INVENTARIO
-        # ====================================================
-
-        inventario_actualizado = actualizar_inventario(
-            id_producto,
-            cantidad
-        )
-
-        if not inventario_actualizado:
-
-            return (
-                f"No se pudo actualizar el inventario de "
-                f"{producto.get('nombre_producto', 'producto')}"
-            ), 400
-
-    # ========================================================
-    # 4. VACIAR CARRITO
-    # ========================================================
-
-    vaciar_carrito(
-        id_cliente
-    )
-
-    # ========================================================
-    # 5. MOSTRAR COMPRA EXITOSA
-    # ========================================================
-
-    return render_template(
-        "compra_exitosa.html",
-        carrito=productos_carrito,
-        total=total,
-        ahorro=sum(item.get("ahorro", 0) for item in productos_carrito)
-    )
 
 # ============================================================
 # COMPRAR AHORA
@@ -2428,132 +2358,46 @@ def comprar_ahora(id_producto):
         precio_unitario=precio_promocional,
         precio_original=precio_original,
         promocion_aplicada=promo_aplicada,
-        ahorro=round(ahorro_unitario * cantidad, 2)
+        ahorro=round(ahorro_unitario * cantidad, 2),
+        cliente=obtener_cliente(session.get('cliente')) or {}
     )
 
 
 @app.route('/confirmar-compra/<id_producto>', methods=['POST'])
 def confirmar_compra(id_producto):
-
     if 'cliente' not in session:
-
-        return redirect(
-            url_for('login')
-        )
-
-    id_cliente = session['cliente']
-
-    cantidad = request.form.get(
-        'cantidad',
-        1
-    )
-
+        return redirect(url_for('login'))
     try:
+        id_cliente = session['cliente']
+        direccion, metodo_pago = _datos_entrega_pago(id_cliente)
+        cantidad = int(request.form.get("cantidad", 1))
+        if cantidad < 1:
+            raise ValueError("La cantidad debe ser mayor que cero.")
+        producto = obtener_producto(id_producto)
+        if producto is None:
+            return "Producto no encontrado", 404
+        precio, promo, ahorro_unitario = calcular_precio_promocional(producto, id_cliente, cantidad)
+        linea = {
+            "producto": producto, "cantidad": cantidad,
+            "precio_unitario": float(precio),
+            "precio_original": float(producto.get("precio", 0) or 0),
+            "ahorro": round(float(ahorro_unitario or 0) * cantidad, 2)
+        }
+        pedido = _registrar_pedido(id_cliente, [linea], direccion, metodo_pago)
+        if promo and promo.get("tipo") == "bienvenida":
+            firestore_db.collection("usos_promociones").document(f'{promo.get("id")}_{id_cliente}').set({
+                "id_promocion": str(promo.get("id")), "id_cliente": str(id_cliente),
+                "usada_en": datetime.now().isoformat(timespec="seconds")
+            })
+        return render_template("compra_exitosa.html", producto=producto, cantidad=cantidad,
+                               total=pedido["total"], ahorro=pedido["ahorro"],
+                               promocion=promo, pedido=pedido)
+    except ValueError as error:
+        return str(error), 400
+    except Exception as error:
+        print("Error al confirmar compra directa:", error)
+        return "No se pudo completar la compra. Revisa tu historial antes de volver a intentarlo.", 500
 
-        cantidad = int(cantidad)
-
-    except (TypeError, ValueError):
-
-        return "Cantidad inválida", 400
-
-    if cantidad <= 0:
-
-        return "Cantidad inválida", 400
-
-
-    # ========================================================
-    # OBTENER PRODUCTO ACTUAL
-    # ========================================================
-
-    producto = obtener_producto(
-        id_producto
-    )
-
-    if producto is None:
-
-        return "Producto no encontrado", 404
-
-
-    # ========================================================
-    # VERIFICAR INVENTARIO ACTUAL
-    # ========================================================
-
-    stock = int(
-        producto.get(
-            'cantidad',
-            producto.get(
-                'cantida',
-                0
-            )
-        )
-    )
-
-    if cantidad > stock:
-
-        return (
-            f"No hay suficiente inventario. "
-            f"Solo quedan {stock} unidades."
-        ), 400
-
-
-    precio_original = float(producto.get('precio', 0) or 0)
-    precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
-        producto, id_cliente, cantidad
-    )
-
-
-    # ========================================================
-    # REGISTRAR VENTA
-    # ========================================================
-
-    registrar_venta(
-        id_cliente,
-        id_producto,
-        cantidad,
-        precio,
-        producto_nombre=producto.get(
-            'nombre_producto'
-        )
-    )
-
-
-    # ========================================================
-    # DESCONTAR INVENTARIO
-    # ========================================================
-
-    inventario_actualizado = actualizar_inventario(
-        id_producto,
-        cantidad
-    )
-
-    if not inventario_actualizado:
-
-        return (
-            "No se pudo actualizar el inventario."
-        ), 400
-
-    if promo_aplicada and promo_aplicada.get("tipo") == "bienvenida":
-        firestore_db.collection("usos_promociones").document(
-            f'{promo_aplicada.get("id")}_{id_cliente}'
-        ).set({
-            "id_promocion": str(promo_aplicada.get("id")),
-            "id_cliente": str(id_cliente),
-            "usada_en": datetime.now().isoformat(timespec="seconds")
-        })
-
-
-    # ========================================================
-    # COMPRA EXITOSA
-    # ========================================================
-
-    return render_template(
-        'compra_exitosa.html',
-        producto=producto,
-        cantidad=cantidad,
-        total=precio * cantidad,
-        ahorro=ahorro_unitario * cantidad,
-        promocion=promo_aplicada
-    )
 
 # ============================================================
 # CONSULTAS GENERALES
@@ -3157,6 +3001,364 @@ def _promocion_vigente_por_id(id_promocion):
             return p
     return None
 
+def _guardar_carrito_cliente(id_cliente, productos):
+    """Guarda las líneas del carrito directamente en Firestore."""
+    firestore_db.collection('carritos').document(str(id_cliente)).set({
+        'id_cliente': int(id_cliente),
+        'productos': productos
+    })
+
+
+def _cantidad_paquete_en_carrito(carrito, grupo_paquete):
+    return sum(
+        int(item.get('cantidad', 1))
+        for item in carrito
+        if item.get('grupo_paquete') == grupo_paquete
+    )
+
+
+def _preparar_carrito_checkout(id_cliente):
+    """
+    Prepara todas las líneas del carrito.
+    Los paquetes conservan su descuento y no reciben otro descuento individual.
+    """
+    carrito = obtener_carrito(id_cliente)
+    productos_calculados = []
+    total = 0.0
+
+    for item in carrito:
+        id_producto = item.get('id_producto')
+        cantidad = int(item.get('cantidad', 1))
+
+        if cantidad <= 0:
+            raise ValueError('Hay una cantidad inválida en el carrito.')
+
+        producto = obtener_producto(id_producto)
+
+        if producto is None:
+            raise ValueError('Uno de los productos del carrito ya no existe.')
+
+        stock = int(
+            producto.get('cantidad', producto.get('cantida', 0)) or 0
+        )
+
+        if cantidad > stock:
+            raise ValueError(
+                f"No hay suficiente inventario de "
+                f"{producto.get('nombre_producto', 'producto')}. "
+                f"Disponibles: {stock}."
+            )
+
+        precio_original = _precio_numero(producto.get('precio'))
+
+        # -----------------------------------------
+        # PRODUCTO PERTENECIENTE A UN PAQUETE
+        # -----------------------------------------
+        if item.get('grupo_paquete'):
+            id_promocion = item.get('id_promocion')
+            promocion = _promocion_vigente_por_id(id_promocion)
+
+            if not promocion or promocion.get('tipo') != 'paquete':
+                raise ValueError(
+                    f"La promoción {item.get('nombre_promocion', '')} "
+                    "ya no está vigente. Elimina el paquete del carrito "
+                    "y vuelve a agregarlo si sigue disponible."
+                )
+
+            productos_promocion = _productos_de_promocion(promocion)
+            ids_validos = {
+                str(p.get('id_producto')) for p in productos_promocion
+            }
+
+            if str(id_producto) not in ids_validos:
+                raise ValueError(
+                    'La composición de un paquete cambió. '
+                    'Elimina el paquete y agrégalo nuevamente.'
+                )
+
+            porcentaje = _precio_numero(promocion.get('porcentaje'))
+            precio = round(
+                max(0, precio_original * (1 - porcentaje / 100)), 2
+            )
+            promo_aplicada = {
+                'id': str(id_promocion),
+                'nombre': promocion.get('nombre', 'Paquete promocional'),
+                'tipo': 'paquete'
+            }
+
+        # -----------------------------------------
+        # PRODUCTO NORMAL
+        # -----------------------------------------
+        else:
+            precio, promo_aplicada, ahorro_unitario = calcular_precio_promocional(
+                producto, id_cliente, cantidad
+            )
+            precio = _precio_numero(precio)
+
+        subtotal = round(precio * cantidad, 2)
+        ahorro = round((precio_original - precio) * cantidad, 2)
+
+        productos_calculados.append({
+            'producto': producto,
+            'cantidad': cantidad,
+            'subtotal': subtotal,
+            'precio_unitario': precio,
+            'precio_original': precio_original,
+            'promocion_aplicada': promo_aplicada,
+            'ahorro': max(0, ahorro),
+            'stock': stock,
+            'grupo_paquete': item.get('grupo_paquete'),
+            'nombre_promocion': (
+    item.get('nombre_promocion')
+    or (
+        promo_aplicada.get('nombre')
+        if promo_aplicada
+        else None
+    )
+)
+        })
+
+        total += subtotal
+
+    return carrito, productos_calculados, round(total, 2)
+
+@app.route('/carrito/agregar-promocion/<id_promocion>', methods=['POST'])
+def agregar_promocion_carrito(id_promocion):
+
+    if 'cliente' not in session:
+        session['next_url'] = url_for(
+            'detalle_promocion',
+            id_promocion=id_promocion
+        )
+        return redirect(url_for('login'))
+
+    promocion = _promocion_vigente_por_id(id_promocion)
+
+    if not promocion or promocion.get('tipo') != 'paquete':
+        return 'El paquete ya no está disponible.', 400
+
+    try:
+        cantidad = int(request.form.get('cantidad', 1))
+    except (TypeError, ValueError):
+        return 'Cantidad inválida.', 400
+
+    if cantidad < 1:
+        return 'La cantidad debe ser al menos 1.', 400
+
+    productos = _productos_de_promocion(promocion)
+
+    if len(productos) < 2:
+        return 'El paquete no contiene suficientes productos.', 400
+
+    id_cliente = session['cliente']
+    carrito = obtener_carrito(id_cliente)
+
+    grupo = f"paquete_{id_promocion}"
+    cantidad_actual = _cantidad_paquete_en_carrito(carrito, grupo)
+    cantidad_nueva = cantidad_actual + cantidad
+
+    # Validar todos los productos antes de guardar cambios.
+    for producto in productos:
+        stock = int(
+            producto.get('cantidad', producto.get('cantida', 0)) or 0
+        )
+
+        if cantidad_nueva > stock:
+            return (
+                f"No hay suficiente inventario de "
+                f"{producto.get('nombre_producto', 'producto')}. "
+                f"Disponibles: {stock}."
+            ), 400
+
+    # Actualizar o agregar cada componente del paquete.
+    for producto in productos:
+        id_producto = str(producto.get('id_producto'))
+
+        linea_existente = next(
+            (
+                item for item in carrito
+                if str(item.get('id_producto')) == id_producto
+                and item.get('grupo_paquete') == grupo
+            ),
+            None
+        )
+
+        if linea_existente:
+            linea_existente['cantidad'] = cantidad_nueva
+        else:
+            carrito.append({
+                'id_producto': producto.get('id_producto'),
+                'cantidad': cantidad_nueva,
+                'grupo_paquete': grupo,
+                'id_promocion': str(id_promocion),
+                'nombre_promocion': promocion.get(
+                    'nombre', 'Paquete promocional'
+                )
+            })
+
+    _guardar_carrito_cliente(id_cliente, carrito)
+
+    return redirect(url_for('miCarrito'))
+
+@app.route('/carrito/agregar-oferta/<id_promocion>', methods=['POST'])
+def agregar_oferta_carrito(id_promocion):
+
+    if 'cliente' not in session:
+        session['next_url'] = url_for(
+            'detalle_promocion',
+            id_promocion=id_promocion
+        )
+        return redirect(url_for('login'))
+
+    promocion = _promocion_vigente_por_id(id_promocion)
+
+    if not promocion:
+        return 'La promoción ya no está vigente.', 400
+
+    tipo = promocion.get('tipo')
+
+    # Esta ruta es exclusivamente para ofertas individuales.
+    if tipo not in ('porcentaje', 'cantidad'):
+        return 'Esta promoción no es individual.', 400
+
+    productos = _productos_de_promocion(promocion)
+
+    if len(productos) != 1:
+        return 'La oferta debe tener un solo producto.', 400
+
+    producto = productos[0]
+
+    try:
+        cantidad = int(request.form.get('cantidad', 1))
+    except (TypeError, ValueError):
+        return 'Cantidad inválida.', 400
+
+    if cantidad < 1:
+        return 'La cantidad debe ser mayor que cero.', 400
+
+    # Validar cantidad mínima para promociones por cantidad.
+    if tipo == 'cantidad':
+        minimo = int(promocion.get('cantidad_minima', 2) or 2)
+
+        if cantidad < minimo:
+            return f'Debes agregar al menos {minimo} unidades.', 400
+
+    id_cliente = session['cliente']
+    id_producto = str(producto.get('id_producto'))
+
+    carrito = obtener_carrito(id_cliente)
+
+    # Buscar solamente la línea normal del producto.
+    linea = next(
+        (
+            item for item in carrito
+            if str(item.get('id_producto')) == id_producto
+            and not item.get('grupo_paquete')
+        ),
+        None
+    )
+
+    cantidad_actual = (
+        int(linea.get('cantidad', 1))
+        if linea else 0
+    )
+
+    cantidad_nueva = cantidad_actual + cantidad
+
+    stock = int(
+        producto.get('cantidad', producto.get('cantida', 0)) or 0
+    )
+
+    if cantidad_nueva > stock:
+        return (
+            f"No hay suficiente inventario de "
+            f"{producto.get('nombre_producto', 'producto')}. "
+            f"Disponibles: {stock}."
+        ), 400
+
+    if linea:
+        linea['cantidad'] = cantidad_nueva
+    else:
+        carrito.append({
+            'id_producto': producto.get('id_producto'),
+            'cantidad': cantidad_nueva
+        })
+
+    _guardar_carrito_cliente(id_cliente, carrito)
+
+    return redirect(url_for('miCarrito'))
+
+@app.route('/carrito/paquete/<path:grupo_paquete>/<accion>')
+def modificar_paquete_carrito(grupo_paquete, accion):
+
+    if 'cliente' not in session:
+        return redirect(url_for('login'))
+
+    if accion not in ('aumentar', 'disminuir', 'eliminar'):
+        return 'Acción no válida.', 400
+
+    id_cliente = session['cliente']
+    carrito = obtener_carrito(id_cliente)
+
+    lineas_paquete = [
+        item for item in carrito
+        if item.get('grupo_paquete') == grupo_paquete
+    ]
+
+    if not lineas_paquete:
+        return redirect(url_for('miCarrito'))
+
+    if accion == 'eliminar':
+        carrito = [
+            item for item in carrito
+            if item.get('grupo_paquete') != grupo_paquete
+        ]
+
+    else:
+        cantidad_actual = int(lineas_paquete[0].get('cantidad', 1))
+        nueva_cantidad = (
+            cantidad_actual + 1
+            if accion == 'aumentar'
+            else cantidad_actual - 1
+        )
+
+        if nueva_cantidad < 1:
+            return redirect(
+                url_for(
+                    'modificar_paquete_carrito',
+                    grupo_paquete=grupo_paquete,
+                    accion='eliminar'
+                )
+            )
+
+        # Antes de aumentar, verificar stock de todos los componentes.
+        if accion == 'aumentar':
+            for item in lineas_paquete:
+                producto = obtener_producto(item.get('id_producto'))
+
+                if producto is None:
+                    return 'Uno de los productos del paquete ya no existe.', 400
+
+                stock = int(
+                    producto.get(
+                        'cantidad',
+                        producto.get('cantida', 0)
+                    ) or 0
+                )
+
+                if nueva_cantidad > stock:
+                    return (
+                        f"No hay suficiente inventario de "
+                        f"{producto.get('nombre_producto', 'producto')}. "
+                        f"Disponibles: {stock}."
+                    ), 400
+
+        for item in carrito:
+            if item.get('grupo_paquete') == grupo_paquete:
+                item['cantidad'] = nueva_cantidad
+
+    _guardar_carrito_cliente(id_cliente, carrito)
+    return redirect(url_for('miCarrito'))
 
 @app.route('/promocion/<id_promocion>')
 def detalle_promocion(id_promocion):
@@ -3181,7 +3383,8 @@ def detalle_promocion(id_promocion):
         'detalle_promocion.html', promocion=promocion, productos=productos,
         total_original=total_original, total_promocional=max(0, total_promocional),
         porcentaje=porcentaje, cantidad_minima=minimo, disponible=disponible,
-        promocion_general=promocion_general
+        promocion_general=promocion_general,
+        cliente=obtener_cliente(session.get('cliente')) or {}
     )
 
 
@@ -3190,92 +3393,56 @@ def comprar_promocion(id_promocion):
     if 'cliente' not in session:
         session['next_url'] = url_for('detalle_promocion', id_promocion=id_promocion)
         return redirect(url_for('login'))
-
-    promocion = _promocion_vigente_por_id(id_promocion)
-    if not promocion:
-        return 'La promoción ya no está vigente.', 400
-
-    productos = _productos_de_promocion(promocion)
-    if not productos:
-        return 'La promoción no tiene productos disponibles.', 400
-
-    tipo = promocion.get('tipo')
-    porcentaje = _precio_numero(promocion.get('porcentaje'))
     try:
-        cantidad_solicitada = int(request.form.get('cantidad', 1))
-    except (TypeError, ValueError):
-        return 'Cantidad inválida.', 400
-    if cantidad_solicitada < 1:
-        return 'La cantidad debe ser al menos 1.', 400
-
-    if tipo == 'cantidad':
-        minimo = int(promocion.get('cantidad_minima', 2) or 2)
-        if cantidad_solicitada < minimo:
-            return f'Esta promoción requiere al menos {minimo} unidades.', 400
-        if len(productos) != 1:
-            return 'La promoción por cantidad debe estar asociada a un solo producto.', 400
-        cantidades = [cantidad_solicitada]
-    elif tipo == 'paquete':
-        # Cada paquete contiene una unidad de cada producto asociado.
-        cantidades = [cantidad_solicitada] * len(productos)
-    else:
-        if len(productos) != 1:
-            return 'Esta promoción debe estar asociada a un solo producto.', 400
-        cantidades = [cantidad_solicitada]
-
-    # Las promociones de bienvenida se limitan a un uso por cliente.
-    id_cliente = str(session['cliente'])
-    uso_ref = None
-    if tipo == 'bienvenida':
-        uso_ref = firestore_db.collection('usos_promociones').document(f'{id_promocion}_{id_cliente}')
-        if uso_ref.get().exists:
-            return 'Esta promoción de bienvenida ya fue utilizada por tu cuenta.', 400
-
-    lineas = []
-    total_original = 0.0
-    total_final = 0.0
-    for producto, cantidad in zip(productos, cantidades):
-        stock = int(producto.get('cantidad', producto.get('cantida', 0)) or 0)
-        if cantidad > stock:
-            return f"Inventario insuficiente para {producto.get('nombre_producto', 'producto')}. Disponibles: {stock}.", 400
-        precio = _precio_numero(producto.get('precio'))
-        descuento_aplicable = porcentaje
-        precio_final = round(max(0.0, precio * (1 - descuento_aplicable / 100)), 2)
-        subtotal_original = round(precio * cantidad, 2)
-        subtotal_final = round(precio_final * cantidad, 2)
-        lineas.append({
-            'producto': producto, 'cantidad': cantidad,
-            'precio_original': precio, 'precio_final': precio_final,
-            'subtotal_original': subtotal_original, 'subtotal': subtotal_final
-        })
-        total_original += subtotal_original
-        total_final += subtotal_final
-
-    # Revalidar stock antes de registrar cada línea. Los precios vienen de Firestore,
-    # nunca del formulario enviado por el navegador.
-    for linea in lineas:
-        producto = linea['producto']
-        ok = actualizar_inventario(producto.get('id_producto'), linea['cantidad'])
-        if not ok:
-            return f"No se pudo actualizar el inventario de {producto.get('nombre_producto', 'producto')}. Intenta de nuevo.", 400
-        registrar_venta(
-            id_cliente,
-            producto.get('id_producto'),
-            linea['cantidad'],
-            linea['precio_final'],
-            producto_nombre=producto.get('nombre_producto')
-        )
-
-    if uso_ref is not None:
-        uso_ref.set({
-            'id_promocion': str(id_promocion), 'id_cliente': id_cliente,
-            'usada_en': datetime.now().isoformat(timespec='seconds')
-        })
-
-    return render_template(
-        'compra_exitosa.html', carrito=lineas, total=round(total_final, 2),
-        promocion=promocion, ahorro=round(total_original-total_final, 2)
-    )
+        direccion, metodo_pago = _datos_entrega_pago(session["cliente"])
+        promocion = _promocion_vigente_por_id(id_promocion)
+        if not promocion:
+            raise ValueError("La promoción ya no está vigente.")
+        productos = _productos_de_promocion(promocion)
+        if not productos:
+            raise ValueError("La promoción no tiene productos disponibles.")
+        tipo = promocion.get("tipo")
+        cantidad = int(request.form.get("cantidad", 1))
+        if cantidad < 1:
+            raise ValueError("La cantidad debe ser al menos 1.")
+        if tipo == "cantidad":
+            minimo = int(promocion.get("cantidad_minima", 2) or 2)
+            if cantidad < minimo or len(productos) != 1:
+                raise ValueError(f"Esta promoción requiere al menos {minimo} unidades.")
+            cantidades = [cantidad]
+        elif tipo == "paquete":
+            cantidades = [cantidad] * len(productos)
+        else:
+            if len(productos) != 1:
+                raise ValueError("La promoción debe estar asociada a un solo producto.")
+            cantidades = [cantidad]
+        id_cliente = str(session["cliente"])
+        uso_ref = None
+        if tipo == "bienvenida":
+            uso_ref = firestore_db.collection("usos_promociones").document(f"{id_promocion}_{id_cliente}")
+            if uso_ref.get().exists:
+                raise ValueError("Esta promoción de bienvenida ya fue utilizada.")
+        lineas = []
+        for producto, unidades in zip(productos, cantidades):
+            precio_original = _precio_numero(producto.get("precio"))
+            precio_final = round(max(0, precio_original * (1 - _precio_numero(promocion.get("porcentaje")) / 100)), 2)
+            lineas.append({
+                "producto": producto, "cantidad": unidades,
+                "precio_unitario": precio_final, "precio_original": precio_original,
+                "ahorro": round((precio_original - precio_final) * unidades, 2),
+                "nombre_promocion": promocion.get("nombre")
+            })
+        pedido = _registrar_pedido(id_cliente, lineas, direccion, metodo_pago, id_promocion)
+        if uso_ref is not None:
+            uso_ref.set({"id_promocion": str(id_promocion), "id_cliente": id_cliente,
+                         "usada_en": datetime.now().isoformat(timespec="seconds")})
+        return render_template("compra_exitosa.html", carrito=lineas, total=pedido["total"],
+                               ahorro=pedido["ahorro"], promocion=promocion, pedido=pedido)
+    except ValueError as error:
+        return str(error), 400
+    except Exception as error:
+        print("Error al comprar promoción:", error)
+        return "No se pudo completar la compra de la promoción.", 500
 
 
 

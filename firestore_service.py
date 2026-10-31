@@ -472,7 +472,8 @@ def actualizar_perfil_cliente(
         nombre,
         correo,
         numero_telefono,
-        contraseña
+        contraseña,
+        direccion
 ):
     """
     Actualiza el perfil de un cliente.
@@ -489,7 +490,8 @@ def actualizar_perfil_cliente(
             "nombre": nombre,
             "correo": correo,
             "telefono": numero_telefono,
-            "contraseña": contraseña
+            "contraseña": contraseña,
+            "direccion": direccion
         })
 
         limpiar_cache_clientes()
@@ -855,7 +857,9 @@ def registrar_venta(
         id_empleado=None,
         producto_nombre=None,
         cliente_nombre=None,
-        empleado_nombre=None
+        empleado_nombre=None,
+        folio=None,
+        metodo_pago=None
 ):
     """
     Registra una venta en Firestore.
@@ -978,6 +982,12 @@ def registrar_venta(
         venta["empleado_nombre"] = str(
             empleado_nombre
         )
+
+    if folio:
+        venta["folio_pedido"] = str(folio)
+
+    if metodo_pago:
+        venta["metodo_pago"] = str(metodo_pago)
 
     # ========================================================
     # GUARDAR EN FIRESTORE
